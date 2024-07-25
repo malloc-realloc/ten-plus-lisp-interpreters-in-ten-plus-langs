@@ -57,3 +57,4 @@ results = []
 
 for expr in exprs:
     results.append(eval_expr(expr).value)
+    print(results[-1])
