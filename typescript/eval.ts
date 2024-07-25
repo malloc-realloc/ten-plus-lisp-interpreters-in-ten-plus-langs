@@ -1,6 +1,6 @@
 // eval.ts
 import { Expr, ExprType, Atom } from './ast';
-import { Obj, IntNumber, FloatNumber, Procedure, Bool, TRUE, FALSE, None_Obj, Error, ObjType, Lambda_Procedure } from './obj';
+import { Obj, IntNumber, FloatNumber, Procedure, Bool, TRUE, FALSE, None_Obj, Error, ObjType, Lambda_Procedure, LLM_EXPRObj } from './obj';
 import { Env } from './env';
 import { builtin_procedures, builtin_vars } from './builtins';
 
@@ -8,9 +8,39 @@ import { builtin_procedures, builtin_vars } from './builtins';
 export function evalExpr(env: Env, expr: Expr): Obj {
     if (expr.type === ExprType.ATOM) {
         return evalAtom(env, expr);
-    } else {
+    } else if (expr.type === ExprType.LLM_EXPR)  {
+        return evalLLMExpr(env, expr);
+    }
+    else {
         return evalListExpr(env, expr);
     }
+}
+
+function evalLLMExpr(env: Env, expr: Expr): Obj {
+  let new_literal: string = ""
+  for (let i = 0; i < expr.literal.length; i++) {
+    if (expr.literal[i] !== "[") {
+      new_literal += expr.literal[i]
+    } else  {
+      let varName = ""
+      i++ // skip [
+      for (let j = i; j  < expr.literal.length && expr.literal[j] !== "]"; j++) {
+          varName += expr.literal[j]
+          i++
+      }
+
+      console.log(varName)
+
+      let v: Obj | undefined = env.get(varName)
+      if (v === undefined) {
+        continue
+      } else {
+        new_literal += String(v.value)
+      }
+    }
+  }
+
+  return new LLM_EXPRObj(new Expr(ExprType.LLM_EXPR, new_literal))
 }
 
 // most of running time is spent here.

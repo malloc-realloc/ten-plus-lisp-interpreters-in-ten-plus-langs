@@ -1,3 +1,4 @@
+import exp from 'constants';
 import { Expr, Atom } from './ast';
 
 export enum ObjType {
@@ -8,7 +9,8 @@ export enum ObjType {
     NONE,
     ERROR,
     EXPR,
-    LAMBDA_PROCEDURE
+    LAMBDA_PROCEDURE,
+    LLM_EXPR_OBJ
 }
 
 export class Obj {
@@ -78,6 +80,12 @@ export const None_Obj = new Obj(null, ObjType.NONE);
 
 export class ExprObj extends Obj {
     constructor(value: Expr, type: ObjType = ObjType.EXPR) {
+        super(value, type);
+    }
+}
+
+export class LLM_EXPRObj extends Obj {
+    constructor(value: Expr, type: ObjType = ObjType.LLM_EXPR_OBJ) {
         super(value, type);
     }
 }
