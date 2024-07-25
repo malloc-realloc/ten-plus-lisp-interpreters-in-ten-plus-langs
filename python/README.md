@@ -1,3 +1,6 @@
+## Run
+`ts-node typescript/index.ts`
+
 ## General Decisions
 
 ### Use of Types
