@@ -80,4 +80,4 @@ This project is licensed under the MIT License
 
 ## Contact
 
-Feel free to push issues and let me know what you are looking for! I am sure my project is far from perfection so your feedback means a lot to me and my project. My email account is malloc_realloc_calloc@outlook.com
+Feel free to push issues and let me know what you are looking for! I am sure my project is far from perfection so your feedback means a lot to me and my project. Contact me by malloc_realloc_calloc@outlook.com
