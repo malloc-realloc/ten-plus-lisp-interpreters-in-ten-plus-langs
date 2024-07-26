@@ -95,7 +95,11 @@ function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
         if (args.length !== argNames.length) {
             console.error("Error: Invalid number of arguments");
         }
-        let workingEnv = bodyEnv;  // structuredClone(bodyEnv) is WRONG!
+        let workingEnv: Env = new Env();
+        for (let [key,value] of bodyEnv) {
+          if (value !== undefined)
+            workingEnv.set(key,value)
+        } // structuredClone(bodyEnv) is WRONG!
         argNames.forEach((argName, index) => {
             if (typeof argName.literal === 'string') {
                 workingEnv.set(argName.literal, args[index]);

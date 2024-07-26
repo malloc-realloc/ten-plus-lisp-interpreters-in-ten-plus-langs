@@ -36,16 +36,3 @@ export function parseExpr(tokens: string[]): Expr {
         return new Expr(ExprType.ATOM, token as Atom);
     }
 }
-
-let temp = [
-    "(cons `a `3)",
-    "(define shit (quote + 1 1))",
-    "{你好 [a] 哈哈 hello world !}"
-]
-let tokens: string[][]  = []
-temp.forEach(ele => {
-  tokens.push(tokenize(ele))
-})
-tokens.forEach(ele => {
-  console.log(parseExpr(ele).toString())
-})

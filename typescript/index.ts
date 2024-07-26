@@ -14,8 +14,12 @@ function evalExpression(expr: string): any {
 }
 
 const exprs: string[] = [
-    "(define a 1)",
-    "{what is the number [a]}",
+  "(define r 1)",
+  "(define fn (lambda (x) (define r 2) (+ x r)))",
+  "(fn 2)",
+  "(display r)",
+    // "(define a 1)",
+    // "{what is the number [a]}",
     // "(define fa (lambda (x) (+ x a)))",
     // "(define a 2)",
     // "(fa 2)",
@@ -54,7 +58,7 @@ const exprs: string[] = [
     // "(cons `a `3)",
     // "(define shit (quote + 1 1))",
     // "(eval shit)",
-    "{你好 [a] haha hello world!}"
+    // "{你好 [a] haha hello world!}"
 ];
 
 const results: any[] = [];
