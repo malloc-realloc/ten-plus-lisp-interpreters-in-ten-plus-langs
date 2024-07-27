@@ -8,30 +8,17 @@ export function parseExpr(tokens: string[]): Expr {
   }
 
   if (token === '"') {
-    let text = "";
-    while (tokens[0] !== '"') {
-      if (!tokens[0]) {
-        throw new Error("Unexpected end of tokens");
-      }
-      text += tokens[0];
-      text += " ";
-      tokens.shift();
-    }
+    const expr = new Expr(ExprType.STRING_EXPR, tokens[0] as Atom);
     tokens.shift();
-    return new Expr(ExprType.STRING_EXPR, text as Atom);
+    tokens.shift();
+    return expr;
   }
 
   if (token === "{") {
-    let text = "";
-    while (tokens[0] !== "}") {
-      if (!tokens[0]) {
-        throw new Error("Unexpected end of tokens");
-      }
-      text += tokens[0];
-      text += " ";
-      tokens.shift();
-    }
-    const llmExpr: Expr = new Expr(ExprType.LLM_EXPR, text as Atom);
+    const llmExpr: Expr = new Expr(ExprType.LLM_EXPR, tokens[0] as Atom);
+    tokens.shift();
+    tokens.shift();
+
     return llmExpr;
   }
 

@@ -60,6 +60,7 @@ const exprs: string[] = [
   "(eval shit)",
   "{你好 [a] haha hello world!}",
   '(define m "hello, world")',
+  '"hello, world"',
 ];
 
 const results: any[] = [];

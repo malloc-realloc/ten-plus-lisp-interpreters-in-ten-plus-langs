@@ -30,7 +30,7 @@ export function evalExpr(env: Env, expr: Expr): Obj {
 }
 
 function evalStringExpr(env: Env, expr: Expr): Obj {
-  return new LLM_EXPRObj(new Expr(ExprType.LLM_EXPR, expr.literal));
+  return new LLM_EXPRObj(new Expr(ExprType.STRING_EXPR, expr.literal));
 }
 
 function evalLLMExpr(env: Env, expr: Expr): Obj {
