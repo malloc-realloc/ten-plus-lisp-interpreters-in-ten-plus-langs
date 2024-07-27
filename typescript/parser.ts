@@ -7,6 +7,20 @@ export function parseExpr(tokens: string[]): Expr {
     throw new Error("Unexpected end of tokens");
   }
 
+  if (token === '"') {
+    let text = "";
+    while (tokens[0] !== '"') {
+      if (!tokens[0]) {
+        throw new Error("Unexpected end of tokens");
+      }
+      text += tokens[0];
+      text += " ";
+      tokens.shift();
+    }
+    tokens.shift();
+    return new Expr(ExprType.STRING_EXPR, text as Atom);
+  }
+
   if (token === "{") {
     let text = "";
     while (tokens[0] !== "}") {

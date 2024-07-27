@@ -22,9 +22,15 @@ export function evalExpr(env: Env, expr: Expr): Obj {
     return evalAtom(env, expr);
   } else if (expr.type === ExprType.LLM_EXPR) {
     return evalLLMExpr(env, expr);
+  } else if (expr.type === ExprType.STRING_EXPR) {
+    return evalStringExpr(env, expr);
   } else {
     return evalListExpr(env, expr);
   }
+}
+
+function evalStringExpr(env: Env, expr: Expr): Obj {
+  return new LLM_EXPRObj(new Expr(ExprType.LLM_EXPR, expr.literal));
 }
 
 function evalLLMExpr(env: Env, expr: Expr): Obj {
@@ -39,8 +45,6 @@ function evalLLMExpr(env: Env, expr: Expr): Obj {
         varName += expr.literal[j];
         i++;
       }
-
-      console.log(varName);
 
       let v: Obj | undefined = env.get(varName);
       if (v === undefined) {

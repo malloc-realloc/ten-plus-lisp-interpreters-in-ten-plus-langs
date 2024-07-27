@@ -9,6 +9,7 @@ export function tokenize(expr: string): string[] {
 
   expr = expr.replace(/\(/g, "( ").replace(/\)/g, " )");
   expr = expr.replace(/\{/g, "{ ").replace(/\}/g, " }");
+  expr = expr.replace(/\"/g, ' " ');
 
   expr = expr.replace(/\s+/g, " ").trim();
 
