@@ -1,5 +1,4 @@
 import { Expr, ExprType, Atom } from "./ast";
-import { tokenize } from "./token";
 
 export function parseExpr(tokens: string[]): Expr {
   let token = tokens.shift(); // 获取并移除第一个token
@@ -10,14 +9,16 @@ export function parseExpr(tokens: string[]): Expr {
   if (token === '"') {
     const expr = new Expr(ExprType.STRING_EXPR, tokens[0] as Atom);
     tokens.shift();
-    tokens.shift();
+    if (tokens.length > 0)
+      tokens.shift();
     return expr;
   }
 
   if (token === "{") {
     const llmExpr: Expr = new Expr(ExprType.LLM_EXPR, tokens[0] as Atom);
     tokens.shift();
-    tokens.shift();
+    if (tokens.length > 0)
+      tokens.shift();
 
     return llmExpr;
   }
