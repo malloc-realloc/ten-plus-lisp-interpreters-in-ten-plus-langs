@@ -22,6 +22,7 @@ public:
   LispExprType type;
   Literal literal;
 
+  LispExpr() = default;
   LispExpr(LispExprType t, const Literal &l) : type(t), literal(l) {}
 
   std::string toString() const {

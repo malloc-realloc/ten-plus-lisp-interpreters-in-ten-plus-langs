@@ -1,5 +1,2 @@
 #include "common.h"
-
-/* Token */
-
-/* */
+#include <memory>
