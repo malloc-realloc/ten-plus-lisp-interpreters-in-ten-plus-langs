@@ -8,7 +8,7 @@
 #include <variant>
 #include <vector>
 
-enum class LispExprType { ATOM, LST_EXPR, LLM_EXPR, STRING_EXPR };
+enum class LispExprType { ATOM, LST_EXPR, LLM_EXPR, STRING_EXPR, UNDEFINED };
 
 using Atom = std::string;
 
@@ -22,8 +22,8 @@ public:
   LispExprType type;
   Literal literal;
 
-  LispExpr() = default;
   LispExpr(LispExprType t, const Literal &l) : type(t), literal(l) {}
+  LispExpr() : type(LispExprType::UNDEFINED), literal(Atom("")) {}
 
   std::string toString() const {
     std::ostringstream oss;
@@ -70,9 +70,24 @@ private:
       return "LLM_EXPR";
     case LispExprType::STRING_EXPR:
       return "STRING_EXPR";
+    case LispExprType::UNDEFINED:
+      return "UNDEFINED";
     default:
       return "UNKNOWN";
     }
   }
 };
+
+Literal convertToLiteral(const std::vector<std::shared_ptr<LispExpr>> &vec) {
+  std::vector<std::variant<Atom, std::shared_ptr<LispExpr>>> convertedVec;
+
+  // Convert each element in the original vector to the required variant type
+  for (const auto &elem : vec) {
+    convertedVec.push_back(elem);
+  }
+
+  // Now convertedVec is of the type that can be stored in Literal
+  return convertedVec;
+}
+
 #endif

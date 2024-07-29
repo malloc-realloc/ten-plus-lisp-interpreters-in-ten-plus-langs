@@ -1,3 +1,6 @@
+#ifndef TOKEN_H
+#define TOKEN_H
+
 #include "common.h"
 #include <memory>
 #include <regex>
@@ -60,3 +63,5 @@ std::vector<Atom> tokenize(const std::string &expr) {
 
   return result;
 }
+
+#endif

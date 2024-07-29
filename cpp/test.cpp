@@ -1,8 +1,10 @@
-#include "common.h"
+#include "ast.h"
+#include "parser.h"
+#include "token.h"
 #include <iostream>
 
 void TestToken(std::string expr);
-// void TestParser(std::string expr);
+void TestParser(std::string expr);
 
 int main() {
   std::vector<std::string> exprs = {
@@ -56,9 +58,8 @@ int main() {
   };
 
   for (const auto &expr : exprs) {
-    auto tokens = tokenize(expr);
-    std::shared_ptr<LispExpr> e = parseLispExpr();
-    // parseLispExpr(tokens);
+    // TestToken(expr);
+    TestParser(Atom(expr));
   }
 
   return 0;
@@ -72,17 +73,17 @@ void TestToken(std::string expr) {
   }
 }
 
-// void TestParser(std::string expr) {
+void TestParser(Atom expr) {
 
-//   std::vector<std::string> tokens = tokenize(expr);
+  std::vector<std::string> tokens = tokenize(expr);
 
-//   std::cout << "Tokens: ";
-//   for (const auto &token : tokens) {
-//     std::cout << token << " ";
-//   }
-//   std::cout << std::endl;
+  std::cout << "Tokens: ";
+  for (const auto &token : tokens) {
+    std::cout << token << " ";
+  }
+  std::cout << std::endl;
 
-//   std::shared_ptr<LispExpr> e = parseLispExpr(tokens);
+  std::shared_ptr<LispExpr> e = parseLispExpr(tokens);
 
-//   std::cout << "Parsed expression: " << e->toString() << std::endl;
-// }
+  std::cout << "Parsed expression: " << e->toString() << std::endl;
+}
