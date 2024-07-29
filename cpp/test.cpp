@@ -16,6 +16,9 @@ int main() {
     // TestParser(expr);
   }
 
+  auto expr = LispExpr(LispExprType::ATOM, "1");
+  std::cout << expr.toString();
+
   return 0;
 }
 
