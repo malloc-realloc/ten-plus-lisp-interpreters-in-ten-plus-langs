@@ -156,11 +156,13 @@ export function display(env: Env, ...args: Obj[]): Obj {
     for (const arg of args) {
       console.log(arg.value.literal);
     }
+    return args[args.length - 1];
+  } else {
+    for (const arg of args) {
+      console.log(arg.value);
+    }
+    return args[args.length - 1];
   }
-  for (const arg of args) {
-    console.log(arg.value);
-  }
-  return args[args.length - 1];
 }
 
 export function begin(env: Env, ...args: Obj[]): Obj {

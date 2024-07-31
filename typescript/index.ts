@@ -50,8 +50,8 @@ const exprs: string[] = [
   // "(cons `1 `(1 1))",
   // "(cons (quote +) `(1 1 ))",
   // "(cons `+ `(1 1))",
-  "(define 世界 1)",
-  "(display 世界)",
+  // "(define 世界 1)",
+  // "(display 世界)",
   // "(define temp (cons `a `(1 1)))",
   // "(cons `(a b) `(b c d))", // "(cons `(a b) `(b c d))" is wrong
   // "(cons `(a b) `c)",
@@ -63,6 +63,7 @@ const exprs: string[] = [
   // '"hello, world"',
   // '(+ "hello " "world")',
   '(display (+ "hello" " world!"))',
+  "(display (+ 1 1))",
   // "(display {你好})",
 ];
 
