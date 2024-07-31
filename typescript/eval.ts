@@ -13,6 +13,7 @@ import {
   ObjType,
   Lambda_Procedure,
   LLM_EXPRObj,
+  String_Obj,
 } from "./obj";
 import { Env } from "./env";
 import { builtin_procedures, builtin_vars } from "./builtins";
@@ -29,8 +30,8 @@ export function evalExpr(env: Env, expr: Expr): Obj {
   }
 }
 
-function evalStringExpr(env: Env, expr: Expr): Obj {
-  return new LLM_EXPRObj(new Expr(ExprType.STRING_EXPR, expr.literal));
+function evalStringExpr(env: Env, expr: Expr): String_Obj {
+  return new String_Obj(new Expr(ExprType.STRING_EXPR, expr.literal));
 }
 
 function evalLLMExpr(env: Env, expr: Expr): Obj {

@@ -11,6 +11,7 @@ export enum ObjType {
   EXPR,
   LAMBDA_PROCEDURE,
   LLM_EXPR_OBJ,
+  STRING_OBJ,
 }
 
 export class Obj {
@@ -95,6 +96,12 @@ export class ExprObj extends Obj {
 
 export class LLM_EXPRObj extends Obj {
   constructor(value: Expr, type: ObjType = ObjType.LLM_EXPR_OBJ) {
+    super(value, type);
+  }
+}
+
+export class String_Obj extends Obj {
+  constructor(value: Expr, type: ObjType = ObjType.STRING_OBJ) {
     super(value, type);
   }
 }

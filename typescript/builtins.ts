@@ -10,6 +10,8 @@ import {
   None_Obj,
   ExprObj,
   ObjType,
+  String_Obj,
+  Error,
 } from "./obj";
 import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
@@ -17,16 +19,30 @@ import { evalExpr } from "./eval";
 
 type Number = IntNumber | FloatNumber;
 
-export function add_objs(env: Env, ...args: Number[]): Number {
-  let result = 0;
-  for (const arg of args) {
-    result += arg.value;
-  }
-  if (Number.isInteger(result)) {
-    return new IntNumber(result);
+export function add_objs(
+  env: Env,
+  ...args: Number[] | String_Obj[]
+): Number | String_Obj | Obj {
+  // + has different meanings when manipulating different kinds of Obj
+  if (args[0].type === ObjType.STRING_OBJ) {
+    let result = "";
+    for (const arg of args) {
+      result += arg.value.literal;
+    }
+    return new String_Obj(new Expr(ExprType.STRING_EXPR, result));
   } else {
-    return new FloatNumber(result);
+    let result = 0;
+    for (const arg of args) {
+      result += arg.value;
+    }
+    if (Number.isInteger(result)) {
+      return new IntNumber(result);
+    } else {
+      return new FloatNumber(result);
+    }
   }
+
+  return None_Obj;
 }
 
 export function sub_objs(env: Env, ...args: Number[]): Number {
@@ -133,6 +149,14 @@ export function if_func(env: Env, ...args: Obj[]): Obj {
 }
 
 export function display(env: Env, ...args: Obj[]): Obj {
+  if (
+    args[0].type === ObjType.STRING_OBJ ||
+    args[0].type === ObjType.LLM_EXPR_OBJ
+  ) {
+    for (const arg of args) {
+      console.log(arg.value.literal);
+    }
+  }
   for (const arg of args) {
     console.log(arg.value);
   }
