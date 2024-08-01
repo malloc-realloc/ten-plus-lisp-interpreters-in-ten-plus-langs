@@ -13,6 +13,7 @@ export enum ObjType {
   LLM_EXPR_OBJ,
   STRING_OBJ,
   LIST_OBJ,
+  DICT_OBJ,
 }
 
 export class Obj {
@@ -85,6 +86,12 @@ export class List_Obj extends Obj {
   }
 }
 
+export class Dict_Obj extends Obj {
+  constructor(value: { [key: string]: Obj }, type: ObjType = ObjType.DICT_OBJ) {
+    super(value, type);
+  }
+}
+
 export class Error extends Obj {
   constructor(value: string = "", type: ObjType = ObjType.ERROR) {
     super(value, type);
@@ -107,6 +114,7 @@ export class LLM_EXPRObj extends Obj {
   }
 }
 
+// TODO: value is not necessarily Expr, needs to be changed into string
 export class String_Obj extends Obj {
   constructor(value: Expr, type: ObjType = ObjType.STRING_OBJ) {
     super(value, type);

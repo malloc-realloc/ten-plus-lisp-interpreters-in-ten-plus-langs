@@ -13,6 +13,7 @@ import {
   String_Obj,
   Error,
   List_Obj,
+  Dict_Obj,
 } from "./obj";
 import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
@@ -86,6 +87,21 @@ export function list_obj(env: Env, ...args: Obj[]): List_Obj {
   let obj = new List_Obj([]);
   for (const arg of args) {
     obj.value.push(arg);
+  }
+  return obj;
+}
+
+export function dict_obj(env: Env, ...args: Obj[]): Error | Dict_Obj {
+  let obj = new Dict_Obj({});
+  for (const [index, value] of args.entries()) {
+    if (index % 2 === 0) {
+      if (args[index].type !== ObjType.STRING_OBJ) {
+        return new Error("key must be string");
+      }
+      obj.value[args[index].value.literal] = args[index + 1];
+    } else {
+      continue;
+    }
   }
   return obj;
 }
@@ -222,40 +238,59 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): ExprObj {
 
 export function get_from_container(
   env: Env,
-  obj0: IntNumber,
-  obj1: List_Obj
+  obj0: IntNumber | String_Obj,
+  obj1: List_Obj | Dict_Obj
 ): Obj {
-  if (obj0.value < 0) {
-    return new Error(`index must be positive`);
+  if (obj1.type === ObjType.LIST_OBJ) {
+    if (obj0.value < 0) {
+      return new Error(`index must be positive`);
+    }
+
+    if (obj1.value.length <= obj0.value) {
+      return new Error(
+        `index ${obj0.value} must be smaller than length of list ${obj1.value.le_objs}`
+      );
+    }
+
+    return obj1.value[obj0.value];
+  } else if (obj1.type === ObjType.DICT_OBJ) {
+    if (obj0.value.literal in Object.keys(obj1.value)) {
+      return obj1.value[obj0.value.literal];
+    } else {
+      return new Error(`key ${obj0.value.literal} not found in dictionary`);
+    }
   }
 
-  if (obj1.value.length <= obj0.value) {
-    return new Error(
-      `index ${obj0.value} must be smaller than length of list ${obj1.value.le_objs}`
-    );
-  }
-
-  return obj1.value[obj0.value];
+  return new Error(`Invalid usage of get`);
 }
 
 export function set_container(
   env: Env,
   obj0: IntNumber,
   value: Obj,
-  obj1: List_Obj
+  obj1: List_Obj | Dict_Obj
 ): Obj {
-  if (obj0.value < 0) {
-    return new Error(`index must be positive`);
-  }
+  if (obj1.type === ObjType.LIST_OBJ) {
+    if (obj0.value < 0) {
+      return new Error(`index must be positive`);
+    }
 
-  if (obj1.value.length <= obj0.value) {
-    return new Error(
-      `index ${obj0.value} must be smaller than length of list ${obj1.value.le_objs}`
-    );
-  }
+    if (obj1.value.length <= obj0.value) {
+      return new Error(
+        `index ${obj0.value} must be smaller than length of list ${obj1.value.le_objs}`
+      );
+    }
 
-  obj1.value[obj0.value] = value;
-  return value;
+    obj1.value[obj0.value] = value;
+    return value;
+  } else {
+    if (obj0.value.literal in Object.keys(obj1.value)) {
+      obj1.value[obj0.value.literal] = value;
+      return value;
+    } else {
+      return new Error(`key ${obj0.value.literal} not found in dictionary`);
+    }
+  }
 }
 
 export function push_into_container(env: Env, value: Obj, obj1: List_Obj): Obj {
@@ -290,6 +325,7 @@ export const builtin_procedures: { [key: string]: Function } = {
   get: get_from_container,
   set: set_container,
   push: push_into_container,
+  dict: dict_obj,
 };
 
 export const builtin_vars: { [key: string]: Bool } = {
