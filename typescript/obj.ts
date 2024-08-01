@@ -12,6 +12,7 @@ export enum ObjType {
   LAMBDA_PROCEDURE,
   LLM_EXPR_OBJ,
   STRING_OBJ,
+  LIST_OBJ,
 }
 
 export class Obj {
@@ -74,6 +75,12 @@ export class Lambda_Procedure extends Procedure {
 
 export class Bool extends Obj {
   constructor(value: boolean, type: ObjType = ObjType.BOOL) {
+    super(value, type);
+  }
+}
+
+export class List_Obj extends Obj {
+  constructor(value: Array<Obj>, type: ObjType = ObjType.LIST_OBJ) {
     super(value, type);
   }
 }

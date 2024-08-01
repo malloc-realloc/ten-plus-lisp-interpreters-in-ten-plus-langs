@@ -62,9 +62,15 @@ const exprs: string[] = [
   // '(define m "hello, world")',
   // '"hello, world"',
   // '(+ "hello " "world")',
-  '(display (+ "hello" " world!"))',
-  "(display (+ 1 1))",
+  // '(display (+ "hello" " world!"))',
+  // "(display (+ 1 1))",
   // "(display {你好})",
+  '(define a "s")',
+  "(define lst (list 1 a (+ 2 3) (lambda (x) (+ x 2))))",
+  "(get 1 lst)",
+  "(set 1 2 lst)",
+  "(push 100 lst)",
+  "lst",
 ];
 
 const results: any[] = [];

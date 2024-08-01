@@ -12,6 +12,7 @@ import {
   ObjType,
   String_Obj,
   Error,
+  List_Obj,
 } from "./obj";
 import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
@@ -79,6 +80,14 @@ export function div_objs(env: Env, ...args: Number[]): Number {
   } else {
     return new FloatNumber(result);
   }
+}
+
+export function list_obj(env: Env, ...args: Obj[]): List_Obj {
+  let obj = new List_Obj([]);
+  for (const arg of args) {
+    obj.value.push(arg);
+  }
+  return obj;
 }
 
 export function gt_objs(env: Env, arg1: Number, arg2: Number): Bool {
@@ -211,6 +220,49 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): ExprObj {
   }
 }
 
+export function get_from_container(
+  env: Env,
+  obj0: IntNumber,
+  obj1: List_Obj
+): Obj {
+  if (obj0.value < 0) {
+    return new Error(`index must be positive`);
+  }
+
+  if (obj1.value.length <= obj0.value) {
+    return new Error(
+      `index ${obj0.value} must be smaller than length of list ${obj1.value.le_objs}`
+    );
+  }
+
+  return obj1.value[obj0.value];
+}
+
+export function set_container(
+  env: Env,
+  obj0: IntNumber,
+  value: Obj,
+  obj1: List_Obj
+): Obj {
+  if (obj0.value < 0) {
+    return new Error(`index must be positive`);
+  }
+
+  if (obj1.value.length <= obj0.value) {
+    return new Error(
+      `index ${obj0.value} must be smaller than length of list ${obj1.value.le_objs}`
+    );
+  }
+
+  obj1.value[obj0.value] = value;
+  return value;
+}
+
+export function push_into_container(env: Env, value: Obj, obj1: List_Obj): Obj {
+  obj1.value.push(value);
+  return value;
+}
+
 export const builtin_procedures: { [key: string]: Function } = {
   exit: end_procedure,
   "+": add_objs,
@@ -234,6 +286,10 @@ export const builtin_procedures: { [key: string]: Function } = {
   cdr: cdr,
   car: car,
   cons: cons,
+  list: list_obj,
+  get: get_from_container,
+  set: set_container,
+  push: push_into_container,
 };
 
 export const builtin_vars: { [key: string]: Bool } = {
