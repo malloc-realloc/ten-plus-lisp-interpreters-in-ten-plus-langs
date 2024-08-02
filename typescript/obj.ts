@@ -114,9 +114,8 @@ export class LLM_EXPRObj extends Obj {
   }
 }
 
-// TODO: value is not necessarily Expr, needs to be changed into string
 export class String_Obj extends Obj {
-  constructor(value: Expr, type: ObjType = ObjType.STRING_OBJ) {
+  constructor(value: string, type: ObjType = ObjType.STRING_OBJ) {
     super(value, type);
   }
 }

@@ -31,7 +31,7 @@ export function add_objs(
     for (const arg of args) {
       result += arg.value.literal;
     }
-    return new String_Obj(new Expr(ExprType.STRING_EXPR, result));
+    return new String_Obj(result);
   } else {
     let result = 0;
     for (const arg of args) {
@@ -96,9 +96,9 @@ export function dict_obj(env: Env, ...args: Obj[]): Error | Dict_Obj {
   for (const [index, value] of args.entries()) {
     if (index % 2 === 0) {
       if (args[index].type !== ObjType.STRING_OBJ) {
-        return new Error("key must be string");
+        return new Error("Error: key must be string");
       }
-      obj.value[args[index].value.literal] = args[index + 1];
+      obj.value[args[index].value] = args[index + 1];
     } else {
       continue;
     }
@@ -254,10 +254,11 @@ export function get_from_container(
 
     return obj1.value[obj0.value];
   } else if (obj1.type === ObjType.DICT_OBJ) {
-    if (obj0.value.literal in Object.keys(obj1.value)) {
-      return obj1.value[obj0.value.literal];
+    // equivalent to (obj0.value in obj1.value) in python
+    if (obj1.value.hasOwnProperty(obj0.value)) {
+      return obj1.value[obj0.value];
     } else {
-      return new Error(`key ${obj0.value.literal} not found in dictionary`);
+      return new Error(`Error: key ${obj0.value} not found in dictionary`);
     }
   }
 
@@ -266,7 +267,7 @@ export function get_from_container(
 
 export function set_container(
   env: Env,
-  obj0: IntNumber,
+  obj0: IntNumber | String_Obj,
   value: Obj,
   obj1: List_Obj | Dict_Obj
 ): Obj {
@@ -284,11 +285,11 @@ export function set_container(
     obj1.value[obj0.value] = value;
     return value;
   } else {
-    if (obj0.value.literal in Object.keys(obj1.value)) {
-      obj1.value[obj0.value.literal] = value;
+    if (obj1.value.hasOwnProperty(obj0.value)) {
+      obj1.value[obj0.value] = value;
       return value;
     } else {
-      return new Error(`key ${obj0.value.literal} not found in dictionary`);
+      return new Error(`Error: key ${obj0.value} not found in dictionary`);
     }
   }
 }

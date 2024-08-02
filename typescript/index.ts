@@ -3,13 +3,14 @@ import { tokenize } from "./token";
 import { parseExpr } from "./parser";
 import { evalExpr } from "./eval";
 import { Env } from "./env";
+import { Obj } from "./obj";
 
 const globalEnv = new Env();
 
-function evalExpression(expr: string): any {
+function evalExpression(expr: string): Obj {
   const tokenizedExpr = tokenize(expr);
   const ast = parseExpr(tokenizedExpr);
-  const result = evalExpr(globalEnv, ast);
+  const result: Obj = evalExpr(globalEnv, ast);
   return result;
 }
 
@@ -73,7 +74,7 @@ const exprs: string[] = [
   // "lst",
   '(define d (dict "a" 1 "b" 2 "c" 3 "def" "def" "0" (+ 1 2)))',
   '(get "a" d)',
-  '(set "0" 100 d)',
+  '(set "a" 100 d)',
   "d",
 ];
 
