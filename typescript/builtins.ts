@@ -4,7 +4,6 @@ import {
   IntNumber,
   FloatNumber,
   Bool,
-  Procedure,
   TRUE,
   FALSE,
   None_Obj,
