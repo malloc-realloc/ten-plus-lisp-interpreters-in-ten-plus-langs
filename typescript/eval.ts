@@ -99,7 +99,7 @@ function evalListExpr(env: Env, expr: Expr): Obj {
       return evalLambdaExpr(env, exprList.slice(1));
     } else if (opt.name === "lambda_eval") {
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
-      return opt.value(opt.env, opt.argNames, opt.body, ...parameters);
+      return procedureValue(opt.env, opt.argNames, opt.body, ...parameters);
     } else {
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
       return opt.value(env, ...parameters);
@@ -114,49 +114,52 @@ function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
   let argNames = exprList[0].literal as Expr[];
   let body = exprList.slice(1);
 
-  function procedureValue(
-    bodyEnv: Env,
-    argNames: Expr[],
-    body: Expr[],
-    ...args: any[]
-  ): Obj {
-    if (args.length !== argNames.length) {
-      console.error("Error: Invalid number of arguments");
-    }
-    let workingEnv: Env = new Env();
-    for (let [key, value] of bodyEnv) {
-      if (value !== undefined) workingEnv.set(key, value);
-    } // structuredClone(bodyEnv) is WRONG!
-    argNames.forEach((argName, index) => {
-      if (typeof argName.literal === "string") {
-        workingEnv.set(argName.literal, args[index]);
-      } else {
-        console.error(
-          `Error: Invalid argument name type: ${typeof argName.literal}`
-        );
-      }
-    });
-
-    let result: Obj = None_Obj;
-    for (let expr of body) {
-      result = evalExpr(workingEnv, expr);
-    }
-    return result;
-  }
-
   const procedure_env = new Env();
   for (let [key, value] of env) {
     if (value != undefined) procedure_env.set(key, value);
   }
 
+  const functionString = `(${argNames.map((arg) => arg.literal).join(", ")})`;
+  const lambdaString = `function${functionString}`;
+
   return new Lambda_Procedure(
-    procedureValue,
+    lambdaString,
     "lambda_eval",
     ObjType.LAMBDA_PROCEDURE,
     (argNames = argNames),
     (body = body),
     (env = procedure_env)
   );
+}
+
+function procedureValue(
+  bodyEnv: Env,
+  argNames: Expr[],
+  body: Expr[],
+  ...args: any[]
+): Obj {
+  if (args.length !== argNames.length) {
+    console.error("Error: Invalid number of arguments");
+  }
+  let workingEnv: Env = new Env();
+  for (let [key, value] of bodyEnv) {
+    if (value !== undefined) workingEnv.set(key, value);
+  } // structuredClone(bodyEnv) is WRONG!
+  argNames.forEach((argName, index) => {
+    if (typeof argName.literal === "string") {
+      workingEnv.set(argName.literal, args[index]);
+    } else {
+      console.error(
+        `Error: Invalid argument name type: ${typeof argName.literal}`
+      );
+    }
+  });
+
+  let result: Obj = None_Obj;
+  for (let expr of body) {
+    result = evalExpr(workingEnv, expr);
+  }
+  return result;
 }
 
 function atomAsEnvKey(expr: Expr): Obj {

@@ -49,7 +49,7 @@ export class Procedure extends Obj {
   name: Atom;
 
   constructor(
-    value: Function,
+    value: any,
     name: Atom = "lambda",
     type: ObjType = ObjType.PROCEDURE
   ) {
@@ -64,7 +64,7 @@ export class Lambda_Procedure extends Procedure {
   env: Env;
 
   constructor(
-    value: Function,
+    value: any,
     name: Atom = "lambda",
     type: ObjType = ObjType.LAMBDA_PROCEDURE,
     argNames: Expr[],
