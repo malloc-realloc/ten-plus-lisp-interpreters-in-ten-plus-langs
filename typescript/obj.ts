@@ -1,5 +1,6 @@
 import exp from "constants";
 import { Expr, Atom } from "./ast";
+import { Env } from "./env";
 
 export enum ObjType {
   INT,
@@ -60,17 +61,20 @@ export class Procedure extends Obj {
 export class Lambda_Procedure extends Procedure {
   body: Expr[] | Expr;
   argNames: Expr[];
+  env: Env;
 
   constructor(
     value: Function,
     name: Atom = "lambda",
     type: ObjType = ObjType.LAMBDA_PROCEDURE,
     argNames: Expr[],
-    body: Expr[] | Expr = []
+    body: Expr[] | Expr = [],
+    env: Env = new Env()
   ) {
     super(value, name, type);
     this.body = body;
     this.argNames = argNames;
+    this.env = env;
   }
 }
 

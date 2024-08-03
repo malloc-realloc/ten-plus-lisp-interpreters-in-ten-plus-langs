@@ -144,12 +144,18 @@ function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
     return result;
   }
 
+  const procedure_env = new Env();
+  for (let [key, value] of procedure_env) {
+    if (value != undefined) procedure_env.set(key, value);
+  }
+
   return new Lambda_Procedure(
     procedureValue,
     "lambda_eval",
     ObjType.LAMBDA_PROCEDURE,
     (argNames = argNames),
-    (body = body)
+    (body = body),
+    (env = procedure_env)
   );
 }
 

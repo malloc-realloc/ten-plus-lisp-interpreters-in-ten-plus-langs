@@ -298,6 +298,11 @@ export function push_into_container(env: Env, value: Obj, obj1: List_Obj): Obj {
   return value;
 }
 
+export function set_llm(env: Env, value: String_Obj): Obj {
+  env.set("llm", value);
+  return value;
+}
+
 export const builtin_procedures: { [key: string]: Function } = {
   exit: end_procedure,
   "+": add_objs,
@@ -326,6 +331,7 @@ export const builtin_procedures: { [key: string]: Function } = {
   set: set_container,
   push: push_into_container,
   dict: dict_obj,
+  llm: set_llm,
 };
 
 export const builtin_vars: { [key: string]: Bool } = {
