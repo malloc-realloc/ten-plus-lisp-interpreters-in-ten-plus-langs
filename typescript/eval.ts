@@ -99,7 +99,7 @@ function evalListExpr(env: Env, expr: Expr): Obj {
       return evalLambdaExpr(env, exprList.slice(1));
     } else if (opt.name === "lambda_eval") {
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
-      return opt.value(env, opt.argNames, opt.body, ...parameters);
+      return opt.value(opt.env, opt.argNames, opt.body, ...parameters);
     } else {
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
       return opt.value(env, ...parameters);
@@ -145,7 +145,7 @@ function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
   }
 
   const procedure_env = new Env();
-  for (let [key, value] of procedure_env) {
+  for (let [key, value] of env) {
     if (value != undefined) procedure_env.set(key, value);
   }
 

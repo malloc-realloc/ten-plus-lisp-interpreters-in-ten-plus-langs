@@ -69,7 +69,7 @@ export class Lambda_Procedure extends Procedure {
     type: ObjType = ObjType.LAMBDA_PROCEDURE,
     argNames: Expr[],
     body: Expr[] | Expr = [],
-    env: Env = new Env()
+    env: Env
   ) {
     super(value, name, type);
     this.body = body;
