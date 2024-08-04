@@ -3,12 +3,16 @@ import { tokenize } from "./token";
 import { parseExpr } from "./parser";
 import { evalExpr } from "./eval";
 import { Env } from "./env";
-import { Obj } from "./obj";
+import { None_Obj, Obj } from "./obj";
 
 const globalEnv = new Env();
 
 function evalExpression(expr: string): Obj {
-  const tokenizedExpr = tokenize(expr);
+  const tokenizedExpr: string[] = tokenize(expr);
+  if (tokenizedExpr.length === 0) {
+    // all expressions are comment.
+    return None_Obj;
+  }
   const ast = parseExpr(tokenizedExpr);
   const result: Obj = evalExpr(globalEnv, ast);
   return result;
@@ -21,15 +25,15 @@ const exprs: string[] = [
   // "(display r)",
   // '(define a "haha")',
   // "{what is the number [a]}",
-  "(define a 2)",
-  "(define fa (lambda (x) (+ x a)))",
-  "(fa 2)",
-  "((lambda (x) (+ x 1)) 2)",
-  "(define f (lambda (x) (+ 2 x)))",
-  "(f 4)",
-  "(define higher_level_function (lambda (x) (lambda (y) (+  y x 2))))",
-  "(define add2 (higher_level_function 2))",
-  "(add2 4)",
+  // "(define a 2)",
+  // "(define fa (lambda (x) (+ x a)))",
+  // "(fa 2)",
+  // "((lambda (x) (+ x 1)) 2)",
+  // "(define f (lambda (x) (+ 2 x)))",
+  // "(f 4)",
+  // "(define higher_level_function (lambda (x) (lambda (y) (+  y x 2))))",
+  // "(define add2 (higher_level_function 2))",
+  // "(add2 4)",
   // "(define r 2)",
   // "(define with_r_2 (lambda (x) (+ r x)))",
   // "(with_r_2 10)",
@@ -77,6 +81,7 @@ const exprs: string[] = [
   // '(set "a" 100 d)',
   // "d",
   // '(llm "gpt4")',
+  "'haha'",
 ];
 
 const results: any[] = [];
