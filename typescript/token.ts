@@ -44,6 +44,15 @@ export function tokenize(expr: string): string[] {
       }
       result.push(token);
       result.push("}");
+    } else if (expr[i] === "'") {
+      // '' contains comments
+      i++;
+      while (1) {
+        if (expr[i] === "'") {
+          break;
+        }
+        i++;
+      }
     } else {
       let token = "";
       while (i < expr.length && expr[i] !== " " && expr[i] !== ")") {
