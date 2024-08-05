@@ -13,6 +13,8 @@ import {
   Error,
   List_Obj,
   Dict_Obj,
+  Lambda_Procedure,
+  Procedure,
 } from "./obj";
 import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
@@ -303,6 +305,10 @@ export function set_llm(env: Env, value: String_Obj): Obj {
   return value;
 }
 
+export function bind(env: Env, ...args: any): Procedure {
+  return new Procedure("", "bind");
+}
+
 export const builtin_procedures: { [key: string]: Function } = {
   exit: end_procedure,
   "+": add_objs,
@@ -332,6 +338,7 @@ export const builtin_procedures: { [key: string]: Function } = {
   push: push_into_container,
   dict: dict_obj,
   llm: set_llm,
+  bind: bind,
 };
 
 export const builtin_vars: { [key: string]: Bool } = {

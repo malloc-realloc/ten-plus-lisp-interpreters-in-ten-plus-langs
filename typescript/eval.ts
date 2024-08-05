@@ -89,6 +89,24 @@ function evalListExpr(env: Env, expr: Expr): Obj {
       }
     }
 
+    if (opt.name === "bind") {
+      const var_name = exprList[1].literal;
+      const func_name = "_update_" + var_name;
+      const body = exprList.slice(1).slice(1);
+      const lambdaString = `function ${func_name}`;
+      const expressions = new Lambda_Procedure(
+        lambdaString,
+        "lambda_eval",
+        ObjType.LAMBDA_PROCEDURE,
+        [] as Expr[],
+        body,
+        (env = env),
+        false
+      );
+      env.set(func_name, expressions);
+      return expressions;
+    }
+
     if (opt.name === "define" || opt.name === "set!") {
       const parameters = [
         atomAsEnvKey(exprList[1]),
@@ -99,7 +117,13 @@ function evalListExpr(env: Env, expr: Expr): Obj {
       return evalLambdaExpr(env, exprList.slice(1));
     } else if (opt.name === "lambda_eval") {
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
-      return procedureValue(opt.env, opt.argNames, opt.body, ...parameters);
+      return procedureValue(
+        opt.env,
+        opt.argNames,
+        opt.body,
+        opt.require_new_env_when_eval,
+        ...parameters
+      );
     } else {
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
       return opt.value(env, ...parameters);
@@ -110,6 +134,7 @@ function evalListExpr(env: Env, expr: Expr): Obj {
   }
 }
 
+// process (lambda (x) (+ x 1)) in (define a (lambda (x) (+ x 1)))
 function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
   let argNames = exprList[0].literal as Expr[];
   let body = exprList.slice(1);
@@ -136,15 +161,23 @@ function procedureValue(
   bodyEnv: Env,
   argNames: Expr[],
   body: Expr[],
+  require_new_env_when_eval: Boolean,
   ...args: any[]
 ): Obj {
   if (args.length !== argNames.length) {
     console.error("Error: Invalid number of arguments");
   }
-  let workingEnv: Env = new Env();
-  for (let [key, value] of bodyEnv) {
-    if (value !== undefined) workingEnv.set(key, value);
-  } // structuredClone(bodyEnv) is WRONG!
+
+  let workingEnv: Env;
+  if (require_new_env_when_eval) {
+    workingEnv = new Env();
+    for (let [key, value] of bodyEnv) {
+      if (value !== undefined) workingEnv.set(key, value);
+    } // structuredClone(bodyEnv) is WRONG!
+  } else {
+    workingEnv = bodyEnv;
+  }
+
   argNames.forEach((argName, index) => {
     if (typeof argName.literal === "string") {
       workingEnv.set(argName.literal, args[index]);

@@ -81,7 +81,11 @@ const exprs: string[] = [
   // '(set "a" 100 d)',
   // "d",
   // '(llm "gpt4")',
-  "'haha'",
+  // "'haha'",
+  "(bind a (+ 1 1) (define b 2))",
+  "(_update_a)",
+  "(+ b 2)",
+  // "(define c 3)",
 ];
 
 const results: any[] = [];
