@@ -107,6 +107,21 @@ function evalListExpr(env: Env, expr: Expr): Obj {
       return expressions;
     }
 
+    if (opt.name === "update") {
+      const parameters = [
+        atomAsEnvKey(exprList[1]),
+        evalExpr(env, exprList[2]),
+      ];
+      const obj = opt.value(env, ...parameters) as Obj;
+      const procedure = env.get(
+        `_update_${exprList[1].literal}`
+      ) as Lambda_Procedure;
+      if (procedure !== undefined) {
+        procedureValue(procedure.env, [], procedure.body as Expr[], false);
+      }
+      return obj;
+    }
+
     if (opt.name === "define" || opt.name === "set!") {
       const parameters = [
         atomAsEnvKey(exprList[1]),

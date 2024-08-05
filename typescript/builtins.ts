@@ -145,6 +145,11 @@ export function define_var(env: Env, key: Obj, value: Obj): Obj {
   return value;
 }
 
+export function update_var(env: Env, key: Obj, value: Obj): Obj {
+  env.set(key.value, value);
+  return value;
+}
+
 export function quote(env: Env, expr: Expr): Obj {
   return new ExprObj(expr);
 }
@@ -305,6 +310,7 @@ export function set_llm(env: Env, value: String_Obj): Obj {
   return value;
 }
 
+// logic of bind and update is in eval.ts
 export function bind(env: Env, ...args: any): Procedure {
   return new Procedure("", "bind");
 }
@@ -339,6 +345,7 @@ export const builtin_procedures: { [key: string]: Function } = {
   dict: dict_obj,
   llm: set_llm,
   bind: bind,
+  update: update_var,
 };
 
 export const builtin_vars: { [key: string]: Bool } = {

@@ -83,7 +83,7 @@ const exprs: string[] = [
   // '(llm "gpt4")',
   // "'haha'",
   "(bind a (+ 1 1) (define b 2))",
-  "(_update_a)",
+  "(update a 1)",
   "(+ b 2)",
   // "(define c 3)",
 ];
