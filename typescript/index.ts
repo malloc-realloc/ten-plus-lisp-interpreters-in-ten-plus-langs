@@ -89,6 +89,7 @@ const exprs: string[] = [
   // "(update a 2)",
   // "(+ c 1)",
   "The following expressions is OOP of this language: bind expressions to item of dict. lambda doesn't work because lambda is bound with local env. bind works because it's using global env",
+  "that might be the reason why react can be written by both binding expressions to obj and class",
   '(define d (dict "f" 0 "b" 2))',
   '(set "f" 0 d)',
   '(bind (get "f" d) (set "b"  ( + (get "b" d) 1) d) )',
