@@ -63,10 +63,10 @@ function evalLLMExpr(env: Env, expr: Expr): Obj {
 function evalListExpr(env: Env, expr: Expr): Obj {
   const exprList = expr.literal as Expr[];
 
-  const firstExpr = exprList[0];
+  const firstExpr = exprList[0]; // get operator with ExprType.LST_EXPR (these expressions in the form of (opt arg1 arg2 ...) )
 
   try {
-    let opt: any; // opt is of type Procedure  | Lambda_Procedure
+    let opt: Procedure; // opt is of type Procedure, notice opt itself can be of type ExprType.LST_EXPR
     if (firstExpr.type === ExprType.ATOM) {
       opt = evalAtom(env, firstExpr) as Procedure;
     } else {
@@ -128,17 +128,25 @@ function evalListExpr(env: Env, expr: Expr): Obj {
         evalExpr(env, exprList[2]),
       ];
       return opt.value(env, ...parameters);
-    } else if (opt.name === "lambda") {
+    }
+
+    if (opt.name === "lambda") {
       return evalLambdaExpr(env, exprList.slice(1));
-    } else if (opt.name === "lambda_eval") {
+    }
+
+    if (opt.name === "lambda_eval") {
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
-      return procedureValue(
-        opt.env,
-        opt.argNames,
-        opt.body,
-        opt.require_new_env_when_eval,
-        ...parameters
-      );
+      if (opt instanceof Lambda_Procedure) {
+        return procedureValue(
+          opt.env,
+          opt.argNames,
+          opt.body as Expr[],
+          opt.require_new_env_when_eval,
+          ...parameters
+        );
+      } else {
+        return new Error("invalid use of procedure");
+      }
     } else {
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
       return opt.value(env, ...parameters);

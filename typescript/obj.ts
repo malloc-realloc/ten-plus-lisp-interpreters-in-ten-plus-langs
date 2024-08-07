@@ -46,6 +46,7 @@ export class FloatNumber extends Obj {
 export type Number = IntNumber | FloatNumber;
 
 export class Procedure extends Obj {
+  // To make sure everything passed inside evalListExpr is Object, we introduce Procedure to store lambda_function and builtin operators like +-*/
   name: Atom;
 
   constructor(
