@@ -148,6 +148,7 @@ function evalListExpr(env: Env, expr: Expr): Obj {
         return new Error("invalid use of procedure");
       }
     } else {
+      // All operations that don't work on expression literal directly starts from there.
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
       return opt.value(env, ...parameters);
     }

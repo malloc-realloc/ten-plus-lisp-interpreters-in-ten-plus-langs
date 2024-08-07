@@ -97,7 +97,7 @@ const exprs: string[] = [
   // '(display (get "b" d))',
   // '(update (get "f" d) 0)',
   // '(get "b" d)',
-  "(+ 1 1)",
+  '(str "; " (+ 1 1) (lambda (x) (+ x 1)))',
 ];
 
 const results: any[] = [];

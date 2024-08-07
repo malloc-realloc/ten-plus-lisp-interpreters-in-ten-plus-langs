@@ -71,6 +71,17 @@ export function mul_objs(env: Env, ...args: Number[]): Number {
   }
 }
 
+export function make_str(env: Env, ...objs: Obj[]): String_Obj {
+  // (str String_Obj obj1 obj2 ...)
+  let s: string = "";
+  for (let i = 1; i < objs.length; i++) {
+    s += String(objs[i].value);
+    s += objs[0].value;
+  }
+
+  return new String_Obj(s.slice(0, -1)); // skip the last indent
+}
+
 export function div_objs(env: Env, ...args: Number[]): Number {
   let result = args[0].value;
   for (const arg of args.slice(1)) {
@@ -345,6 +356,7 @@ export const builtin_procedures: { [key: string]: Function } = {
   llm: set_llm,
   bind: bind,
   update: update_var,
+  str: make_str,
 };
 
 export const builtin_vars: { [key: string]: Bool } = {
