@@ -325,7 +325,7 @@ export function bind(env: Env, ...args: any): Procedure {
   return new Procedure("", "bind");
 }
 
-export const builtin_procedures: { [key: string]: Function } = {
+const object_operators: { [key: string]: Function } = {
   exit: end_procedure,
   "+": add_objs,
   "-": sub_objs,
@@ -337,13 +337,9 @@ export const builtin_procedures: { [key: string]: Function } = {
   "<=": le_objs,
   "=": eq_objs,
   abs: abs_obj,
-  define: define_var,
   display: display,
   begin: begin,
-  lambda: lambda_func,
   if: if_func,
-  "set!": set_var,
-  quote: quote,
   eval: eval_expr_obj,
   cdr: cdr,
   car: car,
@@ -353,13 +349,36 @@ export const builtin_procedures: { [key: string]: Function } = {
   set: set_container,
   push: push_into_container,
   dict: dict_obj,
-  llm: set_llm,
-  bind: bind,
-  update: update_var,
-  str: make_str,
+  llm: set_llm, // set which llm to use
+  str: make_str, // make very object into string and join them with given string
 };
 
 export const builtin_vars: { [key: string]: Bool } = {
   "#t": TRUE,
   "#f": FALSE,
 };
+
+const expression_operators: { [key: string]: Function } = {
+  quote: quote,
+  bind: bind,
+  update: update_var,
+  define: define_var,
+  "set!": set_var,
+  lambda: lambda_func,
+  // lambda_eval: lambda_eval,
+};
+
+// special operators works on expressions.
+function is_special_operator(opt: Procedure): Boolean {
+  for (let s_opt in expression_operators) {
+    if (s_opt === opt.name) return true;
+  }
+
+  return false;
+}
+
+export const builtin_procedures = Object.assign(
+  {},
+  object_operators,
+  expression_operators
+);

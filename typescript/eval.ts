@@ -73,14 +73,6 @@ function evalListExpr(env: Env, expr: Expr): Obj {
       opt = evalListExpr(env, firstExpr) as Procedure;
     }
 
-    if (
-      !(opt.type === ObjType.PROCEDURE || opt.type === ObjType.LAMBDA_PROCEDURE)
-    ) {
-      throw new Error(
-        `Invalid procedure: ${firstExpr.literal} is not an operator.`
-      );
-    }
-
     if (opt.name === "quote") {
       if (exprList.length === 2 && exprList[1].type === ExprType.ATOM) {
         return opt.value(env, new Expr(ExprType.ATOM, exprList[1].literal));
