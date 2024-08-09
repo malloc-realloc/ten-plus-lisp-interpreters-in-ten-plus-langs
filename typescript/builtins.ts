@@ -21,10 +21,6 @@ import { evalExpr } from "./eval";
 
 type Number = IntNumber | FloatNumber;
 
-// export function quote(env: Env, expr: Expr): Obj {
-//   return new ExprObj(expr);
-// }
-
 export function add_objs(
   env: Env,
   ...args: Number[] | String_Obj[]
@@ -150,32 +146,9 @@ export function abs_obj(env: Env, arg: Number): Number {
   }
 }
 
-// export function lambda_func(env: Env, ...args: any[]): void {
-//   // Keyword lambda is processed in a different way in eval.ts
-// }
-
-// export function define_var(env: Env, key: Obj, value: Obj): Obj {
-//   env.set(key.value, value);
-//   return value;
-// }
-
-// export function update_var(env: Env, key: Obj, value: Obj): Obj {
-//   env.set(key.value, value);
-//   return value;
-// }
-
 export function eval_expr_obj(env: Env, expr: ExprObj): Obj {
   return evalExpr(env, expr.value);
 }
-
-// export function set_var(env: Env, key: Obj, value: Obj): Obj {
-//   if (!env.has(key.value)) {
-//     return None_Obj;
-//   } else {
-//     env.set(key.value, value);
-//     return value;
-//   }
-// }
 
 export function if_func(env: Env, ...args: Obj[]): Obj {
   if (args[0] !== FALSE && args[0] !== None_Obj) {
@@ -319,11 +292,6 @@ export function set_llm(env: Env, value: String_Obj): Obj {
   env.set("llm", value);
   return value;
 }
-
-// // logic of bind and update is in eval.ts
-// export function bind(env: Env, ...args: any): Procedure {
-//   return new Procedure("", "bind");
-// }
 
 export const builtin_vars: { [key: string]: Bool } = {
   "#t": TRUE,
