@@ -18,6 +18,7 @@ import {
 import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
 import { evalExpr } from "./eval";
+import { cond } from "lodash";
 
 type Number = IntNumber | FloatNumber;
 
@@ -148,18 +149,6 @@ export function abs_obj(env: Env, arg: Number): Number {
 
 export function eval_expr_obj(env: Env, expr: ExprObj): Obj {
   return evalExpr(env, expr.value);
-}
-
-export function if_func(env: Env, ...args: Obj[]): Obj {
-  if (args[0] !== FALSE && args[0] !== None_Obj) {
-    return args[1];
-  } else if (args.length === 2) {
-    return None_Obj;
-  } else if (args.length === 3) {
-    return args[2];
-  } else {
-    return None_Obj;
-  }
 }
 
 export function display(env: Env, ...args: Obj[]): Obj {
@@ -312,7 +301,7 @@ const object_operators: { [key: string]: Function } = {
   abs: abs_obj,
   display: display,
   begin: begin,
-  if: if_func,
+  // if: if_func,
   eval: eval_expr_obj,
   cdr: cdr,
   car: car,
@@ -414,6 +403,35 @@ function define_var(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   return parameters[1];
 }
 
+// export function if_func(env: Env, ...args: Obj[]): Obj {
+//   if (
+//     args[0] !== FALSE &&
+//     args[0] !== None_Obj &&
+//     !(args[0].type === ObjType.INT && args[0].value === 0)
+//   ) {
+//     return args[1];
+//   } else if (args.length === 2) {
+//     return None_Obj;
+//   } else if (args.length === 3) {
+//     return args[2];
+//   } else {
+//     return None_Obj;
+//   }
+// }
+
+export function if_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  const condition: Obj = evalExpr(env, exprList[1]);
+  if (
+    condition === FALSE ||
+    condition === None_Obj ||
+    (condition.type === ObjType.INT && condition.value === 0)
+  ) {
+    return evalExpr(env, exprList[3]);
+  } else {
+    return evalExpr(env, exprList[2]);
+  }
+}
+
 function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
   let argNames = exprList[0].literal as Expr[];
   let body = exprList.slice(1);
@@ -426,7 +444,7 @@ function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
   const functionString = `(${argNames.map((arg) => arg.literal).join(", ")})`;
   const lambdaString = `function${functionString}`;
 
-  return new Lambda_Procedure(
+  const func = new Lambda_Procedure(
     lambdaString,
     "lambda_eval",
     ObjType.LAMBDA_PROCEDURE,
@@ -434,6 +452,8 @@ function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
     (body = body),
     (env = procedure_env)
   );
+
+  return func;
 }
 
 function lambda_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
@@ -444,7 +464,7 @@ function lambda_eval(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
   if (opt instanceof Lambda_Procedure) {
     return procedureValue(
-      opt.env,
+      env,
       opt.argNames,
       opt.body as Expr[],
       opt.require_new_env_when_eval,
@@ -463,6 +483,7 @@ const expression_operators: { [key: string]: Function } = {
   "set!": define_var,
   lambda: lambda_func,
   lambda_eval: lambda_eval,
+  if: if_func,
 };
 
 // special operators works on expressions.
