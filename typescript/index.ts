@@ -105,6 +105,7 @@ const exprs: string[] = [
   // "(while d (display d) (update d (- d 1)))",
   "(random 1 2)",
   "(randint 1 3)",
+  '(randchoice 1 2 "haha")',
 ];
 
 const results: any[] = [];

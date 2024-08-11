@@ -302,6 +302,12 @@ export function randint(env: Env, arg1: Obj, arg2: Obj): Obj {
   return result;
 }
 
+export function randchoice(env: Env, ...args: Obj[]): Obj {
+  const l = args.length - 1;
+  const i = Math.floor(Math.random() * (l + 1));
+  return args[i];
+}
+
 export const builtin_vars: { [key: string]: Bool } = {
   "#t": TRUE,
   "#f": FALSE,
@@ -335,6 +341,7 @@ const object_operators: { [key: string]: Function } = {
   str: make_str, // make very object into string and join them with given string
   random: random_func,
   randint: randint,
+  randchoice: randchoice,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
