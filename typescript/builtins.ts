@@ -18,7 +18,7 @@ import {
 import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
 import { evalExpr } from "./eval";
-import { cond } from "lodash";
+import { cond, random } from "lodash";
 
 type Number = IntNumber | FloatNumber;
 
@@ -282,6 +282,26 @@ export function set_llm(env: Env, value: String_Obj): Obj {
   return value;
 }
 
+export function random_func(env: Env, arg1: Obj, arg2: Obj): Obj {
+  const n1 = arg1.value;
+  const n2 = arg2.value;
+  const min = Math.min(n1, n2);
+  const max = Math.max(n1, n2);
+  const result = new IntNumber(Math.random() * (max - min) + min);
+  return result;
+}
+
+export function randint(env: Env, arg1: Obj, arg2: Obj): Obj {
+  const n1 = arg1.value;
+  const n2 = arg2.value;
+  const min = Math.floor(Math.min(n1, n2));
+  const max = Math.ceil(Math.max(n1, n2));
+  const result = new IntNumber(
+    Math.floor(Math.random() * (max - min + 1) + min)
+  );
+  return result;
+}
+
 export const builtin_vars: { [key: string]: Bool } = {
   "#t": TRUE,
   "#f": FALSE,
@@ -313,6 +333,8 @@ const object_operators: { [key: string]: Function } = {
   dict: dict_obj,
   llm: set_llm, // set which llm to use
   str: make_str, // make very object into string and join them with given string
+  random: random_func,
+  randint: randint,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
