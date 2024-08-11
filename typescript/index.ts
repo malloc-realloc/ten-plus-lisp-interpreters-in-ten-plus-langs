@@ -98,9 +98,11 @@ const exprs: string[] = [
   // '(update (get "f" d) 0)',
   // '(get "b" d)',
   // '(str "; " (+ 1 1) (lambda (x) (+ x 1)))',
-  "(define f (lambda (x) (if x (begin (display x) (f (- x 1)) ) 0)))",
-  "(f 2)",
+  // "(define f (lambda (x) (if x (begin (display x) (f (- x 1)) ) 0)))",
+  // "(f 2)",
   // "(if 0 1 2)",
+  "(define d 2)",
+  "(while d (display d) (update d (- d 1)))",
 ];
 
 const results: any[] = [];

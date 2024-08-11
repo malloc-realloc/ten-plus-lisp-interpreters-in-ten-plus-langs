@@ -432,6 +432,25 @@ export function if_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   }
 }
 
+export function while_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  let condition: Obj = evalExpr(env, exprList[1]);
+  let result: Obj = None_Obj;
+  while (
+    !(
+      condition === FALSE ||
+      condition === None_Obj ||
+      (condition.type === ObjType.INT && condition.value === 0)
+    )
+  ) {
+    for (let i = 2; i < exprList.length - 1; i++) {
+      evalExpr(env, exprList[i]);
+    }
+    result = evalExpr(env, exprList[exprList.length - 1]);
+    condition = evalExpr(env, exprList[1]);
+  }
+  return result;
+}
+
 function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
   let argNames = exprList[0].literal as Expr[];
   let body = exprList.slice(1);
@@ -484,6 +503,7 @@ const expression_operators: { [key: string]: Function } = {
   lambda: lambda_func,
   lambda_eval: lambda_eval,
   if: if_func,
+  while: while_func,
 };
 
 // special operators works on expressions.
