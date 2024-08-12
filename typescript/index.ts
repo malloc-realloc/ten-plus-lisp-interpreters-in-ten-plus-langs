@@ -103,9 +103,12 @@ const exprs: string[] = [
   // "(if 0 1 2)",
   // "(define d 2)",
   // "(while d (display d) (update d (- d 1)))",
-  "(random 1 2)",
-  "(randint 1 3)",
-  '(randchoice 1 2 "haha")',
+  // "(random 1 2)",
+  // "(randint 1 3)",
+  // '(randchoice 1 2 "haha")',
+  "(return 1)",
+  "(define f (lambda (x) (+ 1 1 ) (return x) (display 2) ))",
+  "(f 4)",
 ];
 
 const results: any[] = [];

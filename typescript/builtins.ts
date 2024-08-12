@@ -313,6 +313,10 @@ export const builtin_vars: { [key: string]: Bool } = {
   "#f": FALSE,
 };
 
+export function returnFunc(env: Env, arg: Obj): Obj {
+  return arg;
+}
+
 const object_operators: { [key: string]: Function } = {
   exit: end_procedure,
   "+": add_objs,
@@ -342,6 +346,7 @@ const object_operators: { [key: string]: Function } = {
   random: random_func,
   randint: randint,
   randchoice: randchoice,
+  return: returnFunc,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
@@ -407,7 +412,11 @@ function procedureValue(
 
   let result: Obj = None_Obj;
   for (let expr of body) {
+    const opt: Expr = expr.literal[0] as Expr;
     result = evalExpr(workingEnv, expr);
+    if (opt.literal === "return") {
+      return result;
+    }
   }
   return result;
 }
