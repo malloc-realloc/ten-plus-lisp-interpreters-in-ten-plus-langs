@@ -107,8 +107,12 @@ const exprs: string[] = [
   // "(randint 1 3)",
   // '(randchoice 1 2 "haha")',
   "(return 1)",
-  "(define f (lambda (x) (+ 1 1 ) (return x) (display 2) ))",
+  "(_displayFuncDepth)",
+  "(define f (lambda (x) (_displayFuncDepth) (return x) (display 2) ))",
   "(f 4)",
+  "(define f (lambda (x) (if x (return x)) (+ x 1)))",
+  "(f 0)",
+  "(f 1)",
 ];
 
 const results: any[] = [];

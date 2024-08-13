@@ -314,6 +314,7 @@ export const builtin_vars: { [key: string]: Bool } = {
 };
 
 export function returnFunc(env: Env, arg: Obj): Obj {
+  env.functionDepth--;
   return arg;
 }
 
@@ -379,7 +380,8 @@ function atomAsEnvKey(expr: Expr): Obj {
   return new Obj(expr.literal, ObjType.NONE);
 }
 
-function procedureValue(
+// TODO: BIG ERROR: RETURN CANNOT ESCAPE FROM IF,BLOCK etc.
+function evalProcedureValue(
   bodyEnv: Env,
   argNames: Expr[],
   body: Expr[],
@@ -400,6 +402,9 @@ function procedureValue(
     workingEnv = bodyEnv;
   }
 
+  // when entering function, env.funtionDepth ++
+  workingEnv.functionDepth = bodyEnv.functionDepth + 1;
+
   argNames.forEach((argName, index) => {
     if (typeof argName.literal === "string") {
       workingEnv.set(argName.literal, args[index]);
@@ -412,9 +417,9 @@ function procedureValue(
 
   let result: Obj = None_Obj;
   for (let expr of body) {
-    const opt: Expr = expr.literal[0] as Expr;
+    let funcDepth = workingEnv.functionDepth;
     result = evalExpr(workingEnv, expr);
-    if (opt.literal === "return") {
+    if (workingEnv.functionDepth < funcDepth) {
       return result;
     }
   }
@@ -430,7 +435,7 @@ function update_var(env: Env, opt: Procedure, exprList: Expr[]): Obj {
     `_update_${exprList[1].literal}`
   ) as Lambda_Procedure;
   if (procedure !== undefined) {
-    procedureValue(procedure.env, [], procedure.body as Expr[], false);
+    evalProcedureValue(procedure.env, [], procedure.body as Expr[], false);
   }
   return obj;
 }
@@ -464,7 +469,8 @@ export function if_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
     condition === None_Obj ||
     (condition.type === ObjType.INT && condition.value === 0)
   ) {
-    return evalExpr(env, exprList[3]);
+    if (exprList.length === 4) return evalExpr(env, exprList[3]);
+    else return new IntNumber(0);
   } else {
     return evalExpr(env, exprList[2]);
   }
@@ -520,7 +526,7 @@ function lambda_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
 function lambda_eval(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
   if (opt instanceof Lambda_Procedure) {
-    return procedureValue(
+    return evalProcedureValue(
       env,
       opt.argNames,
       opt.body as Expr[],
@@ -530,6 +536,10 @@ function lambda_eval(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   } else {
     return new Error("invalid use of procedure");
   }
+}
+
+function _displayFuncDepth(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  return new IntNumber(env.functionDepth);
 }
 
 const expression_operators: { [key: string]: Function } = {
@@ -542,6 +552,7 @@ const expression_operators: { [key: string]: Function } = {
   lambda_eval: lambda_eval,
   if: if_func,
   while: while_func,
+  _displayFuncDepth: _displayFuncDepth,
 };
 
 // special operators works on expressions.
