@@ -2,6 +2,8 @@ import { Obj } from "./obj";
 
 export class Env extends Map<string, Obj> {
   functionDepth: number = 0;
+  hasFailed: boolean = false;
+  errorMessage: string = "";
 
   set(key: string, value: Obj): this {
     if (!(value instanceof Obj)) {
@@ -13,5 +15,10 @@ export class Env extends Map<string, Obj> {
   constructor(functionDepth: number = 0) {
     super();
     this.functionDepth = functionDepth;
+  }
+
+  setErrorMessage(message: string) {
+    this.hasFailed = true;
+    this.errorMessage = `Invalid invocation: ${message}.\n`;
   }
 }

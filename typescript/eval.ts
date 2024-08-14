@@ -14,6 +14,7 @@ import {
   Lambda_Procedure,
   LLM_EXPRObj,
   String_Obj,
+  ErrorObj,
 } from "./obj";
 import { Env } from "./env";
 import {
@@ -23,14 +24,24 @@ import {
 } from "./builtins";
 
 export function evalExpr(env: Env, expr: Expr): Obj {
+  let result: Obj;
   if (expr.type === ExprType.ATOM) {
-    return evalAtom(env, expr);
+    result = evalAtom(env, expr);
   } else if (expr.type === ExprType.LLM_EXPR) {
-    return evalLLMExpr(env, expr);
+    result = evalLLMExpr(env, expr);
   } else if (expr.type === ExprType.STRING_EXPR) {
-    return evalStringExpr(env, expr);
+    result = evalStringExpr(env, expr);
   } else {
-    return evalListExpr(env, expr);
+    result = evalListExpr(env, expr);
+  }
+
+  if (!env.hasFailed) {
+    return result;
+  } else {
+    const obj = new ErrorObj(env.errorMessage);
+    env.errorMessage = "";
+    env.hasFailed = false;
+    return obj;
   }
 }
 

@@ -27,49 +27,62 @@ export function add_objs(
   ...args: Number[] | String_Obj[]
 ): Number | String_Obj | Obj {
   // + has different meanings when manipulating different kinds of Obj
-  if (args[0].type === ObjType.STRING_OBJ) {
-    let result = "";
-    for (const arg of args) {
-      result += arg.value.literal;
+  try {
+    if (args[0].type === ObjType.STRING_OBJ) {
+      let result = "";
+      for (const arg of args) {
+        result += arg.value.literal;
+      }
+      return new String_Obj(result);
+    } else {
+      let result = 0;
+      for (const arg of args) {
+        result += arg.value;
+      }
+      if (Number.isInteger(result)) {
+        return new IntNumber(result);
+      } else {
+        return new FloatNumber(result);
+      }
     }
-    return new String_Obj(result);
-  } else {
-    let result = 0;
-    for (const arg of args) {
-      result += arg.value;
+  } catch (error) {
+    env.setErrorMessage("+");
+  }
+  return None_Obj;
+}
+
+export function sub_objs(env: Env, ...args: Number[]): Obj {
+  try {
+    let result = args[0].value;
+    for (const arg of args.slice(1)) {
+      result -= arg.value;
     }
     if (Number.isInteger(result)) {
       return new IntNumber(result);
     } else {
       return new FloatNumber(result);
     }
+  } catch (error) {
+    env.setErrorMessage("-");
   }
-
   return None_Obj;
 }
 
-export function sub_objs(env: Env, ...args: Number[]): Number {
-  let result = args[0].value;
-  for (const arg of args.slice(1)) {
-    result -= arg.value;
+export function mul_objs(env: Env, ...args: Number[]): Obj {
+  try {
+    let result = 1;
+    for (const arg of args) {
+      result *= arg.value;
+    }
+    if (Number.isInteger(result)) {
+      return new IntNumber(result);
+    } else {
+      return new FloatNumber(result);
+    }
+  } catch (error) {
+    env.setErrorMessage("*");
   }
-  if (Number.isInteger(result)) {
-    return new IntNumber(result);
-  } else {
-    return new FloatNumber(result);
-  }
-}
-
-export function mul_objs(env: Env, ...args: Number[]): Number {
-  let result = 1;
-  for (const arg of args) {
-    result *= arg.value;
-  }
-  if (Number.isInteger(result)) {
-    return new IntNumber(result);
-  } else {
-    return new FloatNumber(result);
-  }
+  return None_Obj;
 }
 
 export function make_str(env: Env, ...objs: Obj[]): String_Obj {
@@ -380,7 +393,6 @@ function atomAsEnvKey(expr: Expr): Obj {
   return new Obj(expr.literal, ObjType.NONE);
 }
 
-// TODO: BIG ERROR: RETURN CANNOT ESCAPE FROM IF,BLOCK etc.
 function evalProcedureValue(
   bodyEnv: Env,
   argNames: Expr[],

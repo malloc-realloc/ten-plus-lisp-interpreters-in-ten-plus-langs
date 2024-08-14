@@ -16,6 +16,7 @@ export enum ObjType {
   STRING_OBJ,
   LIST_OBJ,
   DICT_OBJ,
+  ERROR_OBJ,
 }
 
 export class Obj {
@@ -29,6 +30,12 @@ export class Obj {
 
   toString(): string {
     return `Obj is ${String(this.value)}, type is ${ObjType[this.type]}`;
+  }
+}
+
+export class ErrorObj extends Obj {
+  constructor(value: string, type: ObjType = ObjType.ERROR_OBJ) {
+    super(value, type);
   }
 }
 
