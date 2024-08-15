@@ -122,3 +122,5 @@ for (const expr of exprs) {
   results.push(evalExpression(expr).value);
   console.log(results[results.length - 1]);
 }
+
+export default evalExpression;
