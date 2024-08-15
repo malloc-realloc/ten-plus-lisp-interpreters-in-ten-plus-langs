@@ -67,6 +67,16 @@ export class Procedure extends Obj {
   }
 }
 
+export class ErrorProcedure extends Procedure {
+  constructor(
+    value: string,
+    name: Atom = "lambda",
+    type: ObjType = ObjType.ERROR
+  ) {
+    super(value, name, type);
+  }
+}
+
 export class Lambda_Procedure extends Procedure {
   body: Expr[] | Expr;
   argNames: Expr[];

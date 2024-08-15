@@ -90,11 +90,21 @@ function evalListExpr(env: Env, expr: Expr): Obj {
 
     if (is_special_operator(opt)) {
       const func = builtin_operators[opt.name];
-      return func(env, opt, exprList);
+      const result = func(env, opt, exprList);
+      if (result.type === ObjType.ERROR || result.type === ObjType.ERROR_OBJ) {
+        return new ErrorObj(result.value);
+      } else {
+        return result;
+      }
     } else {
       // All operations that don't work on expression literal directly starts from there.
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
-      return opt.value(env, ...parameters);
+      const result = opt.value(env, ...parameters);
+      if (result.type === ObjType.ERROR_OBJ || result.type === ObjType.ERROR) {
+        return new ErrorObj(result.value);
+      } else {
+        return result;
+      }
     }
   } catch (e: any) {
     console.error(`An error occurred: ${e.message}`);

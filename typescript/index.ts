@@ -3,7 +3,8 @@ import { tokenize } from "./token";
 import { parseExpr } from "./parser";
 import { evalExpr } from "./eval";
 import { Env } from "./env";
-import { None_Obj, Obj } from "./obj";
+import { ErrorObj, None_Obj, Obj } from "./obj";
+import { ExprType } from "./ast";
 
 const globalEnv = new Env();
 
@@ -11,11 +12,15 @@ function evalExpression(expr: string): Obj {
   const tokenizedExpr: string[] = tokenize(expr);
   if (tokenizedExpr.length === 0) {
     // all expressions are comment.
-    return None_Obj;
+    return new ErrorObj("Lexer Error");
   }
   const ast = parseExpr(tokenizedExpr);
-  const result: Obj = evalExpr(globalEnv, ast);
-  return result;
+  if (ast.type === ExprType.ERROR) {
+    return new ErrorObj("Parsing Error");
+  } else {
+    const result: Obj = evalExpr(globalEnv, ast);
+    return result;
+  }
 }
 
 const exprs: string[] = [
@@ -113,8 +118,8 @@ const exprs: string[] = [
   // "(define f (lambda (x) (if x (return x)) (+ x 1)))",
   // "(f 0)",
   // "(f 1)",
-  // "(+ 11 a b )",
-  "(if 1)",
+  "(+ 11 a b ",
+  // "(if 1)",
 ];
 
 const results: any[] = [];

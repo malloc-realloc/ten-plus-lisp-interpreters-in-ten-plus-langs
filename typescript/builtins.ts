@@ -22,285 +22,6 @@ import { cond, random } from "lodash";
 
 type Number = IntNumber | FloatNumber;
 
-export function end_procedure(...args: any[]): void {
-  // do nothing
-}
-
-export const builtin_vars: { [key: string]: Bool } = {
-  "#t": TRUE,
-  "#f": FALSE,
-};
-
-const object_operators: { [key: string]: Function } = {
-  exit: end_procedure,
-  "+": add_objs,
-  "-": sub_objs,
-  "*": mul_objs,
-  "/": div_objs,
-  ">": gt_objs,
-  "<": lt_objs,
-  ">=": ge_objs,
-  "<=": le_objs,
-  "=": eq_objs,
-  abs: abs_obj,
-  display: display,
-  begin: begin,
-  // if: if_func,
-  eval: eval_expr_obj,
-  cdr: cdr,
-  car: car,
-  cons: cons,
-  list: list_obj,
-  get: get_from_container,
-  set: set_container,
-  push: push_into_container,
-  dict: dict_obj,
-  llm: set_llm, // set which llm to use
-  str: make_str, // make very object into string and join them with given string
-  random: random_func,
-  randint: randint,
-  randchoice: randchoice,
-  return: returnFunc,
-};
-
-function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
-  try {
-    if (exprList.length === 2 && exprList[1].type === ExprType.ATOM) {
-      return new ExprObj(new Expr(ExprType.ATOM, exprList[1].literal));
-    } else {
-      return new ExprObj(new Expr(ExprType.LST_EXPR, exprList.slice(1)));
-    }
-  } catch (error) {
-    env.setErrorMessage("quote");
-    return new Error("quote");
-  }
-}
-
-function bind(env: Env, opt: Procedure, exprList: Expr[]): Obj {
-  try {
-    const var_name = exprList[1].literal;
-    const func_name = "_update_" + var_name;
-    const body = exprList.slice(1).slice(1);
-    const lambdaString = `function ${func_name}`;
-    const expressions = new Lambda_Procedure(
-      lambdaString,
-      "lambda_eval",
-      ObjType.LAMBDA_PROCEDURE,
-      [] as Expr[],
-      body,
-      (env = env),
-      false
-    );
-    env.set(func_name, expressions);
-    return expressions;
-  } catch (error) {
-    env.setErrorMessage("bind");
-    return new Error("bind");
-  }
-}
-
-function atomAsEnvKey(expr: Expr): Obj {
-  return new Obj(expr.literal, ObjType.NONE);
-}
-
-function evalProcedureValue(
-  bodyEnv: Env,
-  argNames: Expr[],
-  body: Expr[],
-  require_new_env_when_eval: Boolean,
-  ...args: any[]
-): Obj {
-  try {
-    if (args.length !== argNames.length) {
-      console.error("Error: Invalid number of arguments");
-    }
-
-    let workingEnv: Env;
-    if (require_new_env_when_eval) {
-      workingEnv = new Env();
-      for (let [key, value] of bodyEnv) {
-        if (value !== undefined) workingEnv.set(key, value);
-      } // structuredClone(bodyEnv) is WRONG!
-    } else {
-      workingEnv = bodyEnv;
-    }
-
-    // when entering function, env.funtionDepth ++
-    workingEnv.functionDepth = bodyEnv.functionDepth + 1;
-
-    argNames.forEach((argName, index) => {
-      if (typeof argName.literal === "string") {
-        workingEnv.set(argName.literal, args[index]);
-      } else {
-        console.error(
-          `Error: Invalid argument name type: ${typeof argName.literal}`
-        );
-      }
-    });
-
-    let result: Obj = None_Obj;
-    for (let expr of body) {
-      let funcDepth = workingEnv.functionDepth;
-      result = evalExpr(workingEnv, expr);
-      if (workingEnv.functionDepth < funcDepth) {
-        return result;
-      }
-    }
-    return result;
-  } catch (error) {
-    bodyEnv.setErrorMessage("evalProcedureValue");
-    return new Error("evalProcedureValue");
-  }
-}
-
-function update_var(env: Env, opt: Procedure, exprList: Expr[]): Obj {
-  try {
-    const parameters = [atomAsEnvKey(exprList[1]), evalExpr(env, exprList[2])];
-    env.set(parameters[0].value, parameters[1]);
-
-    const obj = parameters[1];
-    const procedure = env.get(
-      `_update_${exprList[1].literal}`
-    ) as Lambda_Procedure;
-    if (procedure !== undefined) {
-      evalProcedureValue(procedure.env, [], procedure.body as Expr[], false);
-    }
-    return obj;
-  } catch (error) {
-    env.setErrorMessage("update_var");
-    return new Error("update_var");
-  }
-}
-
-function define_var(env: Env, opt: Procedure, exprList: Expr[]): Obj {
-  try {
-    const parameters = [atomAsEnvKey(exprList[1]), evalExpr(env, exprList[2])];
-    env.set(parameters[0].value, parameters[1]);
-    return parameters[1];
-  } catch (error) {
-    env.setErrorMessage("define_var");
-    return new Error("define_var");
-  }
-}
-
-export function if_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
-  try {
-    const condition: Obj = evalExpr(env, exprList[1]);
-    if (
-      condition === FALSE ||
-      condition === None_Obj ||
-      (condition.type === ObjType.INT && condition.value === 0)
-    ) {
-      if (exprList.length === 4) return evalExpr(env, exprList[3]);
-      else return new IntNumber(0);
-    } else {
-      return evalExpr(env, exprList[2]);
-    }
-  } catch (error) {
-    env.setErrorMessage("if");
-    return new Error("if");
-  }
-}
-
-export function while_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
-  try {
-    let condition: Obj = evalExpr(env, exprList[1]);
-    let result: Obj = None_Obj;
-    while (
-      !(
-        condition === FALSE ||
-        condition === None_Obj ||
-        (condition.type === ObjType.INT && condition.value === 0)
-      )
-    ) {
-      for (let i = 2; i < exprList.length - 1; i++) {
-        evalExpr(env, exprList[i]);
-      }
-      result = evalExpr(env, exprList[exprList.length - 1]);
-      condition = evalExpr(env, exprList[1]);
-    }
-    return result;
-  } catch (error) {
-    env.setErrorMessage("while");
-    return new Error("while");
-  }
-}
-
-function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
-  let argNames = exprList[0].literal as Expr[];
-  let body = exprList.slice(1);
-
-  const procedure_env = new Env();
-  for (let [key, value] of env) {
-    if (value != undefined) procedure_env.set(key, value);
-  }
-
-  const functionString = `(${argNames.map((arg) => arg.literal).join(", ")})`;
-  const lambdaString = `function${functionString}`;
-
-  const func = new Lambda_Procedure(
-    lambdaString,
-    "lambda_eval",
-    ObjType.LAMBDA_PROCEDURE,
-    (argNames = argNames),
-    (body = body),
-    (env = procedure_env)
-  );
-
-  return func;
-}
-
-function lambda_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
-  return evalLambdaExpr(env, exprList.slice(1));
-}
-
-function lambda_eval(env: Env, opt: Procedure, exprList: Expr[]): Obj {
-  const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
-  if (opt instanceof Lambda_Procedure) {
-    return evalProcedureValue(
-      env,
-      opt.argNames,
-      opt.body as Expr[],
-      opt.require_new_env_when_eval,
-      ...parameters
-    );
-  } else {
-    return new Error("invalid use of procedure");
-  }
-}
-
-function _displayFuncDepth(env: Env, opt: Procedure, exprList: Expr[]): Obj {
-  return new IntNumber(env.functionDepth);
-}
-
-const expression_operators: { [key: string]: Function } = {
-  quote: quote,
-  bind: bind,
-  update: update_var,
-  define: define_var,
-  "set!": define_var,
-  lambda: lambda_func,
-  lambda_eval: lambda_eval,
-  if: if_func,
-  while: while_func,
-  _displayFuncDepth: _displayFuncDepth,
-};
-
-// special operators works on expressions.
-export function is_special_operator(opt: Procedure): Boolean {
-  for (let s_opt in expression_operators) {
-    if (s_opt === opt.name) return true;
-  }
-
-  return false;
-}
-
-export const builtin_operators = Object.assign(
-  {},
-  object_operators,
-  expression_operators
-);
-
 export function add_objs(env: Env, ...args: Number[] | String_Obj[]): Obj {
   try {
     if (args[0].type === ObjType.STRING_OBJ) {
@@ -709,3 +430,282 @@ export function returnFunc(env: Env, arg: Obj): Obj {
     return new Error("return");
   }
 }
+
+export function end_procedure(...args: any[]): void {
+  // do nothing
+}
+
+export const builtin_vars: { [key: string]: Bool } = {
+  "#t": TRUE,
+  "#f": FALSE,
+};
+
+const object_operators: { [key: string]: Function } = {
+  exit: end_procedure,
+  "+": add_objs,
+  "-": sub_objs,
+  "*": mul_objs,
+  "/": div_objs,
+  ">": gt_objs,
+  "<": lt_objs,
+  ">=": ge_objs,
+  "<=": le_objs,
+  "=": eq_objs,
+  abs: abs_obj,
+  display: display,
+  begin: begin,
+  // if: if_func,
+  eval: eval_expr_obj,
+  cdr: cdr,
+  car: car,
+  cons: cons,
+  list: list_obj,
+  get: get_from_container,
+  set: set_container,
+  push: push_into_container,
+  dict: dict_obj,
+  llm: set_llm, // set which llm to use
+  str: make_str, // make very object into string and join them with given string
+  random: random_func,
+  randint: randint,
+  randchoice: randchoice,
+  return: returnFunc,
+};
+
+function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  try {
+    if (exprList.length === 2 && exprList[1].type === ExprType.ATOM) {
+      return new ExprObj(new Expr(ExprType.ATOM, exprList[1].literal));
+    } else {
+      return new ExprObj(new Expr(ExprType.LST_EXPR, exprList.slice(1)));
+    }
+  } catch (error) {
+    env.setErrorMessage("quote");
+    return new Error("quote");
+  }
+}
+
+function bind(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  try {
+    const var_name = exprList[1].literal;
+    const func_name = "_update_" + var_name;
+    const body = exprList.slice(1).slice(1);
+    const lambdaString = `function ${func_name}`;
+    const expressions = new Lambda_Procedure(
+      lambdaString,
+      "lambda_eval",
+      ObjType.LAMBDA_PROCEDURE,
+      [] as Expr[],
+      body,
+      (env = env),
+      false
+    );
+    env.set(func_name, expressions);
+    return expressions;
+  } catch (error) {
+    env.setErrorMessage("bind");
+    return new Error("bind");
+  }
+}
+
+function atomAsEnvKey(expr: Expr): Obj {
+  return new Obj(expr.literal, ObjType.NONE);
+}
+
+function evalProcedureValue(
+  bodyEnv: Env,
+  argNames: Expr[],
+  body: Expr[],
+  require_new_env_when_eval: Boolean,
+  ...args: any[]
+): Obj {
+  try {
+    if (args.length !== argNames.length) {
+      console.error("Error: Invalid number of arguments");
+    }
+
+    let workingEnv: Env;
+    if (require_new_env_when_eval) {
+      workingEnv = new Env();
+      for (let [key, value] of bodyEnv) {
+        if (value !== undefined) workingEnv.set(key, value);
+      } // structuredClone(bodyEnv) is WRONG!
+    } else {
+      workingEnv = bodyEnv;
+    }
+
+    // when entering function, env.funtionDepth ++
+    workingEnv.functionDepth = bodyEnv.functionDepth + 1;
+
+    argNames.forEach((argName, index) => {
+      if (typeof argName.literal === "string") {
+        workingEnv.set(argName.literal, args[index]);
+      } else {
+        console.error(
+          `Error: Invalid argument name type: ${typeof argName.literal}`
+        );
+      }
+    });
+
+    let result: Obj = None_Obj;
+    for (let expr of body) {
+      let funcDepth = workingEnv.functionDepth;
+      result = evalExpr(workingEnv, expr);
+      if (workingEnv.functionDepth < funcDepth) {
+        return result;
+      }
+    }
+    return result;
+  } catch (error) {
+    bodyEnv.setErrorMessage("evalProcedureValue");
+    return new Error("evalProcedureValue");
+  }
+}
+
+function update_var(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  try {
+    const parameters = [atomAsEnvKey(exprList[1]), evalExpr(env, exprList[2])];
+    env.set(parameters[0].value, parameters[1]);
+
+    const obj = parameters[1];
+    const procedure = env.get(
+      `_update_${exprList[1].literal}`
+    ) as Lambda_Procedure;
+    if (procedure !== undefined) {
+      evalProcedureValue(procedure.env, [], procedure.body as Expr[], false);
+    }
+    return obj;
+  } catch (error) {
+    env.setErrorMessage("update_var");
+    return new Error("update_var");
+  }
+}
+
+function define_var(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  try {
+    const parameters = [atomAsEnvKey(exprList[1]), evalExpr(env, exprList[2])];
+    env.set(parameters[0].value, parameters[1]);
+    return parameters[1];
+  } catch (error) {
+    env.setErrorMessage("define_var");
+    return new Error("define_var");
+  }
+}
+
+export function if_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  try {
+    const condition: Obj = evalExpr(env, exprList[1]);
+    if (
+      condition === FALSE ||
+      condition === None_Obj ||
+      (condition.type === ObjType.INT && condition.value === 0)
+    ) {
+      if (exprList.length === 4) return evalExpr(env, exprList[3]);
+      else return new IntNumber(0);
+    } else {
+      return evalExpr(env, exprList[2]);
+    }
+  } catch (error) {
+    env.setErrorMessage("if");
+    return new Error("if");
+  }
+}
+
+export function while_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  try {
+    let condition: Obj = evalExpr(env, exprList[1]);
+    let result: Obj = None_Obj;
+    while (
+      !(
+        condition === FALSE ||
+        condition === None_Obj ||
+        (condition.type === ObjType.INT && condition.value === 0)
+      )
+    ) {
+      for (let i = 2; i < exprList.length - 1; i++) {
+        evalExpr(env, exprList[i]);
+      }
+      result = evalExpr(env, exprList[exprList.length - 1]);
+      condition = evalExpr(env, exprList[1]);
+    }
+    return result;
+  } catch (error) {
+    env.setErrorMessage("while");
+    return new Error("while");
+  }
+}
+
+function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
+  let argNames = exprList[0].literal as Expr[];
+  let body = exprList.slice(1);
+
+  const procedure_env = new Env();
+  for (let [key, value] of env) {
+    if (value != undefined) procedure_env.set(key, value);
+  }
+
+  const functionString = `(${argNames.map((arg) => arg.literal).join(", ")})`;
+  const lambdaString = `function${functionString}`;
+
+  const func = new Lambda_Procedure(
+    lambdaString,
+    "lambda_eval",
+    ObjType.LAMBDA_PROCEDURE,
+    (argNames = argNames),
+    (body = body),
+    (env = procedure_env)
+  );
+
+  return func;
+}
+
+function lambda_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  return evalLambdaExpr(env, exprList.slice(1));
+}
+
+function lambda_eval(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
+  if (opt instanceof Lambda_Procedure) {
+    return evalProcedureValue(
+      env,
+      opt.argNames,
+      opt.body as Expr[],
+      opt.require_new_env_when_eval,
+      ...parameters
+    );
+  } else {
+    return new Error("invalid use of procedure");
+  }
+}
+
+function _displayFuncDepth(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  return new IntNumber(env.functionDepth);
+}
+
+const expression_operators: { [key: string]: Function } = {
+  quote: quote,
+  bind: bind,
+  update: update_var,
+  define: define_var,
+  "set!": define_var,
+  lambda: lambda_func,
+  lambda_eval: lambda_eval,
+  if: if_func,
+  while: while_func,
+  _displayFuncDepth: _displayFuncDepth,
+};
+
+// special operators works on expressions.
+export function is_special_operator(opt: Procedure): Boolean {
+  for (let s_opt in expression_operators) {
+    if (s_opt === opt.name) return true;
+  }
+
+  return false;
+}
+
+export const builtin_operators = Object.assign(
+  {},
+  object_operators,
+  expression_operators
+);

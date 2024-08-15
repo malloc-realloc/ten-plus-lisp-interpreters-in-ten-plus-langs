@@ -3,6 +3,7 @@ export enum ExprType {
   LST_EXPR,
   LLM_EXPR,
   STRING_EXPR,
+  ERROR,
 }
 
 export type Atom = string;

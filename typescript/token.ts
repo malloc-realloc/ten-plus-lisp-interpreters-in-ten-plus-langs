@@ -12,57 +12,61 @@ export function preprocessString(expr: string): string {
 }
 
 export function tokenize(expr: string): string[] {
-  expr = preprocessString(expr);
+  try {
+    expr = preprocessString(expr);
 
-  const result: string[] = [];
+    const result: string[] = [];
 
-  for (let i = 0; i < expr.length; i++) {
-    // skip spaces
-    if (expr[i] === " ") {
-      continue;
-    } else if (expr[i] === "(" || expr[i] === ")") {
-      result.push(expr[i]);
-    } else if (expr[i] === '"') {
-      let token = "";
-      result.push('"');
+    for (let i = 0; i < expr.length; i++) {
+      // skip spaces
+      if (expr[i] === " ") {
+        continue;
+      } else if (expr[i] === "(" || expr[i] === ")") {
+        result.push(expr[i]);
+      } else if (expr[i] === '"') {
+        let token = "";
+        result.push('"');
 
-      i++;
-      while (expr[i] !== '"') {
-        token += expr[i];
         i++;
-      }
-      result.push(token);
-      result.push('"');
-    } else if (expr[i] === "{") {
-      let token = "";
-      result.push("{");
-
-      i++;
-      while (expr[i] !== "}") {
-        token += expr[i];
-        i++;
-      }
-      result.push(token);
-      result.push("}");
-    } else if (expr[i] === "'") {
-      // '' contains comments
-      i++;
-      while (1) {
-        if (expr[i] === "'") {
-          break;
+        while (expr[i] !== '"') {
+          token += expr[i];
+          i++;
         }
-        i++;
-      }
-    } else {
-      let token = "";
-      while (i < expr.length && expr[i] !== " " && expr[i] !== ")") {
-        token += expr[i];
-        i++;
-      }
-      i--;
-      result.push(token);
-    }
-  }
+        result.push(token);
+        result.push('"');
+      } else if (expr[i] === "{") {
+        let token = "";
+        result.push("{");
 
-  return result;
+        i++;
+        while (expr[i] !== "}") {
+          token += expr[i];
+          i++;
+        }
+        result.push(token);
+        result.push("}");
+      } else if (expr[i] === "'") {
+        // '' contains comments
+        i++;
+        while (1) {
+          if (expr[i] === "'") {
+            break;
+          }
+          i++;
+        }
+      } else {
+        let token = "";
+        while (i < expr.length && expr[i] !== " " && expr[i] !== ")") {
+          token += expr[i];
+          i++;
+        }
+        i--;
+        result.push(token);
+      }
+    }
+
+    return result;
+  } catch (error) {
+    return [];
+  }
 }
