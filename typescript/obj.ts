@@ -110,7 +110,7 @@ export class Dict_Obj extends Obj {
 
 export class Error extends Obj {
   constructor(value: string = "", type: ObjType = ObjType.ERROR) {
-    super(value, type);
+    super("Invalid invocation: " + value, type);
   }
 }
 
