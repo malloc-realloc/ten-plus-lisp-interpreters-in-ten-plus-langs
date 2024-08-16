@@ -3,7 +3,7 @@ import { cons } from "./builtins";
 
 export function parseExpr(tokens: string[]): Expr {
   try {
-    let token = tokens.shift(); // 获取并移除第一个token
+    let token = tokens.shift();
     if (!token) {
       throw new Error("Unexpected end of tokens");
     }
