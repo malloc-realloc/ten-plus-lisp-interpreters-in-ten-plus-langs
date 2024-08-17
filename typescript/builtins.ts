@@ -18,7 +18,6 @@ import {
 import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
 import { evalExpr } from "./eval";
-import { cond, random } from "lodash";
 
 type Number = IntNumber | FloatNumber;
 

@@ -1,5 +1,4 @@
 import { Expr, ExprType, Atom } from "./ast";
-import { cons } from "./builtins";
 
 export function parseExpr(tokens: string[]): Expr {
   try {

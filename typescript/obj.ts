@@ -1,7 +1,5 @@
-import exp from "constants";
 import { Expr, Atom } from "./ast";
 import { Env } from "./env";
-import { on } from "events";
 
 export enum ObjType {
   INT,
@@ -54,26 +52,16 @@ export class FloatNumber extends Obj {
 export type Number = IntNumber | FloatNumber;
 
 export class Procedure extends Obj {
-  // To make sure everything passed inside evalListExpr is Object, we introduce Procedure to store lambda_function and builtin operators like +-*/
   name: Atom;
+  // To make sure everything passed inside evalListExpr is Object, we introduce Procedure to store lambda_function and builtin operators like +-*/
 
   constructor(
-    value: any,
+    value: Function | string, // value of Procedure stores ts function (when user uses builtin functions), and stores string when user calls user-defined lambda function (as toString of this lambda function).
     name: Atom = "lambda",
     type: ObjType = ObjType.PROCEDURE
   ) {
     super(value, type);
     this.name = name;
-  }
-}
-
-export class ErrorProcedure extends Procedure {
-  constructor(
-    value: string,
-    name: Atom = "lambda",
-    type: ObjType = ObjType.ERROR
-  ) {
-    super(value, name, type);
   }
 }
 
