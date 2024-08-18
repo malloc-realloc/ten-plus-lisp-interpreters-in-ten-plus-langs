@@ -18,31 +18,35 @@ import {
 import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
 import { evalExpr } from "./eval";
+import { handleError } from "./commons";
 
 type Number = IntNumber | FloatNumber;
 
-export function add_objs(env: Env, ...args: Number[] | String_Obj[]): Obj {
+type NumberOrString = Number | String_Obj;
+
+export function add_objs(env: Env, ...args: NumberOrString[]): Obj {
   try {
+    if (args.length === 0) {
+      throw new Error("At least one argument is required");
+    }
+
     if (args[0].type === ObjType.STRING_OBJ) {
-      let result = "";
-      for (const arg of args) {
-        result += arg.value.literal;
-      }
+      const result = (args as String_Obj[]).reduce(
+        (acc, arg) => acc + arg.value.literal,
+        ""
+      );
       return new String_Obj(result);
     } else {
-      let result = 0;
-      for (const arg of args) {
-        result += arg.value;
-      }
-      if (Number.isInteger(result)) {
-        return new IntNumber(result);
-      } else {
-        return new FloatNumber(result);
-      }
+      const result = (args as Number[]).reduce(
+        (acc, arg) => acc + arg.value,
+        0
+      );
+      return Number.isInteger(result)
+        ? new IntNumber(result)
+        : new FloatNumber(result);
     }
   } catch (error) {
-    env.setErrorMessage("+");
-    return new Error("+");
+    return handleError(env, "+", error);
   }
 }
 
