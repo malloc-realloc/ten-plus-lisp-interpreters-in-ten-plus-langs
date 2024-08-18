@@ -453,7 +453,6 @@ const object_operators: { [key: string]: Function } = {
   abs: abs_obj,
   display: display,
   begin: begin,
-  // if: if_func,
   eval: eval_expr_obj,
   cdr: cdr,
   car: car,
