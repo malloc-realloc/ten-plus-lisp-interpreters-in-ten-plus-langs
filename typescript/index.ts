@@ -125,6 +125,9 @@ const exprs: string[] = [
   // "(define f (lambda () (define x 2))) ",
   // "x",
   '(class "A" "a" 1 "b" (+ 1 1))',
+  '(gc A "a")',
+  '(sc A "a" 2)',
+  '(gc A "a")',
 ];
 
 const results: any[] = [];

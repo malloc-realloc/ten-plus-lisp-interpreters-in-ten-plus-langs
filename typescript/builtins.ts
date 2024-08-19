@@ -304,7 +304,7 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
 
 export function defineClass(env: Env, opt: Procedure, ...args: Obj[]): Obj {
   try {
-    const className = (args[1] as String_Obj).value;
+    const className: string = (opt as String_Obj).value;
     let dict: Map<string, Obj> = new Map<string, Obj>();
     for (let i = 0; i < args.length; i += 2) {
       dict.set((args[i] as String_Obj).value, args[i + 1]);
@@ -451,6 +451,34 @@ export function returnFunc(env: Env, arg: Obj): Obj {
   }
 }
 
+export function get_class_property(
+  env: Env,
+  className: Class_Obj,
+  propertyName: String_Obj
+): Obj {
+  try {
+    return className.value.get(propertyName.value);
+  } catch (error) {
+    env.setErrorMessage("get class property");
+    return new Error("get class property");
+  }
+}
+
+export function set_class_property(
+  env: Env,
+  className: Class_Obj,
+  properyName: String_Obj,
+  obj: Obj
+): Obj {
+  try {
+    className.value.set(properyName.value, obj);
+    return obj;
+  } catch (error) {
+    env.setErrorMessage("set class property");
+    return new Error("set class property");
+  }
+}
+
 export function end_procedure(...args: any[]): void {
   // do nothing
 }
@@ -490,6 +518,8 @@ const object_operators: { [key: string]: Function } = {
   randchoice: randchoice,
   return: returnFunc,
   class: defineClass,
+  gc: get_class_property,
+  sc: set_class_property,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
