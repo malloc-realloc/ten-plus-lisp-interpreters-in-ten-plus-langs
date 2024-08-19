@@ -118,9 +118,13 @@ const exprs: string[] = [
   // "(define f (lambda (x) (if x (return x)) (+ x 1)))",
   // "(f 0)",
   // "(f 1)",
-  "(+ 11 a b ",
-  "(+ 1)",
+  // "(+ 11 a b ",
+  // "(+ 1)",
   // "(if 1)",
+  // "(define x 3)",
+  // "(define f (lambda () (define x 2))) ",
+  // "x",
+  '(class "A" "a" 1 "b" (+ 1 1))',
 ];
 
 const results: any[] = [];

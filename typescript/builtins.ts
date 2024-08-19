@@ -14,6 +14,7 @@ import {
   Dict_Obj,
   Lambda_Procedure,
   Procedure,
+  Class_Obj,
 } from "./obj";
 import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
@@ -301,6 +302,22 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
   }
 }
 
+export function defineClass(env: Env, opt: Procedure, ...args: Obj[]): Obj {
+  try {
+    const className = (args[1] as String_Obj).value;
+    let dict: Map<string, Obj> = new Map<string, Obj>();
+    for (let i = 0; i < args.length; i += 2) {
+      dict.set((args[i] as String_Obj).value, args[i + 1]);
+    }
+    env.set(className, new Class_Obj(dict));
+
+    return new Class_Obj(dict);
+  } catch (error) {
+    env.setErrorMessage("define class");
+    return new Error("define class");
+  }
+}
+
 export function get_from_container(
   env: Env,
   obj0: IntNumber | String_Obj,
@@ -472,6 +489,7 @@ const object_operators: { [key: string]: Function } = {
   randint: randint,
   randchoice: randchoice,
   return: returnFunc,
+  class: defineClass,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {

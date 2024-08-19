@@ -15,6 +15,7 @@ export enum ObjType {
   LIST_OBJ,
   DICT_OBJ,
   ERROR_OBJ,
+  CLASS_OBJ,
 }
 
 export class Obj {
@@ -130,6 +131,12 @@ export class LLM_EXPRObj extends Obj {
 
 export class String_Obj extends Obj {
   constructor(value: string, type: ObjType = ObjType.STRING_OBJ) {
+    super(value, type);
+  }
+}
+
+export class Class_Obj extends Obj {
+  constructor(value: {}, type: ObjType = ObjType.CLASS_OBJ) {
     super(value, type);
   }
 }
