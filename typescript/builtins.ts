@@ -479,6 +479,21 @@ export function set_class_property(
   }
 }
 
+export function set_class_method(
+  env: Env,
+  className: Class_Obj,
+  propertyName: String_Obj,
+  procedure: Procedure
+): Obj {
+  try {
+    className.value.set(propertyName.value, procedure);
+    return procedure;
+  } catch (error) {
+    env.setErrorMessage("set class method");
+    return new Error("set class method");
+  }
+}
+
 export function end_procedure(...args: any[]): void {
   // do nothing
 }
@@ -520,6 +535,8 @@ const object_operators: { [key: string]: Function } = {
   class: defineClass,
   gc: get_class_property,
   sc: set_class_property,
+  classMethod: set_class_method,
+  gm: call_class_method,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
