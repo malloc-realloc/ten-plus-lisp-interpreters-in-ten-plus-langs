@@ -20,7 +20,7 @@ import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
 import { evalExpr } from "./eval";
 import { handleError } from "./commons";
-import { NODATA } from "dns";
+import { Instance_Obj } from "./obj";
 
 type Number = IntNumber | FloatNumber;
 
@@ -316,6 +316,8 @@ export function defineClass(
 
   env.classes.set(className.value as string, classProperties);
 
+  env.set(className.value, new Class_Obj(className.value));
+
   return None_Obj;
 }
 
@@ -452,21 +454,38 @@ export function returnFunc(env: Env, arg: Obj): Obj {
   }
 }
 
-export function get_class_property(
+export function geti(
   env: Env,
-  className: Class_Obj,
-  propertyName: String_Obj
+  instance_obj: Instance_Obj,
+  name: String_Obj
 ): Obj {
-  return None_Obj;
+  const obj = instance_obj.value.get(name.value);
+
+  return obj;
 }
 
-export function set_class_property(
+export function defineClassInstance(
   env: Env,
-  className: Class_Obj,
-  properyName: String_Obj,
+  class_obj: Class_Obj,
+  name: String_Obj
+): Obj {
+  const instance = new Instance_Obj(
+    env.classes.get(class_obj.value) as Map<string, Obj>
+  );
+  env.set(name.value, instance);
+
+  return instance;
+}
+
+export function seti(
+  env: Env,
+  instance_obj: Instance_Obj,
+  name: String_Obj,
   obj: Obj
 ): Obj {
-  return None_Obj;
+  instance_obj.value.set(name.value, obj);
+
+  return obj;
 }
 
 export function end_procedure(...args: any[]): void {
@@ -508,8 +527,9 @@ const object_operators: { [key: string]: Function } = {
   randchoice: randchoice,
   return: returnFunc,
   class: defineClass,
-  gc: get_class_property,
-  sc: set_class_property,
+  instance: defineClassInstance,
+  geti: geti,
+  seti: seti,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {

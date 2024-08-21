@@ -125,8 +125,10 @@ const exprs: string[] = [
   // "(define f (lambda () (define x 2))) ",
   // "x",
   '(class "A" "a" "b")',
-  // '(gc A "a")',
-  // '(sc A "a" 2)',
+  '(instance A "temp")',
+  '(geti temp "a")',
+  '(seti temp "a" 2)',
+  '(geti temp "a")',
   // '(gc A "a")',
 ];
 

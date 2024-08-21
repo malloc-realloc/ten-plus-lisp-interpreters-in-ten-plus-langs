@@ -16,6 +16,7 @@ export enum ObjType {
   DICT_OBJ,
   ERROR_OBJ,
   CLASS_OBJ,
+  INSTANCE_OBJ,
 }
 
 export class Obj {
@@ -136,7 +137,13 @@ export class String_Obj extends Obj {
 }
 
 export class Class_Obj extends Obj {
-  constructor(value: {}, type: ObjType = ObjType.CLASS_OBJ) {
+  constructor(value: string, type: ObjType = ObjType.CLASS_OBJ) {
+    super(value, type); // value stores class name.
+  }
+}
+
+export class Instance_Obj extends Obj {
+  constructor(value: Map<string, Obj>, type: ObjType = ObjType.INSTANCE_OBJ) {
     super(value, type);
   }
 }
