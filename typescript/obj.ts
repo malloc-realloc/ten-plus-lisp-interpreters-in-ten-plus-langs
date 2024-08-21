@@ -1,4 +1,5 @@
 import { Expr, Atom } from "./ast";
+import { call_method } from "./builtins";
 import { Env } from "./env";
 
 export enum ObjType {
@@ -143,7 +144,17 @@ export class Class_Obj extends Obj {
 }
 
 export class Instance_Obj extends Obj {
-  constructor(value: Map<string, Obj>, type: ObjType = ObjType.INSTANCE_OBJ) {
+  instanceName: string;
+  className: string;
+
+  constructor(
+    value: Map<string, Obj>,
+    instanceName: string,
+    className: string,
+    type: ObjType = ObjType.INSTANCE_OBJ
+  ) {
     super(value, type);
+    this.instanceName = instanceName;
+    this.className = className;
   }
 }

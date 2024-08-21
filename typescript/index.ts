@@ -129,7 +129,8 @@ const exprs: string[] = [
   '(geti temp "a")',
   '(seti temp "a" 2)',
   '(geti temp "a")',
-  // '(gc A "a")',
+  '(setm A "m" (lambda (x) (+ x (geti this "a")) ))',
+  '(callm temp "m" 2)',
 ];
 
 const results: any[] = [];

@@ -464,13 +464,45 @@ export function geti(
   return obj;
 }
 
+export function set_method(
+  env: Env,
+  class_obj: Class_Obj,
+  name: String_Obj,
+  procedure: Procedure
+): Obj {
+  env.classes.get(class_obj.value)?.set(name.value, procedure);
+
+  return procedure;
+}
+
+export function call_method(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
+
+  const instance = parameters[0] as Instance_Obj;
+  const methodName = parameters[1] as String_Obj;
+
+  env.newThis(instance.instanceName, instance);
+
+  const procedure: Procedure = env.classes
+    .get(instance.className)
+    ?.get(methodName.value) as Procedure;
+
+  const obj: Obj = lambda_eval(env, procedure, exprList.slice(2));
+
+  env.popThis();
+
+  return obj;
+}
+
 export function defineClassInstance(
   env: Env,
   class_obj: Class_Obj,
   name: String_Obj
 ): Obj {
   const instance = new Instance_Obj(
-    env.classes.get(class_obj.value) as Map<string, Obj>
+    env.classes.get(class_obj.value) as Map<string, Obj>,
+    name.value,
+    class_obj.value
   );
   env.set(name.value, instance);
 
@@ -530,6 +562,7 @@ const object_operators: { [key: string]: Function } = {
   instance: defineClassInstance,
   geti: geti,
   seti: seti,
+  setm: set_method,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
@@ -753,6 +786,7 @@ const expression_operators: { [key: string]: Function } = {
   if: if_func,
   while: while_func,
   _displayFuncDepth: _displayFuncDepth,
+  callm: call_method,
 };
 
 // special operators works on expressions.

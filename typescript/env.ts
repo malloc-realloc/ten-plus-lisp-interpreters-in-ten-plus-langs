@@ -1,18 +1,23 @@
-import { Class_Obj, Obj } from "./obj";
+import { Class_Obj, None_Obj, Obj } from "./obj";
 
 export class Env extends Map<string, Obj> {
   functionDepth: number = 0;
   hasFailed: boolean = false;
   errorMessage: string = "";
   thisStack: string[] = [];
+  thisValueStack: Obj[] = [None_Obj]; // there is always a None_Obj as value of "this"
   classes: Map<string, Map<string, Obj>> = new Map<string, Map<string, Obj>>();
 
-  newThis(s: string) {
+  newThis(s: string, obj: Obj) {
     this.thisStack.push(s);
+    this.set("this", obj);
+    this.thisValueStack.push(obj);
   }
 
-  popThis(s: string) {
+  popThis() {
     this.thisStack.pop();
+    this.thisValueStack.pop();
+    this.set("this", this.thisValueStack[this.thisValueStack.length - 1]);
   }
 
   getThis() {
