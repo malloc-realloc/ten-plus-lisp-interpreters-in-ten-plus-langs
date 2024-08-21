@@ -20,6 +20,7 @@ import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
 import { evalExpr } from "./eval";
 import { handleError } from "./commons";
+import { NODATA } from "dns";
 
 type Number = IntNumber | FloatNumber;
 
@@ -302,20 +303,20 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
   }
 }
 
-export function defineClass(env: Env, opt: Procedure, ...args: Obj[]): Obj {
-  try {
-    const className: string = (opt as String_Obj).value;
-    let dict: Map<string, Obj> = new Map<string, Obj>();
-    for (let i = 0; i < args.length; i += 2) {
-      dict.set((args[i] as String_Obj).value, args[i + 1]);
-    }
-    env.set(className, new Class_Obj(dict));
+export function defineClass(
+  env: Env,
+  className: String_Obj,
+  ...args: String_Obj[]
+): Obj {
+  let classProperties = new Map<string, Obj>();
 
-    return new Class_Obj(dict);
-  } catch (error) {
-    env.setErrorMessage("define class");
-    return new Error("define class");
+  for (let arg of args) {
+    classProperties.set(arg.value, None_Obj);
   }
+
+  env.classes.set(className.value as string, classProperties);
+
+  return None_Obj;
 }
 
 export function get_from_container(
@@ -456,12 +457,7 @@ export function get_class_property(
   className: Class_Obj,
   propertyName: String_Obj
 ): Obj {
-  try {
-    return className.value.get(propertyName.value);
-  } catch (error) {
-    env.setErrorMessage("get class property");
-    return new Error("get class property");
-  }
+  return None_Obj;
 }
 
 export function set_class_property(
@@ -470,28 +466,7 @@ export function set_class_property(
   properyName: String_Obj,
   obj: Obj
 ): Obj {
-  try {
-    className.value.set(properyName.value, obj);
-    return obj;
-  } catch (error) {
-    env.setErrorMessage("set class property");
-    return new Error("set class property");
-  }
-}
-
-export function set_class_method(
-  env: Env,
-  className: Class_Obj,
-  propertyName: String_Obj,
-  procedure: Procedure
-): Obj {
-  try {
-    className.value.set(propertyName.value, procedure);
-    return procedure;
-  } catch (error) {
-    env.setErrorMessage("set class method");
-    return new Error("set class method");
-  }
+  return None_Obj;
 }
 
 export function end_procedure(...args: any[]): void {
@@ -535,8 +510,6 @@ const object_operators: { [key: string]: Function } = {
   class: defineClass,
   gc: get_class_property,
   sc: set_class_property,
-  classMethod: set_class_method,
-  gm: call_class_method,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
