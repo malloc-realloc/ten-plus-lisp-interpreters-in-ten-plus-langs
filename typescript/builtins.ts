@@ -21,6 +21,7 @@ import { Expr, ExprType } from "./ast";
 import { evalExpr } from "./eval";
 import { handleError } from "./commons";
 import { Instance_Obj } from "./obj";
+import { error } from "console";
 
 type Number = IntNumber | FloatNumber;
 
@@ -39,10 +40,16 @@ export function add_objs(env: Env, ...args: NumberOrString[]): Obj {
       );
       return new String_Obj(result);
     } else {
-      const result = (args as Number[]).reduce(
-        (acc, arg) => acc + arg.value,
-        0
-      );
+      let result = 0;
+      for (let arg of args) {
+        if (Number.isInteger(arg.value)) result += arg.value;
+        else
+          return handleError(
+            env,
+            "+ cannot be applied to objects with type except number, string",
+            error
+          );
+      }
       return Number.isInteger(result)
         ? new IntNumber(result)
         : new FloatNumber(result);
