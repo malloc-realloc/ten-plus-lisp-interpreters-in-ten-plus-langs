@@ -321,6 +321,27 @@ export function defineClass(
   return None_Obj;
 }
 
+export function defineSubClass(
+  env: Env,
+  fatherClassName: Class_Obj,
+  ...args: String_Obj[]
+): Obj {
+  let classProperties: Map<string, Obj> = env.classes.get(
+    fatherClassName.value as string
+  ) as Map<string, Obj>;
+  const subclassName: string = args[0].value as string;
+
+  for (let i = 0; i < args.length; i++) {
+    classProperties.set(args[i].value, None_Obj);
+  }
+
+  env.classes.set(subclassName, classProperties);
+
+  env.set(subclassName, new Class_Obj(subclassName));
+
+  return None_Obj;
+}
+
 export function get_from_container(
   env: Env,
   obj0: IntNumber | String_Obj,
@@ -563,6 +584,7 @@ const object_operators: { [key: string]: Function } = {
   geti: geti,
   seti: seti,
   setm: set_method,
+  subclass: defineSubClass,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {

@@ -126,11 +126,16 @@ const exprs: string[] = [
   // "x",
   '(class "A" "a" "b")',
   '(instance A "temp")',
-  '(geti temp "a")',
-  '(seti temp "a" 2)',
-  '(geti temp "a")',
+  // '(geti temp "a")',
+  // '(seti temp "a" 2)',
+  // '(geti temp "a")',
   '(setm A "m" (lambda (x) (+ x (geti this "a")) ))',
   '(callm temp "m" 2)',
+  '(subclass A "subclassOfA" "c")',
+  '(instance subclassOfA "temp2")',
+  '(seti temp2 "c" 3)',
+  '(geti temp2 "a")',
+  '(callm temp2 "m" 2)',
 ];
 
 const results: any[] = [];
