@@ -312,7 +312,7 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
 
 export function defineClass(
   env: Env,
-  className: String_Obj,
+  className: Obj,
   ...args: String_Obj[]
 ): Obj {
   let classProperties = new Map<string, Obj>();

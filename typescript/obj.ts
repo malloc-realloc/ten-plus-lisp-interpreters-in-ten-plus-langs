@@ -18,6 +18,7 @@ export enum ObjType {
   ERROR_OBJ,
   CLASS_OBJ,
   INSTANCE_OBJ,
+  UNDEFINED_OBJ,
 }
 
 export class Obj {

@@ -125,10 +125,10 @@ function evalAtom(env: Env, expr: Expr): Obj {
 export function getFromEnv(env: Env, literal: string): Obj {
   const value = env.get(literal);
   if (value === undefined) {
-    console.error(
-      `Error: retrieve undefined variable ${literal} from environment`
-    );
-    return None_Obj;
+    // console.error(
+    //   `Error: retrieve undefined variable ${literal} from environment`
+    // );
+    return new Obj(literal, ObjType.UNDEFINED_OBJ);
   }
   return value;
 }
