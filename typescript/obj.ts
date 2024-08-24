@@ -159,3 +159,9 @@ export class Instance_Obj extends Obj {
     this.className = className;
   }
 }
+
+export class Undefined_Obj extends Obj {
+  constructor(value: string) {
+    super(value, ObjType.UNDEFINED_OBJ);
+  }
+}

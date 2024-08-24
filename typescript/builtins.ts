@@ -15,6 +15,7 @@ import {
   Lambda_Procedure,
   Procedure,
   Class_Obj,
+  Undefined_Obj,
 } from "./obj";
 import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
@@ -312,7 +313,7 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
 
 export function defineClass(
   env: Env,
-  className: Obj,
+  className: Undefined_Obj,
   ...args: String_Obj[]
 ): Obj {
   let classProperties = new Map<string, Obj>();
@@ -351,8 +352,8 @@ export function defineSubClass(
 
 export function get_from_container(
   env: Env,
-  obj0: IntNumber | String_Obj,
-  obj1: List_Obj | Dict_Obj
+  obj1: List_Obj | Dict_Obj,
+  obj0: IntNumber | String_Obj
 ): Obj {
   try {
     if (obj1.type === ObjType.LIST_OBJ) {
@@ -381,9 +382,9 @@ export function get_from_container(
 
 export function set_container(
   env: Env,
+  obj1: List_Obj | Dict_Obj,
   obj0: IntNumber | String_Obj,
-  value: Obj,
-  obj1: List_Obj | Dict_Obj
+  value: Obj
 ): Obj {
   try {
     if (obj1.type === ObjType.LIST_OBJ) {
@@ -485,7 +486,7 @@ export function returnFunc(env: Env, arg: Obj): Obj {
 export function geti(
   env: Env,
   instance_obj: Instance_Obj,
-  name: String_Obj
+  name: Undefined_Obj
 ): Obj {
   const obj = instance_obj.value.get(name.value);
 
@@ -495,7 +496,7 @@ export function geti(
 export function set_method(
   env: Env,
   class_obj: Class_Obj,
-  name: String_Obj,
+  name: Undefined_Obj,
   procedure: Procedure
 ): Obj {
   env.classes.get(class_obj.value)?.set(name.value, procedure);
@@ -525,7 +526,7 @@ export function call_method(env: Env, opt: Procedure, exprList: Expr[]): Obj {
 export function defineClassInstance(
   env: Env,
   class_obj: Class_Obj,
-  name: String_Obj
+  name: Undefined_Obj
 ): Obj {
   const instance = new Instance_Obj(
     env.classes.get(class_obj.value) as Map<string, Obj>,
@@ -540,7 +541,7 @@ export function defineClassInstance(
 export function seti(
   env: Env,
   instance_obj: Instance_Obj,
-  name: String_Obj,
+  name: Undefined_Obj,
   obj: Obj
 ): Obj {
   instance_obj.value.set(name.value, obj);
