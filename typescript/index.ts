@@ -137,7 +137,9 @@ const exprs: string[] = [
   // '(geti temp2 "a")',
   // '(callm temp2 "m" 2)',
   // "(+ 2 a)",
-  "(- 2 a)",
+  // "(- 2 a)",
+  "(and 1 0 2)",
+  "(or 1 0)",
 ];
 
 const results: any[] = [];

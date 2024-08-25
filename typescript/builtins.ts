@@ -28,6 +28,17 @@ type Number = IntNumber | FloatNumber;
 
 type NumberOrString = Number | String_Obj;
 
+const TsLispInnerFalse = new IntNumber(0);
+const TsLispInnerTrue = new IntNumber(1);
+
+function isTsLispFalse(obj: Obj): Boolean {
+  return (
+    obj === FALSE ||
+    obj === None_Obj ||
+    (obj.type === ObjType.INT && obj.value === 0)
+  );
+}
+
 export function add_objs(env: Env, ...args: NumberOrString[]): Obj {
   try {
     if (args.length === 0) {
@@ -523,6 +534,20 @@ export function call_method(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   return obj;
 }
 
+function andFunc(env: Env, ...objs: Obj[]): Obj {
+  for (let obj of objs) {
+    if (isTsLispFalse(obj)) return TsLispInnerFalse;
+  }
+  return TsLispInnerTrue;
+}
+
+function orFunc(env: Env, ...objs: Obj[]): Obj {
+  for (let obj of objs) {
+    if (!isTsLispFalse(obj)) return TsLispInnerTrue;
+  }
+  return TsLispInnerFalse;
+}
+
 export function defineClassInstance(
   env: Env,
   class_obj: Class_Obj,
@@ -593,6 +618,8 @@ const object_operators: { [key: string]: Function } = {
   seti: seti,
   setm: set_method,
   subclass: defineSubClass,
+  and: andFunc,
+  or: orFunc,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
@@ -718,11 +745,7 @@ function define_var(env: Env, opt: Procedure, exprList: Expr[]): Obj {
 export function if_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   try {
     const condition: Obj = evalExpr(env, exprList[1]);
-    if (
-      condition === FALSE ||
-      condition === None_Obj ||
-      (condition.type === ObjType.INT && condition.value === 0)
-    ) {
+    if (isTsLispFalse(condition)) {
       if (exprList.length === 4) return evalExpr(env, exprList[3]);
       else return new IntNumber(0);
     } else {
