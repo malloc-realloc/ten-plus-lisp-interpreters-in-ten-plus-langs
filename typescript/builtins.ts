@@ -698,8 +698,8 @@ function evalProcedureValue(
     });
 
     let result: Obj = None_Obj;
+    let funcDepth = workingEnv.functionDepth;
     for (let expr of body) {
-      let funcDepth = workingEnv.functionDepth;
       result = evalExpr(workingEnv, expr);
       if (workingEnv.functionDepth < funcDepth) {
         return result;
@@ -709,6 +709,63 @@ function evalProcedureValue(
   } catch (error) {
     bodyEnv.setErrorMessage("evalProcedureValue");
     return new Error("evalProcedureValue");
+  }
+}
+
+function forFunc(env: Env, opt: Procedure, body: Expr[]): Obj {
+  try {
+    const condExpr: Expr = body[2];
+    const updateExpr: Expr = body[3];
+
+    let workingEnv = new Env();
+    for (let [key, value] of env) {
+      if (value !== undefined) workingEnv.set(key, value);
+    }
+
+    if (body.length < 5) throw error;
+
+    workingEnv.functionDepth = env.functionDepth + 1;
+
+    let result: Obj = None_Obj;
+    let funcDepth = workingEnv.functionDepth;
+    for (let i = 1; i < body.length; i++) {
+      switch (i) {
+        case 1:
+          result = evalExpr(workingEnv, body[i]);
+          break;
+
+        case 2:
+          result = evalExpr(workingEnv, body[i]);
+          if (isTsLispFalse(result)) {
+            i = body.length - 1;
+          }
+          break;
+
+        case 3:
+          break;
+
+        case body.length - 1:
+          result = evalExpr(workingEnv, body[i]);
+          if (!isTsLispFalse(evalExpr(workingEnv, body[2]))) {
+            evalExpr(workingEnv, body[3]);
+            i = 3;
+          }
+          break;
+
+        default:
+          result = evalExpr(workingEnv, body[i]);
+          break;
+      }
+
+      if (workingEnv.functionDepth < funcDepth) {
+        return result;
+      }
+    }
+
+    return result;
+  } catch (error) {
+    env.setErrorMessage("for");
+    return new Error("for");
   }
 }
 
@@ -840,6 +897,7 @@ const expression_operators: { [key: string]: Function } = {
   while: while_func,
   _displayFuncDepth: _displayFuncDepth,
   callm: call_method,
+  for: forFunc,
 };
 
 // special operators works on expressions.
