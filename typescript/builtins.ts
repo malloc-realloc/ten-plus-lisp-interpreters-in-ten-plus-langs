@@ -88,6 +88,20 @@ export function sub_objs(env: Env, ...args: Number[]): Obj {
   }
 }
 
+export function power_objs(env: Env, obj1: Number, obj2: Number): Obj {
+  try {
+    let result = obj1.value ** obj2.value;
+    if (Number.isInteger(result)) {
+      return new IntNumber(result);
+    } else {
+      return new FloatNumber(result);
+    }
+  } catch (error) {
+    env.setErrorMessage("**");
+    return new Error("**");
+  }
+}
+
 export function mul_objs(env: Env, ...args: Number[]): Obj {
   try {
     let result = 1;
@@ -588,6 +602,7 @@ const object_operators: { [key: string]: Function } = {
   "+": add_objs,
   "-": sub_objs,
   "*": mul_objs,
+  "**": power_objs,
   "/": div_objs,
   ">": gt_objs,
   "<": lt_objs,
