@@ -19,6 +19,7 @@ export enum ObjType {
   CLASS_OBJ,
   INSTANCE_OBJ,
   UNDEFINED_OBJ,
+  Array_Obj,
 }
 
 export class Obj {
@@ -164,4 +165,26 @@ export class Undefined_Obj extends Obj {
   constructor(value: string) {
     super(value, ObjType.UNDEFINED_OBJ);
   }
+}
+
+type MultiDimArray = Obj | MultiDimArray[];
+
+export class ArrayObj extends Obj {
+  constructor(array: MultiDimArray) {
+    super(array, ObjType.Array_Obj);
+  }
+}
+
+export function createMultiDimArray(
+  dimensions: number[],
+  initialValue: Obj = None_Obj
+): MultiDimArray {
+  if (dimensions.length === 0) {
+    return initialValue;
+  }
+
+  const [currentDim, ...restDims] = dimensions;
+  return Array.from({ length: currentDim.valueOf() }, () =>
+    createMultiDimArray(restDims, initialValue)
+  );
 }

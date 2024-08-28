@@ -16,6 +16,8 @@ import {
   Procedure,
   Class_Obj,
   Undefined_Obj,
+  createMultiDimArray,
+  ArrayObj,
 } from "./obj";
 import { Env } from "./env";
 import { Expr, ExprType } from "./ast";
@@ -447,6 +449,10 @@ export function push_into_container(env: Env, value: Obj, obj1: List_Obj): Obj {
   }
 }
 
+export function arrayFunc(env: Env, ...args: IntNumber[]): Obj {
+  return new ArrayObj(createMultiDimArray(args.map((arg) => arg.value)));
+}
+
 export function set_llm(env: Env, value: String_Obj): Obj {
   try {
     env.set("llm", value);
@@ -635,6 +641,7 @@ const object_operators: { [key: string]: Function } = {
   subclass: defineSubClass,
   and: andFunc,
   or: orFunc,
+  array: arrayFunc,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
