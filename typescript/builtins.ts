@@ -450,7 +450,12 @@ export function push_into_container(env: Env, value: Obj, obj1: List_Obj): Obj {
 }
 
 export function arrayFunc(env: Env, ...args: IntNumber[]): Obj {
-  return new ArrayObj(createMultiDimArray(args.map((arg) => arg.value)));
+  try {
+    return new ArrayObj(createMultiDimArray(args.map((arg) => arg.value)));
+  } catch (error) {
+    env.setErrorMessage("array");
+    return new Error("array");
+  }
 }
 
 export function setAFunc(
@@ -459,28 +464,67 @@ export function setAFunc(
   arrObj: ArrayObj,
   ...Numberindexes: Number[]
 ): Obj {
-  const indexes: number[] = Numberindexes.map((i) => i.value);
-  let arr = arrObj.value;
+  try {
+    const indexes: number[] = Numberindexes.map((i) => i.value);
+    let arr = arrObj.value;
 
-  if (indexes.length === 1) {
-    arr[indexes[0]] = obj;
-  }
-
-  for (let i = 0; i < indexes.length - 1; i++) {
-    const index = indexes[i];
-
-    // Check if the index is within bounds
-    if (!Array.isArray(arr) || index >= arr.length) {
-      throw new Error(`Index ${index} out of bounds.`);
+    if (indexes.length === 1) {
+      arr[indexes[0]] = obj;
     }
 
-    if (i === indexes.length - 2) {
-      arr[index][indexes[indexes.length - 1]] = obj;
-    } else {
-      arr = arr[index];
+    for (let i = 0; i < indexes.length - 1; i++) {
+      const index = indexes[i];
+
+      // Check if the index is within bounds
+      if (!Array.isArray(arr) || index >= arr.length) {
+        throw new Error(`Index ${index} out of bounds.`);
+      }
+
+      if (i === indexes.length - 2) {
+        arr[index][indexes[indexes.length - 1]] = obj;
+      } else {
+        arr = arr[index];
+      }
     }
+    return obj;
+  } catch (error) {
+    env.setErrorMessage("setA");
+    return new Error("setA");
   }
-  return obj;
+}
+
+export function getAFunc(
+  env: Env,
+  arrObj: ArrayObj,
+  ...Numberindexes: Number[]
+): Obj {
+  try {
+    const indexes: number[] = Numberindexes.map((i) => i.value);
+    let arr = arrObj.value;
+
+    if (indexes.length === 1) {
+      return arr[indexes[0]];
+    }
+
+    for (let i = 0; i < indexes.length - 1; i++) {
+      const index = indexes[i];
+
+      // Check if the index is within bounds
+      if (!Array.isArray(arr) || index >= arr.length) {
+        throw new Error(`Index ${index} out of bounds.`);
+      }
+
+      if (i === indexes.length - 2) {
+        return arr[index][indexes[indexes.length - 1]];
+      } else {
+        arr = arr[index];
+      }
+    }
+    throw error;
+  } catch (error) {
+    env.setErrorMessage("getA");
+    return new Error("getA");
+  }
 }
 
 export function set_llm(env: Env, value: String_Obj): Obj {
@@ -673,6 +717,7 @@ const object_operators: { [key: string]: Function } = {
   or: orFunc,
   array: arrayFunc,
   setA: setAFunc,
+  getA: getAFunc,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
