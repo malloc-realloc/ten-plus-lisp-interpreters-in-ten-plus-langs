@@ -143,8 +143,9 @@ const exprs: string[] = [
   // "(for (define a 3)(> a 0)(define a (- a 1)) (if (< a 2) (return 100)) (display a))",
   // "(for (define a 3)(> a 1)(define a (- a 1)) (display a))",
   "(** 2 3)",
-  "(define arr (array 2 3))",
-  // "(setA arr 0 0 (** 2 3))",
+  "(define arr (array 2  ))",
+  "(setA (** 2 3) arr 0  )",
+  "arr",
 ];
 
 const results: any[] = [];

@@ -453,6 +453,36 @@ export function arrayFunc(env: Env, ...args: IntNumber[]): Obj {
   return new ArrayObj(createMultiDimArray(args.map((arg) => arg.value)));
 }
 
+export function setAFunc(
+  env: Env,
+  obj: Obj,
+  arrObj: ArrayObj,
+  ...Numberindexes: Number[]
+): Obj {
+  const indexes: number[] = Numberindexes.map((i) => i.value);
+  let arr = arrObj.value;
+
+  if (indexes.length === 1) {
+    arr[indexes[0]] = obj;
+  }
+
+  for (let i = 0; i < indexes.length - 1; i++) {
+    const index = indexes[i];
+
+    // Check if the index is within bounds
+    if (!Array.isArray(arr) || index >= arr.length) {
+      throw new Error(`Index ${index} out of bounds.`);
+    }
+
+    if (i === indexes.length - 2) {
+      arr[index][indexes[indexes.length - 1]] = obj;
+    } else {
+      arr = arr[index];
+    }
+  }
+  return obj;
+}
+
 export function set_llm(env: Env, value: String_Obj): Obj {
   try {
     env.set("llm", value);
@@ -642,6 +672,7 @@ const object_operators: { [key: string]: Function } = {
   and: andFunc,
   or: orFunc,
   array: arrayFunc,
+  setA: setAFunc,
 };
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
