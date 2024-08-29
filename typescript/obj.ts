@@ -24,33 +24,31 @@ export enum ObjType {
 
 export class Obj {
   value: any;
-  type: ObjType;
 
-  constructor(value: any, type: ObjType) {
+  constructor(value: any) {
     this.value = value;
-    this.type = type;
   }
 
   toString(): string {
-    return `Obj is ${String(this.value)}, type is ${ObjType[this.type]}`;
+    return `Obj is ${String(this.value)}, type is ${typeof this.value}`;
   }
 }
 
 export class ErrorObj extends Obj {
   constructor(value: string, type: ObjType = ObjType.ERROR_OBJ) {
-    super(value, type);
+    super(value);
   }
 }
 
 export class IntNumber extends Obj {
   constructor(value: number, type: ObjType = ObjType.INT) {
-    super(value, type);
+    super(value);
   }
 }
 
 export class FloatNumber extends Obj {
   constructor(value: number, type: ObjType = ObjType.FLOAT) {
-    super(value, type);
+    super(value);
   }
 }
 
@@ -65,7 +63,7 @@ export class Procedure extends Obj {
     name: Atom = "lambda",
     type: ObjType = ObjType.PROCEDURE
   ) {
-    super(value, type);
+    super(value);
     this.name = name;
   }
 }
@@ -88,54 +86,60 @@ export class Lambda_Procedure extends Procedure {
 }
 
 export class Bool extends Obj {
+
   constructor(value: boolean, type: ObjType = ObjType.BOOL) {
-    super(value, type);
+    super(value);
+
   }
 }
 
 export class List_Obj extends Obj {
+  type: ObjType
   constructor(value: Array<Obj>, type: ObjType = ObjType.LIST_OBJ) {
-    super(value, type);
+    super(value);
+    this.type = type
   }
 }
 
 export class Dict_Obj extends Obj {
+  type : ObjType
   constructor(value: { [key: string]: Obj }, type: ObjType = ObjType.DICT_OBJ) {
-    super(value, type);
+    super(value);
+    this.type = type
   }
 }
 
 export class Error extends Obj {
-  constructor(value: string = "", type: ObjType = ObjType.ERROR) {
-    super("Invalid invocation: " + value, type);
+  constructor(value: string = "") {
+    super("Invalid invocation: " + value);
   }
 }
 
-export const TRUE = new Bool(true, ObjType.BOOL);
-export const FALSE = new Bool(false, ObjType.BOOL);
-export const None_Obj = new Obj(null, ObjType.NONE);
+export const TRUE = new Bool(true);
+export const FALSE = new Bool(false);
+export const None_Obj = new Obj(null);
 
 export class ExprObj extends Obj {
   constructor(value: Expr, type: ObjType = ObjType.EXPR) {
-    super(value, type);
+    super(value);
   }
 }
 
 export class LLM_EXPRObj extends Obj {
   constructor(value: Expr, type: ObjType = ObjType.LLM_EXPR_OBJ) {
-    super(value, type);
+    super(value);
   }
 }
 
 export class String_Obj extends Obj {
   constructor(value: string, type: ObjType = ObjType.STRING_OBJ) {
-    super(value, type);
+    super(value);
   }
 }
 
 export class Class_Obj extends Obj {
   constructor(value: string, type: ObjType = ObjType.CLASS_OBJ) {
-    super(value, type); // value stores class name.
+    super(value); // value stores class name.
   }
 }
 
@@ -149,7 +153,7 @@ export class Instance_Obj extends Obj {
     className: string,
     type: ObjType = ObjType.INSTANCE_OBJ
   ) {
-    super(value, type);
+    super(value);
     this.instanceName = instanceName;
     this.className = className;
   }
@@ -157,7 +161,7 @@ export class Instance_Obj extends Obj {
 
 export class Undefined_Obj extends Obj {
   constructor(value: string) {
-    super(value, ObjType.UNDEFINED_OBJ);
+    super(value);
   }
 }
 
@@ -165,7 +169,7 @@ type MultiDimArray = Obj | MultiDimArray[];
 
 export class ArrayObj extends Obj {
   constructor(array: MultiDimArray) {
-    super(array, ObjType.Array_Obj);
+    super(array);
   }
 }
 

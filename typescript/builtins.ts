@@ -37,7 +37,7 @@ function isTsLispFalse(obj: Obj): Boolean {
   return (
     obj === FALSE ||
     obj === None_Obj ||
-    (obj.type === ObjType.INT && obj.value === 0)
+    (typeof obj.value === "number" && obj.value === 0)
   );
 }
 
@@ -47,7 +47,7 @@ export function add_objs(env: Env, ...args: NumberOrString[]): Obj {
       throw new Error("At least one argument is required");
     }
 
-    if (args[0].type === ObjType.STRING_OBJ) {
+    if (typeof args[0].value.literal === "string") {
       const result = (args as String_Obj[]).reduce(
         (acc, arg) => acc + arg.value.literal,
         ""
@@ -77,7 +77,8 @@ export function sub_objs(env: Env, ...args: Number[]): Obj {
   try {
     let result = args[0].value;
     for (const arg of args.slice(1)) {
-      result -= arg.value;
+      if (Number.isInteger(arg.value)) result-= arg.value;
+      else return handleError(env, "-", error)
     }
     if (Number.isInteger(result)) {
       return new IntNumber(result);
@@ -85,14 +86,13 @@ export function sub_objs(env: Env, ...args: Number[]): Obj {
       return new FloatNumber(result);
     }
   } catch (error) {
-    env.setErrorMessage("-");
-    return new Error("-");
+    return handleError(env, '-', error);
   }
 }
 
 export function power_objs(env: Env, obj1: Number, obj2: Number): Obj {
   try {
-    let result = obj1.value ** obj2.value;
+    let result = obj1.value ** (obj2.value);
     if (Number.isInteger(result)) {
       return new IntNumber(result);
     } else {
@@ -173,7 +173,7 @@ export function dict_obj(env: Env, ...args: Obj[]): Obj {
     let obj = new Dict_Obj({});
     for (const [index, value] of args.entries()) {
       if (index % 2 === 0) {
-        if (args[index].type !== ObjType.STRING_OBJ) {
+        if (typeof args[index].value !== "string") {
           throw new Error("key must be string");
         }
         obj.value[args[index].value] = args[index + 1];
@@ -259,8 +259,8 @@ export function eval_expr_obj(env: Env, expr: ExprObj): Obj {
 export function display(env: Env, ...args: Obj[]): Obj {
   try {
     if (
-      args[0].type === ObjType.STRING_OBJ ||
-      args[0].type === ObjType.LLM_EXPR_OBJ
+      typeof args[0].value.literal === "string" ||
+      typeof args[0].value.literal === "string"
     ) {
       for (const arg of args) {
         console.log(arg.value.literal);
@@ -717,7 +717,7 @@ function bind(env: Env, opt: Procedure, exprList: Expr[]): Obj {
 }
 
 function atomAsEnvKey(expr: Expr): Obj {
-  return new Obj(expr.literal, ObjType.NONE);
+  return new Obj(expr.literal);
 }
 
 function evalProcedureValue(
@@ -877,7 +877,7 @@ export function whileFunc(env: Env, opt: Procedure, exprList: Expr[]): Obj {
       !(
         condition === FALSE ||
         condition === None_Obj ||
-        (condition.type === ObjType.INT && condition.value === 0)
+        (condition.value === 0)
       )
     ) {
       for (let i = 2; i < exprList.length - 1; i++) {

@@ -128,7 +128,7 @@ export function getFromEnv(env: Env, literal: string): Obj {
     // console.error(
     //   `Error: retrieve undefined variable ${literal} from environment`
     // );
-    return new Obj(literal, ObjType.UNDEFINED_OBJ);
+    return new Obj(literal);
   }
   return value;
 }

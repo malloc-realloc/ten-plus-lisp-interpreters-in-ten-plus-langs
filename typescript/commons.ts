@@ -7,5 +7,5 @@ export function handleError(
   error: unknown
 ): ErrorObj {
   env.setErrorMessage(operation);
-  return new ErrorObj(operation);
+  return new ErrorObj("");
 }
