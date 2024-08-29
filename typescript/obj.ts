@@ -35,19 +35,19 @@ export class Obj {
 }
 
 export class ErrorObj extends Obj {
-  constructor(value: string, type: ObjType = ObjType.ERROR_OBJ) {
+  constructor(value: string, ) {
     super(value);
   }
 }
 
 export class IntNumber extends Obj {
-  constructor(value: number, type: ObjType = ObjType.INT) {
+  constructor(value: number,) {
     super(value);
   }
 }
 
 export class FloatNumber extends Obj {
-  constructor(value: number, type: ObjType = ObjType.FLOAT) {
+  constructor(value: number, ) {
     super(value);
   }
 }
@@ -61,7 +61,7 @@ export class Procedure extends Obj {
   constructor(
     value: Function | string, // value of Procedure stores ts function (when user uses builtin functions), and stores string when user calls user-defined lambda function (as toString of this lambda function).
     name: Atom = "lambda",
-    type: ObjType = ObjType.PROCEDURE
+
   ) {
     super(value);
     this.name = name;
@@ -75,11 +75,10 @@ export class Lambda_Procedure extends Procedure {
   constructor(
     value: string,
     name: Atom = "lambda",
-    type: ObjType = ObjType.LAMBDA_PROCEDURE,
     argNames: Expr[],
     body: Expr[] | Expr = [],
   ) {
-    super(value, name, type);
+    super(value, name);
     this.body = body;
     this.argNames = argNames;
   }
@@ -87,7 +86,7 @@ export class Lambda_Procedure extends Procedure {
 
 export class Bool extends Obj {
 
-  constructor(value: boolean, type: ObjType = ObjType.BOOL) {
+  constructor(value: boolean, ) {
     super(value);
 
   }
@@ -120,25 +119,25 @@ export const FALSE = new Bool(false);
 export const None_Obj = new Obj(null);
 
 export class ExprObj extends Obj {
-  constructor(value: Expr, type: ObjType = ObjType.EXPR) {
+  constructor(value: Expr, ) {
     super(value);
   }
 }
 
 export class LLM_EXPRObj extends Obj {
-  constructor(value: Expr, type: ObjType = ObjType.LLM_EXPR_OBJ) {
+  constructor(value: Expr, ) {
     super(value);
   }
 }
 
 export class String_Obj extends Obj {
-  constructor(value: string, type: ObjType = ObjType.STRING_OBJ) {
+  constructor(value: string,) {
     super(value);
   }
 }
 
 export class Class_Obj extends Obj {
-  constructor(value: string, type: ObjType = ObjType.CLASS_OBJ) {
+  constructor(value: string, ) {
     super(value); // value stores class name.
   }
 }
@@ -151,7 +150,7 @@ export class Instance_Obj extends Obj {
     value: Map<string, Obj>,
     instanceName: string,
     className: string,
-    type: ObjType = ObjType.INSTANCE_OBJ
+
   ) {
     super(value);
     this.instanceName = instanceName;

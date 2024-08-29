@@ -704,7 +704,6 @@ function bind(env: Env, opt: Procedure, exprList: Expr[]): Obj {
     const expressions = new Lambda_Procedure(
       lambdaString,
       "evalLambdaObj",
-      ObjType.LAMBDA_PROCEDURE,
       [] as Expr[],
       body,
     );
@@ -904,7 +903,6 @@ function lambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   const func = new Lambda_Procedure(
     lambdaString,
     "evalLambdaObj",
-    ObjType.LAMBDA_PROCEDURE,
     (argNames = argNames),
     (body = body),
   );
