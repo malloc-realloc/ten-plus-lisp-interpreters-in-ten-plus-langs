@@ -359,7 +359,7 @@ export function defineClass(
 export function defineSubClass(
   env: Env,
   fatherClassName: Class_Obj,
-  ...args: String_Obj[]
+  ...args: Undefined_Obj[]
 ): Obj {
   let classProperties: Map<string, Obj> = env.classes.get(
     fatherClassName.value as string
