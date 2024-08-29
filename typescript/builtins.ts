@@ -537,7 +537,7 @@ export function set_llm(env: Env, value: String_Obj): Obj {
   }
 }
 
-export function random_func(env: Env, arg1: Obj, arg2: Obj): Obj {
+export function randomFunc(env: Env, arg1: Obj, arg2: Obj): Obj {
   try {
     const n1 = arg1.value;
     const n2 = arg2.value;
@@ -621,7 +621,7 @@ export function call_method(env: Env, opt: Procedure, exprList: Expr[]): Obj {
     .get(instance.className)
     ?.get(methodName.value) as Procedure;
 
-  const obj: Obj = lambda_eval(env, procedure, exprList.slice(2));
+  const obj: Obj = evalLambdaObj(env, procedure, exprList.slice(2));
 
   env.popThis();
 
@@ -672,53 +672,11 @@ export function end_procedure(...args: any[]): void {
   // do nothing
 }
 
-export const builtin_vars: { [key: string]: Bool } = {
+export const builtinVars: { [key: string]: Bool } = {
   "#t": TRUE,
   "#f": FALSE,
 };
 
-const object_operators: { [key: string]: Function } = {
-  exit: end_procedure,
-  "+": add_objs,
-  "-": sub_objs,
-  "*": mul_objs,
-  "**": power_objs,
-  "/": div_objs,
-  ">": gt_objs,
-  "<": lt_objs,
-  ">=": ge_objs,
-  "<=": le_objs,
-  "=": eq_objs,
-  abs: abs_obj,
-  display: display,
-  begin: begin,
-  eval: eval_expr_obj,
-  cdr: cdr,
-  car: car,
-  cons: cons,
-  list: list_obj,
-  get: get_from_container,
-  set: set_container,
-  push: push_into_container,
-  dict: dict_obj,
-  llm: set_llm, // set which llm to use
-  str: make_str, // make very object into string and join them with given string
-  random: random_func,
-  randint: randint,
-  randchoice: randchoice,
-  return: returnFunc,
-  class: defineClass,
-  instance: defineClassInstance,
-  geti: geti,
-  seti: seti,
-  setm: set_method,
-  subclass: defineSubClass,
-  and: andFunc,
-  or: orFunc,
-  array: arrayFunc,
-  setA: setAFunc,
-  getA: getAFunc,
-};
 
 function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   try {
@@ -741,7 +699,7 @@ function bind(env: Env, opt: Procedure, exprList: Expr[]): Obj {
     const lambdaString = `function ${func_name}`;
     const expressions = new Lambda_Procedure(
       lambdaString,
-      "lambda_eval",
+      "evalLambdaObj",
       ObjType.LAMBDA_PROCEDURE,
       [] as Expr[],
       body,
@@ -867,7 +825,7 @@ function forFunc(env: Env, opt: Procedure, body: Expr[]): Obj {
   }
 }
 
-function update_var(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+function updateVar(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   try {
     const parameters = [atomAsEnvKey(exprList[1]), evalExpr(env, exprList[2])];
     env.set(parameters[0].value, parameters[1]);
@@ -881,23 +839,23 @@ function update_var(env: Env, opt: Procedure, exprList: Expr[]): Obj {
     }
     return obj;
   } catch (error) {
-    env.setErrorMessage("update_var");
-    return new Error("update_var");
+    env.setErrorMessage("updateVar");
+    return new Error("updateVar");
   }
 }
 
-function define_var(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+function defineVar(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   try {
     const parameters = [atomAsEnvKey(exprList[1]), evalExpr(env, exprList[2])];
     env.set(parameters[0].value, parameters[1]);
     return parameters[1];
   } catch (error) {
-    env.setErrorMessage("define_var");
-    return new Error("define_var");
+    env.setErrorMessage("defineVar");
+    return new Error("defineVar");
   }
 }
 
-export function if_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+export function ifFunc(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   try {
     const condition: Obj = evalExpr(env, exprList[1]);
     if (isTsLispFalse(condition)) {
@@ -912,7 +870,7 @@ export function if_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   }
 }
 
-export function while_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+export function whileFunc(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   try {
     let condition: Obj = evalExpr(env, exprList[1]);
     let result: Obj = None_Obj;
@@ -936,7 +894,8 @@ export function while_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   }
 }
 
-function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
+function lambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  exprList = exprList.slice(1)
   let argNames = exprList[0].literal as Expr[];
   let body = exprList.slice(1);
 
@@ -950,21 +909,18 @@ function evalLambdaExpr(env: Env, exprList: Expr[]): Procedure {
 
   const func = new Lambda_Procedure(
     lambdaString,
-    "lambda_eval",
+    "evalLambdaObj",
     ObjType.LAMBDA_PROCEDURE,
     (argNames = argNames),
     (body = body),
     (env = procedure_env)
   );
 
-  return func;
+  return func
 }
 
-function lambda_func(env: Env, opt: Procedure, exprList: Expr[]): Obj {
-  return evalLambdaExpr(env, exprList.slice(1));
-}
 
-function lambda_eval(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
   if (opt instanceof Lambda_Procedure) {
     return evalProcedureValue(
@@ -986,17 +942,61 @@ function _displayFuncDepth(env: Env, opt: Procedure, exprList: Expr[]): Obj {
 const expression_operators: { [key: string]: Function } = {
   quote: quote,
   bind: bind,
-  update: update_var,
-  define: define_var,
-  "set!": define_var,
-  lambda: lambda_func,
-  lambda_eval: lambda_eval,
-  if: if_func,
-  while: while_func,
+  update: updateVar,
+  define: defineVar,
+  "set!": defineVar,
+  lambda: lambdaObj,
+  evalLambdaObj: evalLambdaObj,
+  if: ifFunc,
+  while: whileFunc,
   _displayFuncDepth: _displayFuncDepth,
   callm: call_method,
   for: forFunc,
 };
+
+const object_operators: { [key: string]: Function } = {
+  exit: end_procedure,
+  "+": add_objs,
+  "-": sub_objs,
+  "*": mul_objs,
+  "**": power_objs,
+  "/": div_objs,
+  ">": gt_objs,
+  "<": lt_objs,
+  ">=": ge_objs,
+  "<=": le_objs,
+  "=": eq_objs,
+  abs: abs_obj,
+  display: display,
+  begin: begin,
+  eval: eval_expr_obj,
+  cdr: cdr,
+  car: car,
+  cons: cons,
+  list: list_obj,
+  get: get_from_container,
+  set: set_container,
+  push: push_into_container,
+  dict: dict_obj,
+  llm: set_llm, // set which llm to use
+  str: make_str, // make very object into string and join them with given string
+  random: randomFunc,
+  randint: randint,
+  randchoice: randchoice,
+  return: returnFunc,
+  class: defineClass,
+  instance: defineClassInstance,
+  geti: geti,
+  seti: seti,
+  setm: set_method,
+  subclass: defineSubClass,
+  and: andFunc,
+  or: orFunc,
+  array: arrayFunc,
+  setA: setAFunc,
+  getA: getAFunc,
+};
+
 
 // special operators works on expressions.
 export function is_special_operator(opt: Procedure): Boolean {
@@ -1012,3 +1012,4 @@ export const builtin_operators = Object.assign(
   object_operators,
   expression_operators
 );
+

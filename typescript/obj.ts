@@ -58,7 +58,7 @@ export type Number = IntNumber | FloatNumber;
 
 export class Procedure extends Obj {
   name: Atom;
-  // To make sure everything passed inside evalListExpr is Object, we introduce Procedure to store lambda_function and builtin operators like +-*/
+  // To make sure everything passed inside evalListExpr is Object, we introduce Procedure to store lambdaFunction and builtin operators like +-*/
 
   constructor(
     value: Function | string, // value of Procedure stores ts function (when user uses builtin functions), and stores string when user calls user-defined lambda function (as toString of this lambda function).

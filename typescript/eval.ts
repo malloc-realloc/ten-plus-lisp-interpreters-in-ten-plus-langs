@@ -15,7 +15,7 @@ import {
 import { Env } from "./env";
 import {
   builtin_operators,
-  builtin_vars,
+  builtinVars,
   is_special_operator,
 } from "./builtins";
 
@@ -142,7 +142,7 @@ function isFloat(s: Atom): boolean {
 }
 
 function isBuiltin(s: Atom): boolean {
-  return s in builtin_operators || s in builtin_vars;
+  return s in builtin_operators || s in builtinVars;
 }
 
 export function getBuiltin(s: string): Procedure {
@@ -160,5 +160,5 @@ export function getBuiltin(s: string): Procedure {
 }
 
 function getBuiltinVars(s: Atom): Obj {
-  return builtin_vars[s];
+  return builtinVars[s];
 }

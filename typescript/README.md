@@ -19,4 +19,4 @@ My version of ts-node is v10.9.2, we can test this project by running ts-node in
 
 ### Design Decisions
 
-- **Expr_Obj**: introduces a new Expr_Obj type to store the argument list, mother function environment, and expressions in the lisp_lambda_function.
+- **Expr_Obj**: introduces a new Expr_Obj type to store the argument list, mother function environment, and expressions in the lisp_lambdaFunction.
