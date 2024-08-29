@@ -73,23 +73,17 @@ export class Procedure extends Obj {
 export class Lambda_Procedure extends Procedure {
   body: Expr[] | Expr;
   argNames: Expr[];
-  env: Env;
-  require_new_env_when_eval: Boolean;
 
   constructor(
-    value: any,
+    value: string,
     name: Atom = "lambda",
     type: ObjType = ObjType.LAMBDA_PROCEDURE,
     argNames: Expr[],
     body: Expr[] | Expr = [],
-    env: Env,
-    require_new_env_when_eval: Boolean = true
   ) {
     super(value, name, type);
     this.body = body;
     this.argNames = argNames;
-    this.env = env;
-    this.require_new_env_when_eval = require_new_env_when_eval;
   }
 }
 

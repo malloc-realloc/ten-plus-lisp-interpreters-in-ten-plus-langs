@@ -593,9 +593,13 @@ export function geti(
   instance_obj: Instance_Obj,
   name: Undefined_Obj
 ): Obj {
-  const obj = instance_obj.value.get(name.value);
+  try 
+  {const obj = instance_obj.value.get(name.value);
 
-  return obj;
+  return obj;}catch (error) {
+    env.setErrorMessage("return")
+    return new Error("return")
+  }
 }
 
 export function set_method(
@@ -703,8 +707,6 @@ function bind(env: Env, opt: Procedure, exprList: Expr[]): Obj {
       ObjType.LAMBDA_PROCEDURE,
       [] as Expr[],
       body,
-      (env = env),
-      false
     );
     env.set(func_name, expressions);
     return expressions;
@@ -722,7 +724,6 @@ function evalProcedureValue(
   bodyEnv: Env,
   argNames: Expr[],
   body: Expr[],
-  require_new_env_when_eval: Boolean,
   ...args: any[]
 ): Obj {
   try {
@@ -731,14 +732,12 @@ function evalProcedureValue(
     }
 
     let workingEnv: Env;
-    if (require_new_env_when_eval) {
-      workingEnv = new Env();
+
+    workingEnv = new Env();
       for (let [key, value] of bodyEnv) {
         if (value !== undefined) workingEnv.set(key, value);
       } // structuredClone(bodyEnv) is WRONG!
-    } else {
-      workingEnv = bodyEnv;
-    }
+
 
     // when entering function, env.funtionDepth ++
     workingEnv.functionDepth = bodyEnv.functionDepth + 1;
@@ -835,7 +834,7 @@ function updateVar(env: Env, opt: Procedure, exprList: Expr[]): Obj {
       `_update_${exprList[1].literal}`
     ) as Lambda_Procedure;
     if (procedure !== undefined) {
-      evalProcedureValue(procedure.env, [], procedure.body as Expr[], false);
+      evalProcedureValue(env, [], procedure.body as Expr[], false);
     }
     return obj;
   } catch (error) {
@@ -899,11 +898,6 @@ function lambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   let argNames = exprList[0].literal as Expr[];
   let body = exprList.slice(1);
 
-  const procedure_env = new Env();
-  for (let [key, value] of env) {
-    if (value != undefined) procedure_env.set(key, value);
-  }
-
   const functionString = `(${argNames.map((arg) => arg.literal).join(", ")})`;
   const lambdaString = `function${functionString}`;
 
@@ -913,7 +907,6 @@ function lambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
     ObjType.LAMBDA_PROCEDURE,
     (argNames = argNames),
     (body = body),
-    (env = procedure_env)
   );
 
   return func
@@ -927,7 +920,6 @@ function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
       env,
       opt.argNames,
       opt.body as Expr[],
-      opt.require_new_env_when_eval,
       ...parameters
     );
   } else {
