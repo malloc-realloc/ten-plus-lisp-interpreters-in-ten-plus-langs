@@ -49,17 +49,17 @@ function evalListExpr(env: Env, expr: Expr): Obj {
   const firstExpr = exprList[0]; // get operator with ExprType.LST_EXPR (these expressions in the form of (opt arg1 arg2 ...) )
 
   try {
-    let opt: Procedure; // opt is of type Procedure, notice opt itself can be of type ExprType.LST_EXPR
+    let opt: Obj; // opt is of type Procedure, notice opt itself can be of type ExprType.LST_EXPR
     if (firstExpr.type === ExprType.ATOM) {
-      opt = evalAtom(env, firstExpr) as Procedure;
+      opt = evalAtom(env, firstExpr);
     } else {
-      opt = evalListExpr(env, firstExpr) as Procedure;
+      opt = evalListExpr(env, firstExpr);
     }
 
-    if (isExprLiteralOpt(opt)) {
-      const func = builtinOpts[opt.name];
+    if (isExprLiteralOpt(opt as Procedure)) {
+      const func = builtinOpts[(opt as Procedure).name];
       let result: Obj;
-      if (opt.name === "evalLambdaObj") {
+      if ((opt as Procedure).name === "evalLambdaObj") {
          result = func(env, opt, exprList);
       } else  {
         result = func(env, exprList);

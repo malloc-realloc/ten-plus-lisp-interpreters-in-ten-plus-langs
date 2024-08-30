@@ -434,7 +434,7 @@ export function arrayFunc(env: Env, ...args: IntNumber[]): Obj {
   }
 }
 
-export function setAFunc(
+export function setArrFunc(
   env: Env,
   obj: Obj,
   arrObj: ArrayObj,
@@ -464,17 +464,17 @@ export function setAFunc(
     }
     return obj;
   } catch (error) {
-    return handleError(env,"setA");
+    return handleError(env,"setArr");
   }
 }
 
-export function getAFunc(
+export function getArrFunc(
   env: Env,
   arrObj: ArrayObj,
-  ...Numberindexes: Number[]
+  ...NumberIndexes: Number[]
 ): Obj {
   try {
-    const indexes: number[] = Numberindexes.map((i) => i.value);
+    const indexes: number[] = NumberIndexes.map((i) => i.value);
     let arr = arrObj.value;
 
     if (indexes.length === 1) {
@@ -497,7 +497,7 @@ export function getAFunc(
     }
     throw error;
   } catch (error) {
-    return handleError(env,"getA");
+    return handleError(env,"getArr");
   }
 }
 
@@ -941,8 +941,8 @@ const objOpt: { [key: string]: Function } = {
   and: andFunc,
   or: orFunc,
   array: arrayFunc,
-  setA: setAFunc,
-  getA: getAFunc,
+  setArr: setArrFunc,
+  getArr: getArrFunc,
 };
 
 
