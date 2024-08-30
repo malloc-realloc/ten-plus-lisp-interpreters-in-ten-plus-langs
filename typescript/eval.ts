@@ -22,10 +22,10 @@ export function evalExpr(env: Env, expr: Expr): Obj {
   let result: Obj;
   if (expr.type === ExprType.ATOM) {
     result = evalAtom(env, expr);
-  } else if (expr.type === ExprType.LLM_EXPR) {
-    result = evalLLMExpr(env, expr);
   } else if (expr.type === ExprType.STRING_EXPR) {
     result = evalStringExpr(env, expr);
+  } else if (expr.type === ExprType.LLM_EXPR) {
+    result = evalLLMExpr(env, expr);
   } else {
     result = evalListExpr(env, expr);
   }
@@ -42,31 +42,6 @@ export function evalExpr(env: Env, expr: Expr): Obj {
 
 function evalStringExpr(env: Env, expr: Expr): String_Obj | ErrorObj {
   return new String_Obj(expr.literal as Atom);
-}
-
-function evalLLMExpr(env: Env, expr: Expr): Obj {
-  let new_literal: string = "";
-  for (let i = 0; i < expr.literal.length; i++) {
-    if (expr.literal[i] !== "[") {
-      new_literal += expr.literal[i];
-    } else {
-      let varName = "";
-      i++; // skip [
-      for (let j = i; j < expr.literal.length && expr.literal[j] !== "]"; j++) {
-        varName += expr.literal[j];
-        i++;
-      }
-
-      let v: Obj | undefined = env.get(varName);
-      if (v === undefined) {
-        continue;
-      } else {
-        new_literal += String(v.value);
-      }
-    }
-  }
-
-  return new LLM_EXPRObj(new Expr(ExprType.LLM_EXPR, new_literal));
 }
 
 // most of running time is spent here.
@@ -165,4 +140,29 @@ export function getBuiltin(s: string): Procedure {
 
 function getBuiltinVars(s: Atom): Obj {
   return builtinVars[s];
+}
+
+function evalLLMExpr(env: Env, expr: Expr): Obj {
+  let new_literal: string = "";
+  for (let i = 0; i < expr.literal.length; i++) {
+    if (expr.literal[i] !== "[") {
+      new_literal += expr.literal[i];
+    } else {
+      let varName = "";
+      i++; // skip [
+      for (let j = i; j < expr.literal.length && expr.literal[j] !== "]"; j++) {
+        varName += expr.literal[j];
+        i++;
+      }
+
+      let v: Obj | undefined = env.get(varName);
+      if (v === undefined) {
+        continue;
+      } else {
+        new_literal += String(v.value);
+      }
+    }
+  }
+
+  return new LLM_EXPRObj(new Expr(ExprType.LLM_EXPR, new_literal));
 }

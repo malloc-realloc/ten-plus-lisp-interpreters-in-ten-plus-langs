@@ -84,7 +84,6 @@ const exprs: string[] = [
   '(define d (dict "a" 1 "b" 2 "c" 3 "def" "def" "0" (+ 1 2)))',
   '(get d "a")',
   '(set d "a" 100)',
-  '(llm "gpt4")',
   "(bind a (+ 1 1) (define b 2))",
   "(update a 1)",
   // "(+ b 2)",

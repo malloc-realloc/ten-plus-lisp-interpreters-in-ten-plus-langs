@@ -117,7 +117,7 @@ export function mulObjs(env: Env, ...args: Number[]): Obj {
   }
 }
 
-export function make_str(env: Env, ...objs: Obj[]): Obj {
+export function makeStr(env: Env, ...objs: Obj[]): Obj {
   try {
     let s: string = "";
     for (let i = 1; i < objs.length; i++) {
@@ -233,7 +233,7 @@ export function absObj(env: Env, arg: Number): Obj {
   }
 }
 
-export function eval_exprObj(env: Env, expr: ExprObj): Obj {
+export function evalExprObj(env: Env, expr: ExprObj): Obj {
   try {
     return evalExpr(env, expr.value);
   } catch (error) {
@@ -357,7 +357,7 @@ export function defineSubClass(
   return None_Obj;
 }
 
-export function get_from_container(
+export function getFromContainer(
   env: Env,
   obj1: List_Obj | Dict_Obj,
   obj0: IntNumber | String_Obj
@@ -386,7 +386,7 @@ export function get_from_container(
   }
 }
 
-export function set_container(
+export function setContainer(
   env: Env,
   obj1: List_Obj | Dict_Obj,
   obj0: IntNumber | String_Obj,
@@ -417,7 +417,7 @@ export function set_container(
   }
 }
 
-export function push_into_container(env: Env, value: Obj, obj1: List_Obj): Obj {
+export function pushIntoContainer(env: Env, value: Obj, obj1: List_Obj): Obj {
   try {
     obj1.value.push(value);
     return value;
@@ -501,15 +501,6 @@ export function getAFunc(
   }
 }
 
-export function set_llm(env: Env, value: String_Obj): Obj {
-  try {
-    env.set("llm", value);
-    return value;
-  } catch (error) {
-    return handleError(env,"llm");
-  }
-}
-
 export function randomFunc(env: Env, arg1: Obj, arg2: Obj): Obj {
   try {
     const n1 = arg1.value;
@@ -570,7 +561,7 @@ export function getItem(
   }
 }
 
-export function set_method(
+export function setMethod(
   env: Env,
   classObj: Class_Obj,
   name: Undefined_Obj,
@@ -927,17 +918,16 @@ const object_operators: { [key: string]: Function } = {
   abs: absObj,
   display: display,
   begin: begin,
-  eval: eval_exprObj,
+  eval: evalExprObj,
   cdr: cdr,
   car: car,
   cons: cons,
   list: listObj,
-  get: get_from_container,
-  set: set_container,
-  push: push_into_container,
+  get: getFromContainer,
+  set: setContainer,
+  push: pushIntoContainer,
   dict: dictObj,
-  llm: set_llm, // set which llm to use
-  str: make_str, // make very object into string and join them with given string
+  str: makeStr, // make object into string and join them with given string
   random: randomFunc,
   randInt: randInt,
   randChoice: randChoice,
@@ -946,7 +936,7 @@ const object_operators: { [key: string]: Function } = {
   instance: defineClassInstance,
   getItem: getItem,
   setItem: setItem,
-  setMethod: set_method,
+  setMethod: setMethod,
   subclass: defineSubClass,
   and: andFunc,
   or: orFunc,

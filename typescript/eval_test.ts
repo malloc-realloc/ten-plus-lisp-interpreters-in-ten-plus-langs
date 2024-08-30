@@ -8,7 +8,7 @@ let exprs: Expr[] = [
 ];
 
 let global_env: Env = new Env();
-global_env.set("a", new Obj(1, ObjType.INT));
+global_env.set("a", new Obj(1));
 
 exprs.forEach((expr) => {
   let obj: Obj = evalExpr(global_env, expr);
