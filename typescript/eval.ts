@@ -5,8 +5,6 @@ import {
   IntNumber,
   FloatNumber,
   Procedure,
-  None_Obj,
-  ObjType,
   LLM_EXPRObj,
   String_Obj,
   ErrorObj,
@@ -17,6 +15,7 @@ import {
   builtinVars,
   is_special_operator,
 } from "./builtins";
+import { handleError } from "./commons";
 
 export function evalExpr(env: Env, expr: Expr): Obj {
   let result: Obj;
@@ -34,8 +33,7 @@ export function evalExpr(env: Env, expr: Expr): Obj {
     return result;
   } else {
     const obj = new ErrorObj(env.errorMessage);
-    env.errorMessage = "";
-    env.hasFailed = false;
+    env.cleanup()
     return obj;
   }
 }
@@ -88,28 +86,33 @@ function evalListExpr(env: Env, expr: Expr): Obj {
 }
 
 function evalAtom(env: Env, expr: Expr): Obj {
-  const literal = expr.literal as Atom;
+  try {
+    const literal = expr.literal as Atom;
 
   if (isInt(literal)) {
     return new IntNumber(parseInt(literal, 10));
   } else if (isFloat(literal)) {
     return new FloatNumber(parseFloat(literal));
   } else if (isBuiltin(literal)) {
-    return getBuiltin(literal);
+    return getBuiltin(env, literal);
   } else {
     return getFromEnv(env, literal);
+  }
+  } catch (error) {
+    return handleError(env, `Invalid use of ${expr.literal as Atom}`)
   }
 }
 
 export function getFromEnv(env: Env, literal: string): Obj {
-  const value = env.get(literal);
-  if (value === undefined) {
-    // console.error(
-    //   `Error: retrieve undefined variable ${literal} from environment`
-    // );
-    return new Obj(literal);
+  try  {
+    const value = env.get(literal);
+    if (value === undefined) {
+      return new Obj(literal);
+    }
+    return value;
+  } catch(error) {
+    return handleError(env, `${literal} not found in env.`)
   }
-  return value;
 }
 
 function isInt(s: Atom): boolean {
@@ -124,7 +127,8 @@ function isBuiltin(s: Atom): boolean {
   return s in builtin_operators || s in builtinVars;
 }
 
-export function getBuiltin(s: string): Procedure {
+export function getBuiltin(env: Env, s: string): Procedure {
+  try{
   const proc = builtin_operators[s];
   if (proc !== undefined) {
     return new Procedure(proc, s);
@@ -135,6 +139,9 @@ export function getBuiltin(s: string): Procedure {
     } else {
       throw new Error(`Undefined built-in procedure: ${s}`);
     }
+  }} catch( error) {
+     handleError(env, `builtin function ${s} does not exist.`)
+     return new Procedure("")
   }
 }
 

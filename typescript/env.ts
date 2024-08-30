@@ -9,6 +9,14 @@ export class Env extends Map<string, Obj> {
   classes: Map<string, Map<string, Obj>> = new Map<string, Map<string, Obj>>();
   fatherEnv: Env | undefined = undefined;
 
+  cleanup() {
+    this.functionDepth = 0
+    this.hasFailed = false;
+    this.errorMessage = ""
+    this.thisStack = []
+    this.thisValueStack = [None_Obj]
+  }
+
   newThis(s: string, obj: Obj) {
     this.thisStack.push(s);
     this.set("this", obj);
