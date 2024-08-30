@@ -3,23 +3,8 @@ import { call_method } from "./builtins";
 import { Env } from "./env";
 
 export enum ObjType {
-  INT,
-  FLOAT,
-  PROCEDURE,
-  BOOL,
-  NONE,
-  ERROR,
-  EXPR,
-  LAMBDA_PROCEDURE,
-  LLM_EXPR_OBJ,
-  STRING_OBJ,
   LIST_OBJ,
   DICT_OBJ,
-  ERROR_OBJ,
-  CLASS_OBJ,
-  INSTANCE_OBJ,
-  UNDEFINED_OBJ,
-  Array_Obj,
 }
 
 export class Obj {

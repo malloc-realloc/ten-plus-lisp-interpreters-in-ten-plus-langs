@@ -91,7 +91,7 @@ function evalListExpr(env: Env, expr: Expr): Obj {
       } else  {
         result = func(env, exprList);
       }
-      if (result instanceof Error || result instanceof ErrorObj) {
+      if (result instanceof ErrorObj) {
         return new ErrorObj(result.value);
       } else {
         return result;
@@ -100,7 +100,7 @@ function evalListExpr(env: Env, expr: Expr): Obj {
       // All operations that don't work on expression literal directly starts from there.
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
       const result = opt.value(env, ...parameters);
-      if (result.type === ObjType.ERROR_OBJ || result.type === ObjType.ERROR) {
+      if (result instanceof ErrorObj) {
         return new ErrorObj(result.value);
       } else {
         return result;
