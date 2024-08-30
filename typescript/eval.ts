@@ -86,8 +86,13 @@ function evalListExpr(env: Env, expr: Expr): Obj {
 
     if (is_special_operator(opt)) {
       const func = builtin_operators[opt.name];
-      const result = func(env, opt, exprList);
-      if (result.type === ObjType.ERROR || result.type === ObjType.ERROR_OBJ) {
+      let result: Obj;
+      if (opt.name === "evalLambdaObj") {
+         result = func(env, opt, exprList);
+      } else  {
+        result = func(env, exprList);
+      }
+      if (result instanceof Error || result instanceof ErrorObj) {
         return new ErrorObj(result.value);
       } else {
         return result;

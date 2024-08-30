@@ -613,7 +613,7 @@ export function set_method(
   return procedure;
 }
 
-export function call_method(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+export function call_method(env: Env,  exprList: Expr[]): Obj {
   const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
 
   const instance = parameters[0] as Instance_Obj;
@@ -682,7 +682,7 @@ export const builtinVars: { [key: string]: Bool } = {
 };
 
 
-function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+function quote(env: Env,  exprList: Expr[]): Obj {
   try {
     if (exprList.length === 2 && exprList[1].type === ExprType.ATOM) {
       return new ExprObj(new Expr(ExprType.ATOM, exprList[1].literal));
@@ -695,7 +695,7 @@ function quote(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   }
 }
 
-function bind(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+function bind(env: Env,  exprList: Expr[]): Obj {
   try {
     const var_name = exprList[1].literal;
     const func_name = "_update_" + var_name;
@@ -766,7 +766,7 @@ function evalProcedureValue(
   }
 }
 
-function forFunc(env: Env, opt: Procedure, body: Expr[]): Obj {
+function forFunc(env: Env,  body: Expr[]): Obj {
   try {
     const condExpr: Expr = body[2];
     const updateExpr: Expr = body[3];
@@ -823,7 +823,7 @@ function forFunc(env: Env, opt: Procedure, body: Expr[]): Obj {
   }
 }
 
-function updateVar(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+function updateVar(env: Env,  exprList: Expr[]): Obj {
   try {
     const objValue = evalExpr(env, exprList[2])
     
@@ -842,7 +842,7 @@ function updateVar(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   }
 }
 
-function defineVar(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+function defineVar(env: Env,  exprList: Expr[]): Obj {
   try {
     const parameters = [atomAsEnvKey(exprList[1]), evalExpr(env, exprList[2])];
     env.set(parameters[0].value, parameters[1]);
@@ -853,7 +853,7 @@ function defineVar(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   }
 }
 
-export function ifFunc(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+export function ifFunc(env: Env,  exprList: Expr[]): Obj {
   try {
     const condition: Obj = evalExpr(env, exprList[1]);
     if (isTsLispFalse(condition)) {
@@ -868,7 +868,7 @@ export function ifFunc(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   }
 }
 
-export function whileFunc(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+export function whileFunc(env: Env,  exprList: Expr[]): Obj {
   try {
     let condition: Obj = evalExpr(env, exprList[1]);
     let result: Obj = None_Obj;
@@ -892,7 +892,7 @@ export function whileFunc(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   }
 }
 
-function lambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+function lambdaObj(env: Env,  exprList: Expr[]): Obj {
   exprList = exprList.slice(1)
   let argNames = exprList[0].literal as Expr[];
   let body = exprList.slice(1);
@@ -911,7 +911,7 @@ function lambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
 }
 
 
-function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+function evalLambdaObj(env: Env, opt: Procedure,  exprList: Expr[]): Obj {
   const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
   if (opt instanceof Lambda_Procedure) {
     return evalProcedureValue(
@@ -925,7 +925,7 @@ function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   }
 }
 
-function _displayFuncDepth(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+function _displayFuncDepth(env: Env,  exprList: Expr[]): Obj {
   return new IntNumber(env.functionDepth);
 }
 
