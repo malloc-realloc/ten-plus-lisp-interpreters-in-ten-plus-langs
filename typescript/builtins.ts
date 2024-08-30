@@ -20,7 +20,7 @@ import {
   ArrayObj,
 } from "./obj";
 import { Env } from "./env";
-import { Expr, ExprType } from "./ast";
+import { Atom, Expr, ExprType } from "./ast";
 import { evalExpr } from "./eval";
 import { handleError } from "./commons";
 import { Instance_Obj } from "./obj";
@@ -825,17 +825,17 @@ function forFunc(env: Env, opt: Procedure, body: Expr[]): Obj {
 
 function updateVar(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   try {
-    const parameters = [atomAsEnvKey(exprList[1]), evalExpr(env, exprList[2])];
-    env.set(parameters[0].value, parameters[1]);
+    const objValue = evalExpr(env, exprList[2])
+    
+    env.set((exprList[1].literal as Atom), objValue);
 
-    const obj = parameters[1];
     const procedure = env.get(
       `_update_${exprList[1].literal}`
     ) as Lambda_Procedure;
     if (procedure !== undefined) {
-      evalProcedureValue(env, [], procedure.body as Expr[], false);
+      evalProcedureValue(env, [], procedure.body as Expr[]);
     }
-    return obj;
+    return objValue;
   } catch (error) {
     env.setErrorMessage("updateVar");
     return new Error("updateVar");
