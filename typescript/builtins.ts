@@ -668,7 +668,7 @@ function bind(env: Env,  exprList: Expr[]): Obj {
     const body = exprList.slice(1).slice(1);
     const lambdaString = `function ${func_name}`;
     const expressions = new Lambda_Procedure(
-      "evalLambdaObj",
+      "LambdaObj",
       lambdaString,
       [] as Expr[],
       body,
@@ -860,7 +860,7 @@ function lambdaObj(env: Env,  exprList: Expr[]): Obj {
   const lambdaString = `function${functionString}`;
 
   const func = new Lambda_Procedure(
-    "evalLambdaObj",
+    "LambdaObj",
     lambdaString,
     (argNames = argNames),
     (body = body),
@@ -895,7 +895,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   define: defineVar,
   "set!": defineVar,
   lambda: lambdaObj,
-  evalLambdaObj: evalLambdaObj,
+  LambdaObj: evalLambdaObj,
   if: ifFunc,
   while: whileFunc,
   _displayFuncDepth: _displayFuncDepth,

@@ -59,7 +59,7 @@ function evalListExpr(env: Env, expr: Expr): Obj {
     const func = builtinOpts[(opt as Procedure).value];
     if (isExprLiteralOpt(opt as Procedure)) {
       let result: Obj;
-      if ((opt as Procedure).value === "evalLambdaObj") {
+      if ((opt as Procedure).value === "LambdaObj") {
          result = func(env, opt, exprList);
       } else  {
         result = func(env, exprList);
