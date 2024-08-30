@@ -807,6 +807,7 @@ function updateVar(env: Env,  exprList: Expr[]): Obj {
 function defineVar(env: Env,  exprList: Expr[]): Obj {
   try {
     const parameters = [atomAsEnvKey(exprList[1]), evalExpr(env, exprList[2])];
+
     env.set(parameters[0].value, parameters[1]);
     return parameters[1];
   } catch (error) {
@@ -892,6 +893,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   quote: quote,
   bind: bind,
   update: updateVar,
+  "=":defineVar,
   define: defineVar,
   "set!": defineVar,
   lambda: lambdaObj,
@@ -903,7 +905,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   for: forFunc,
 };
 
-const objOpt: { [key: string]: Function } = {
+const objOpts: { [key: string]: Function } = {
   exit: (...args: any) => {},
   "+": addObjs,
   "-": subObjs,
@@ -914,7 +916,7 @@ const objOpt: { [key: string]: Function } = {
   "<": ltObjs,
   ">=": geObjs,
   "<=": leObjs,
-  "=": eqObjs,
+  "==": eqObjs,
   abs: absObj,
   display: display,
   begin: begin,
@@ -957,7 +959,17 @@ export function isExprLiteralOpt(opt: Procedure): Boolean {
 
 export const builtinOpts = Object.assign(
   {},
-  objOpt,
+  objOpts,
   exprLiteralOpts
 );
 
+function isValidCVariableName(name: string): boolean {
+  // Check if it's a C keyword
+  if (builtinOpts.keys().has(name)) {
+    return false;
+  }
+  
+  // Check if it matches the C variable naming pattern
+  const variablePattern = /^[^0-9]/;
+  return variablePattern.test(name);
+}
