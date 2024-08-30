@@ -11,9 +11,9 @@ import {
 } from "./obj";
 import { Env } from "./env";
 import {
-  builtin_operators,
+  builtinOpts,
   builtinVars,
-  is_special_operator,
+  isExprLiteralOpt,
 } from "./builtins";
 import { handleError } from "./commons";
 
@@ -56,8 +56,8 @@ function evalListExpr(env: Env, expr: Expr): Obj {
       opt = evalListExpr(env, firstExpr) as Procedure;
     }
 
-    if (is_special_operator(opt)) {
-      const func = builtin_operators[opt.name];
+    if (isExprLiteralOpt(opt)) {
+      const func = builtinOpts[opt.name];
       let result: Obj;
       if (opt.name === "evalLambdaObj") {
          result = func(env, opt, exprList);
@@ -70,7 +70,6 @@ function evalListExpr(env: Env, expr: Expr): Obj {
         return result;
       }
     } else {
-      // All operations that don't work on expression literal directly starts from there.
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
       const result = opt.value(env, ...parameters);
       if (result instanceof ErrorObj) {
@@ -124,12 +123,12 @@ function isFloat(s: Atom): boolean {
 }
 
 function isBuiltin(s: Atom): boolean {
-  return s in builtin_operators || s in builtinVars;
+  return s in builtinOpts || s in builtinVars;
 }
 
 export function getBuiltin(env: Env, s: string): Procedure {
   try{
-  const proc = builtin_operators[s];
+  const proc = builtinOpts[s];
   if (proc !== undefined) {
     return new Procedure(proc, s);
   } else {

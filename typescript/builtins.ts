@@ -888,7 +888,7 @@ function _displayFuncDepth(env: Env,  exprList: Expr[]): Obj {
   return new IntNumber(env.functionDepth);
 }
 
-const expression_operators: { [key: string]: Function } = {
+const exprLiteralOpts: { [key: string]: Function } = {
   quote: quote,
   bind: bind,
   update: updateVar,
@@ -903,7 +903,7 @@ const expression_operators: { [key: string]: Function } = {
   for: forFunc,
 };
 
-const object_operators: { [key: string]: Function } = {
+const objOpt: { [key: string]: Function } = {
   exit: (...args: any) => {},
   "+": addObjs,
   "-": subObjs,
@@ -947,17 +947,17 @@ const object_operators: { [key: string]: Function } = {
 
 
 // special operators works on expressions.
-export function is_special_operator(opt: Procedure): Boolean {
-  for (let s_opt in expression_operators) {
-    if (s_opt === opt.name) return true;
+export function isExprLiteralOpt(opt: Procedure): Boolean {
+  for (let item in exprLiteralOpts) {
+    if (item === opt.name) return true;
   }
 
   return false;
 }
 
-export const builtin_operators = Object.assign(
+export const builtinOpts = Object.assign(
   {},
-  object_operators,
-  expression_operators
+  objOpt,
+  exprLiteralOpts
 );
 
