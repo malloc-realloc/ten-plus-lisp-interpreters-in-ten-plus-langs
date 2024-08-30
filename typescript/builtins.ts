@@ -668,8 +668,8 @@ function bind(env: Env,  exprList: Expr[]): Obj {
     const body = exprList.slice(1).slice(1);
     const lambdaString = `function ${func_name}`;
     const expressions = new Lambda_Procedure(
-      lambdaString,
       "evalLambdaObj",
+      lambdaString,
       [] as Expr[],
       body,
     );
@@ -860,8 +860,8 @@ function lambdaObj(env: Env,  exprList: Expr[]): Obj {
   const lambdaString = `function${functionString}`;
 
   const func = new Lambda_Procedure(
-    lambdaString,
     "evalLambdaObj",
+    lambdaString,
     (argNames = argNames),
     (body = body),
   );
@@ -949,7 +949,7 @@ const objOpt: { [key: string]: Function } = {
 // special operators works on expressions.
 export function isExprLiteralOpt(opt: Procedure): Boolean {
   for (let item in exprLiteralOpts) {
-    if (item === opt.name) return true;
+    if (item === opt.value) return true;
   }
 
   return false;

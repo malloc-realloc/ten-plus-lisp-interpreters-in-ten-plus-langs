@@ -56,10 +56,10 @@ function evalListExpr(env: Env, expr: Expr): Obj {
       opt = evalListExpr(env, firstExpr);
     }
 
+    const func = builtinOpts[(opt as Procedure).value];
     if (isExprLiteralOpt(opt as Procedure)) {
-      const func = builtinOpts[(opt as Procedure).name];
       let result: Obj;
-      if ((opt as Procedure).name === "evalLambdaObj") {
+      if ((opt as Procedure).value === "evalLambdaObj") {
          result = func(env, opt, exprList);
       } else  {
         result = func(env, exprList);
@@ -71,7 +71,7 @@ function evalListExpr(env: Env, expr: Expr): Obj {
       }
     } else {
       const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
-      const result = opt.value(env, ...parameters);
+      const result = func(env, ...parameters);
       if (result instanceof ErrorObj) {
         return new ErrorObj(result.value);
       } else {
@@ -130,7 +130,7 @@ export function getBuiltin(env: Env, s: string): Procedure {
   try{
   const proc = builtinOpts[s];
   if (proc !== undefined) {
-    return new Procedure(proc, s);
+    return new Procedure(s);
   } else {
     const builtinVar = getBuiltinVars(s);
     if (builtinVar instanceof Procedure) {

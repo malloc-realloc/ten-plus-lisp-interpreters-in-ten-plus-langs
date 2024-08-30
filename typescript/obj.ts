@@ -15,7 +15,7 @@ export class Obj {
   }
 
   toString(): string {
-    return `Obj is ${String(this.value)}, type is ${typeof this.value}`;
+    return `${String(this.value)}`;
   }
 }
 
@@ -40,32 +40,34 @@ export class FloatNumber extends Obj {
 export type Number = IntNumber | FloatNumber;
 
 export class Procedure extends Obj {
-  name: Atom;
   // To make sure everything passed inside evalListExpr is Object, we introduce Procedure to store lambdaFunction and builtin operators like +-*/
 
   constructor(
-    value: Function | string, // value of Procedure stores ts function (when user uses builtin functions), and stores string when user calls user-defined lambda function (as toString of this lambda function).
-    name: Atom = "lambda",
-
+    value: string, // value of Procedure stores ts function (when user uses builtin functions), and stores string when user calls user-defined lambda function (as toString of this lambda function).
   ) {
     super(value);
-    this.name = name;
   }
 }
 
 export class Lambda_Procedure extends Procedure {
   body: Expr[] | Expr;
   argNames: Expr[];
+  info: string;
 
   constructor(
     value: string,
-    name: Atom = "lambda",
+    info: Atom = "lambda",
     argNames: Expr[],
     body: Expr[] | Expr = [],
   ) {
-    super(value, name);
+    super(value);
+    this.info = info;
     this.body = body;
     this.argNames = argNames;
+  }
+
+  toString(): string {
+    return `${this.value}, ${this.info}`
   }
 }
 
