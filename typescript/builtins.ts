@@ -808,8 +808,11 @@ function defineVar(env: Env,  exprList: Expr[]): Obj {
   try {
     const parameters = [atomAsEnvKey(exprList[1]), evalExpr(env, exprList[2])];
 
+    isValidVariableName(parameters[0].value)
+    
     env.set(parameters[0].value, parameters[1]);
     return parameters[1];
+
   } catch (error) {
     return handleError(env,"defineVar");
   }
@@ -963,9 +966,9 @@ export const builtinOpts = Object.assign(
   exprLiteralOpts
 );
 
-function isValidCVariableName(name: string): boolean {
+function isValidVariableName(name: string): boolean {
   // Check if it's a C keyword
-  if (builtinOpts.keys().has(name)) {
+  if (Object.keys(builtinOpts).includes(name)) {
     return false;
   }
   
