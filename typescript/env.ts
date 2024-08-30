@@ -1,4 +1,4 @@
-import { Class_Obj, None_Obj, Obj } from "./obj";
+import { None_Obj, Obj } from "./obj";
 
 export class Env extends Map<string, Obj> {
   functionDepth: number = 0;

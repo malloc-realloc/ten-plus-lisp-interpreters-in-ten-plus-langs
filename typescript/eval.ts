@@ -1,4 +1,3 @@
-// eval.ts
 import { Expr, ExprType, Atom } from "./ast";
 import {
   Obj,
@@ -22,7 +21,7 @@ export function evalExpr(env: Env, expr: Expr): Obj {
   if (expr.type === ExprType.ATOM) {
     result = evalAtom(env, expr);
   } else if (expr.type === ExprType.STRING_EXPR) {
-    result = evalStringExpr(env, expr);
+    result = evalStringExpr(expr);
   } else if (expr.type === ExprType.LLM_EXPR) {
     result = evalLLMExpr(env, expr);
   } else {
@@ -38,7 +37,7 @@ export function evalExpr(env: Env, expr: Expr): Obj {
   }
 }
 
-function evalStringExpr(env: Env, expr: Expr): String_Obj | ErrorObj {
+function evalStringExpr( expr: Expr): String_Obj | ErrorObj {
   return new String_Obj(expr.literal as Atom);
 }
 

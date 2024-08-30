@@ -3,7 +3,7 @@ import { tokenize } from "./token";
 import { parseExpr } from "./parser";
 import { evalExpr } from "./eval";
 import { Env } from "./env";
-import { ErrorObj, Lambda_Procedure, None_Obj, Obj } from "./obj";
+import { ErrorObj, Obj } from "./obj";
 import { ExprType } from "./ast";
 
 const globalEnv = new Env();

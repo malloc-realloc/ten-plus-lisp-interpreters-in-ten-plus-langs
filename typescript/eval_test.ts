@@ -1,5 +1,5 @@
 import { Expr, ExprType } from "./ast";
-import { ObjType, Obj } from "./obj";
+import { Obj } from "./obj";
 import { Env } from "./env";
 import { evalExpr } from "./eval";
 

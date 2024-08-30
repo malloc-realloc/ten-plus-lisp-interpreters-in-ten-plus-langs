@@ -1,6 +1,4 @@
 import { Expr, Atom } from "./ast";
-import { call_method } from "./builtins";
-import { Env } from "./env";
 
 export enum ObjType {
   LIST_OBJ,
