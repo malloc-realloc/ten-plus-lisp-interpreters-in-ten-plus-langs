@@ -108,12 +108,6 @@ export class Dict_Obj extends Obj {
   }
 }
 
-export class Error extends Obj {
-  constructor(value: string = "") {
-    super("Invalid invocation: " + value);
-  }
-}
-
 export const TRUE = new Bool(true);
 export const FALSE = new Bool(false);
 export const None_Obj = new Obj(null);

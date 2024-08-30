@@ -6,7 +6,6 @@ import {
   FloatNumber,
   Procedure,
   None_Obj,
-  Error,
   ObjType,
   LLM_EXPRObj,
   String_Obj,
@@ -41,7 +40,7 @@ export function evalExpr(env: Env, expr: Expr): Obj {
   }
 }
 
-function evalStringExpr(env: Env, expr: Expr): String_Obj | Error {
+function evalStringExpr(env: Env, expr: Expr): String_Obj | ErrorObj {
   return new String_Obj(expr.literal as Atom);
 }
 
