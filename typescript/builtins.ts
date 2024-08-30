@@ -806,12 +806,13 @@ function updateVar(env: Env,  exprList: Expr[]): Obj {
 
 function defineVar(env: Env,  exprList: Expr[]): Obj {
   try {
-    const parameters = [atomAsEnvKey(exprList[1]), evalExpr(env, exprList[2])];
+    const varName = atomAsEnvKey(exprList[1])
+    const varValue = evalExpr(env, exprList[2])
 
-    isValidVariableName(parameters[0].value)
+    isValidVariableName(varName.value)
     
-    env.set(parameters[0].value, parameters[1]);
-    return parameters[1];
+    env.set(varName.value, varValue);
+    return varValue
 
   } catch (error) {
     return handleError(env,"defineVar");
@@ -973,6 +974,7 @@ function isValidVariableName(name: string): boolean {
   }
   
   // Check if it matches the C variable naming pattern
-  const variablePattern = /^[^0-9]/;
+  const variablePattern = /^[^0-9+\-*/%^=<>!&|~][^+\-*/%^=<>!&|~]*$/;
+
   return variablePattern.test(name);
 }
