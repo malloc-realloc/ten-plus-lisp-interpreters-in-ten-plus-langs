@@ -9,7 +9,6 @@ import {
   ExprObj,
   ObjType,
   String_Obj,
-  ErrorObj,
   List_Obj,
   Dict_Obj,
   Lambda_Procedure,
@@ -41,7 +40,7 @@ function isTsLispFalse(obj: Obj): Boolean {
   );
 }
 
-export function add_objs(env: Env, ...args: NumberOrString[]): Obj {
+export function addObjs(env: Env, ...args: NumberOrString[]): Obj {
   try {
     if (args.length === 0) {
       throw handleError(env,"At least one argument is required");
@@ -72,7 +71,7 @@ export function add_objs(env: Env, ...args: NumberOrString[]): Obj {
   }
 }
 
-export function sub_objs(env: Env, ...args: Number[]): Obj {
+export function subObjs(env: Env, ...args: Number[]): Obj {
   try {
     let result = args[0].value;
     for (const arg of args.slice(1)) {
@@ -89,7 +88,7 @@ export function sub_objs(env: Env, ...args: Number[]): Obj {
   }
 }
 
-export function power_objs(env: Env, obj1: Number, obj2: Number): Obj {
+export function powerObjs(env: Env, obj1: Number, obj2: Number): Obj {
   try {
     let result = obj1.value ** (obj2.value);
     if (Number.isInteger(result)) {
@@ -102,7 +101,7 @@ export function power_objs(env: Env, obj1: Number, obj2: Number): Obj {
   }
 }
 
-export function mul_objs(env: Env, ...args: Number[]): Obj {
+export function mulObjs(env: Env, ...args: Number[]): Obj {
   try {
     let result = 1;
     for (const arg of args) {
@@ -131,7 +130,7 @@ export function make_str(env: Env, ...objs: Obj[]): Obj {
   }
 }
 
-export function div_objs(env: Env, ...args: Number[]): Obj {
+export function divObjs(env: Env, ...args: Number[]): Obj {
   try {
     let result = args[0].value;
     for (const arg of args.slice(1)) {
@@ -150,7 +149,7 @@ export function div_objs(env: Env, ...args: Number[]): Obj {
   }
 }
 
-export function list_obj(env: Env, ...args: Obj[]): Obj {
+export function listObj(env: Env, ...args: Obj[]): Obj {
   try {
     let obj = new List_Obj([]);
     for (const arg of args) {
@@ -162,7 +161,7 @@ export function list_obj(env: Env, ...args: Obj[]): Obj {
   }
 }
 
-export function dict_obj(env: Env, ...args: Obj[]): Obj {
+export function dictObj(env: Env, ...args: Obj[]): Obj {
   try {
     let obj = new Dict_Obj({});
     for (const [index, value] of args.entries()) {
@@ -181,7 +180,7 @@ export function dict_obj(env: Env, ...args: Obj[]): Obj {
   }
 }
 
-export function gt_objs(env: Env, arg1: Number, arg2: Number): Obj {
+export function gtObjs(env: Env, arg1: Number, arg2: Number): Obj {
   try {
     return arg1.value > arg2.value ? TRUE : FALSE;
   } catch (error) {
@@ -189,7 +188,7 @@ export function gt_objs(env: Env, arg1: Number, arg2: Number): Obj {
   }
 }
 
-export function lt_objs(env: Env, arg1: Number, arg2: Number): Obj {
+export function ltObjs(env: Env, arg1: Number, arg2: Number): Obj {
   try {
     return arg1.value < arg2.value ? TRUE : FALSE;
   } catch (error) {
@@ -197,7 +196,7 @@ export function lt_objs(env: Env, arg1: Number, arg2: Number): Obj {
   }
 }
 
-export function ge_objs(env: Env, arg1: Number, arg2: Number): Obj {
+export function geObjs(env: Env, arg1: Number, arg2: Number): Obj {
   try {
     return arg1.value >= arg2.value ? TRUE : FALSE;
   } catch (error) {
@@ -205,7 +204,7 @@ export function ge_objs(env: Env, arg1: Number, arg2: Number): Obj {
   }
 }
 
-export function le_objs(env: Env, arg1: Number, arg2: Number): Obj {
+export function leObjs(env: Env, arg1: Number, arg2: Number): Obj {
   try {
     return arg1.value <= arg2.value ? TRUE : FALSE;
   } catch (error) {
@@ -213,7 +212,7 @@ export function le_objs(env: Env, arg1: Number, arg2: Number): Obj {
   }
 }
 
-export function eq_objs(env: Env, arg1: Obj, arg2: Obj): Obj {
+export function eqObjs(env: Env, arg1: Obj, arg2: Obj): Obj {
   try {
     return arg1.value === arg2.value ? TRUE : FALSE;
   } catch (error) {
@@ -221,7 +220,7 @@ export function eq_objs(env: Env, arg1: Obj, arg2: Obj): Obj {
   }
 }
 
-export function abs_obj(env: Env, arg: Number): Obj {
+export function absObj(env: Env, arg: Number): Obj {
   try {
     const result = Math.abs(arg.value);
     if (Number.isInteger(result)) {
@@ -234,7 +233,7 @@ export function abs_obj(env: Env, arg: Number): Obj {
   }
 }
 
-export function eval_expr_obj(env: Env, expr: ExprObj): Obj {
+export function eval_exprObj(env: Env, expr: ExprObj): Obj {
   try {
     return evalExpr(env, expr.value);
   } catch (error) {
@@ -270,28 +269,28 @@ export function begin(env: Env, ...args: Obj[]): Obj {
   }
 }
 
-export function cdr(env: Env, expr_obj: ExprObj): Obj {
+export function cdr(env: Env, exprObj: ExprObj): Obj {
   try {
     return new ExprObj(
-      new Expr(ExprType.LST_EXPR, expr_obj.value.literal.slice(1))
+      new Expr(ExprType.LST_EXPR, exprObj.value.literal.slice(1))
     );
   } catch (error) {
     return handleError(env,"cdr");
   }
 }
 
-export function car(env: Env, expr_obj: ExprObj): Obj {
+export function car(env: Env, exprObj: ExprObj): Obj {
   try {
-    if (expr_obj.value.type === ExprType.ATOM) {
-      return new ExprObj(new Expr(ExprType.ATOM, expr_obj.value.literal));
+    if (exprObj.value.type === ExprType.ATOM) {
+      return new ExprObj(new Expr(ExprType.ATOM, exprObj.value.literal));
     } else {
-      if (expr_obj.value.literal[0].type === ExprType.ATOM) {
+      if (exprObj.value.literal[0].type === ExprType.ATOM) {
         return new ExprObj(
-          new Expr(ExprType.ATOM, expr_obj.value.literal[0].literal)
+          new Expr(ExprType.ATOM, exprObj.value.literal[0].literal)
         );
       } else {
         return new ExprObj(
-          new Expr(ExprType.LST_EXPR, expr_obj.value.literal[0].literal)
+          new Expr(ExprType.LST_EXPR, exprObj.value.literal[0].literal)
         );
       }
     }
@@ -303,9 +302,9 @@ export function car(env: Env, expr_obj: ExprObj): Obj {
 export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
   try {
     if (obj1.value.type === ExprType.LST_EXPR) {
-      const new_obj = structuredClone(obj1.value.literal);
-      new_obj.unshift(new Expr(obj0.value.type, obj0.value.literal));
-      return new ExprObj(new Expr(ExprType.LST_EXPR, new_obj));
+      const newObj = structuredClone(obj1.value.literal);
+      newObj.unshift(new Expr(obj0.value.type, obj0.value.literal));
+      return new ExprObj(new Expr(ExprType.LST_EXPR, newObj));
     } else {
       return new ExprObj(
         new Expr(ExprType.LST_EXPR, [
@@ -524,7 +523,7 @@ export function randomFunc(env: Env, arg1: Obj, arg2: Obj): Obj {
   }
 }
 
-export function randint(env: Env, arg1: Obj, arg2: Obj): Obj {
+export function randInt(env: Env, arg1: Obj, arg2: Obj): Obj {
   try {
     const n1 = arg1.value;
     const n2 = arg2.value;
@@ -535,17 +534,17 @@ export function randint(env: Env, arg1: Obj, arg2: Obj): Obj {
     );
     return result;
   } catch (error) {
-    return handleError(env,"randint");
+    return handleError(env,"randInt");
   }
 }
 
-export function randchoice(env: Env, ...args: Obj[]): Obj {
+export function randChoice(env: Env, ...args: Obj[]): Obj {
   try {
     const l = args.length;
     const i = Math.floor(Math.random() * l);
     return args[i];
   } catch (error) {
-    return handleError(env,"randchoice");
+    return handleError(env,"randChoice");
   }
 }
 
@@ -558,13 +557,13 @@ export function returnFunc(env: Env, arg: Obj): Obj {
   }
 }
 
-export function geti(
+export function getItem(
   env: Env,
-  instance_obj: Instance_Obj,
+  instanceObj: Instance_Obj,
   name: Undefined_Obj
 ): Obj {
   try 
-  {const obj = instance_obj.value.get(name.value);
+  {const obj = instanceObj.value.get(name.value);
 
   return obj;}catch (error) {
     return handleError(env,"return")
@@ -573,11 +572,11 @@ export function geti(
 
 export function set_method(
   env: Env,
-  class_obj: Class_Obj,
+  classObj: Class_Obj,
   name: Undefined_Obj,
   procedure: Procedure
 ): Obj {
-  env.classes.get(class_obj.value)?.set(name.value, procedure);
+  env.classes.get(classObj.value)?.set(name.value, procedure);
 
   return procedure;
 }
@@ -602,47 +601,55 @@ export function call_method(env: Env,  exprList: Expr[]): Obj {
 }
 
 function andFunc(env: Env, ...objs: Obj[]): Obj {
+  try{
   for (let obj of objs) {
     if (isTsLispFalse(obj)) return TsLispInnerFalse;
   }
-  return TsLispInnerTrue;
+  return TsLispInnerTrue;} catch (error) {
+    return handleError(env, "and")
+  }
 }
 
 function orFunc(env: Env, ...objs: Obj[]): Obj {
+  try{
   for (let obj of objs) {
     if (!isTsLispFalse(obj)) return TsLispInnerTrue;
   }
-  return TsLispInnerFalse;
+  return TsLispInnerFalse;} catch(error) {
+    return handleError(env, "or")
+  }
 }
 
 export function defineClassInstance(
   env: Env,
-  class_obj: Class_Obj,
+  classObj: Class_Obj,
   name: Undefined_Obj
 ): Obj {
+  try{
   const instance = new Instance_Obj(
-    env.classes.get(class_obj.value) as Map<string, Obj>,
+    env.classes.get(classObj.value) as Map<string, Obj>,
     name.value,
-    class_obj.value
+    classObj.value
   );
   env.set(name.value, instance);
 
-  return instance;
+  return instance;} catch (error) {
+    return handleError(env, "instance")
+  }
 }
 
-export function seti(
+export function setItem(
   env: Env,
-  instance_obj: Instance_Obj,
+  instanceObj: Instance_Obj,
   name: Undefined_Obj,
   obj: Obj
 ): Obj {
-  instance_obj.value.set(name.value, obj);
+  try{
+  instanceObj.value.set(name.value, obj);
 
-  return obj;
-}
-
-export function end_procedure(...args: any[]): void {
-  // do nothing
+  return obj;} catch (error) {
+    return handleError(env, "setItem")
+  }
 }
 
 export const builtinVars: { [key: string]: Bool } = {
@@ -901,45 +908,45 @@ const expression_operators: { [key: string]: Function } = {
   if: ifFunc,
   while: whileFunc,
   _displayFuncDepth: _displayFuncDepth,
-  callm: call_method,
+  callMethod: call_method,
   for: forFunc,
 };
 
 const object_operators: { [key: string]: Function } = {
-  exit: end_procedure,
-  "+": add_objs,
-  "-": sub_objs,
-  "*": mul_objs,
-  "**": power_objs,
-  "/": div_objs,
-  ">": gt_objs,
-  "<": lt_objs,
-  ">=": ge_objs,
-  "<=": le_objs,
-  "=": eq_objs,
-  abs: abs_obj,
+  exit: (...args: any) => {},
+  "+": addObjs,
+  "-": subObjs,
+  "*": mulObjs,
+  "**": powerObjs,
+  "/": divObjs,
+  ">": gtObjs,
+  "<": ltObjs,
+  ">=": geObjs,
+  "<=": leObjs,
+  "=": eqObjs,
+  abs: absObj,
   display: display,
   begin: begin,
-  eval: eval_expr_obj,
+  eval: eval_exprObj,
   cdr: cdr,
   car: car,
   cons: cons,
-  list: list_obj,
+  list: listObj,
   get: get_from_container,
   set: set_container,
   push: push_into_container,
-  dict: dict_obj,
+  dict: dictObj,
   llm: set_llm, // set which llm to use
   str: make_str, // make very object into string and join them with given string
   random: randomFunc,
-  randint: randint,
-  randchoice: randchoice,
+  randInt: randInt,
+  randChoice: randChoice,
   return: returnFunc,
   class: defineClass,
   instance: defineClassInstance,
-  geti: geti,
-  seti: seti,
-  setm: set_method,
+  getItem: getItem,
+  setItem: setItem,
+  setMethod: set_method,
   subclass: defineSubClass,
   and: andFunc,
   or: orFunc,
