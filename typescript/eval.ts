@@ -38,12 +38,12 @@ export function evalExpr(env: Env, expr: Expr): Obj {
 }
 
 function evalStringExpr( expr: Expr): String_Obj | ErrorObj {
-  return new String_Obj(expr.literal as Atom);
+  return new String_Obj(expr.value as Atom);
 }
 
 // most of running time is spent here.
 function evalListExpr(env: Env, expr: Expr): Obj {
-  const exprList = expr.literal as Expr[];
+  const exprList = expr.value as Expr[];
 
   const firstExpr = exprList[0]; // get operator with ExprType.LST_EXPR (these expressions in the form of (opt arg1 arg2 ...) )
 
@@ -85,7 +85,7 @@ function evalListExpr(env: Env, expr: Expr): Obj {
 
 function evalAtom(env: Env, expr: Expr): Obj {
   try {
-    const literal = expr.literal as Atom;
+    const literal = expr.value as Atom;
 
   if (isInt(literal)) {
     return new IntNumber(parseInt(literal, 10));
@@ -97,7 +97,7 @@ function evalAtom(env: Env, expr: Expr): Obj {
     return getFromEnv(env, literal);
   }
   } catch (error) {
-    return handleError(env, `Invalid use of ${expr.literal as Atom}`)
+    return handleError(env, `Invalid use of ${expr.value as Atom}`)
   }
 }
 
@@ -149,14 +149,14 @@ function getBuiltinVars(s: Atom): Obj {
 
 function evalLLMExpr(env: Env, expr: Expr): Obj {
   let new_literal: string = "";
-  for (let i = 0; i < expr.literal.length; i++) {
-    if (expr.literal[i] !== "[") {
-      new_literal += expr.literal[i];
+  for (let i = 0; i < expr.value.length; i++) {
+    if (expr.value[i] !== "[") {
+      new_literal += expr.value[i];
     } else {
       let varName = "";
       i++; // skip [
-      for (let j = i; j < expr.literal.length && expr.literal[j] !== "]"; j++) {
-        varName += expr.literal[j];
+      for (let j = i; j < expr.value.length && expr.value[j] !== "]"; j++) {
+        varName += expr.value[j];
         i++;
       }
 

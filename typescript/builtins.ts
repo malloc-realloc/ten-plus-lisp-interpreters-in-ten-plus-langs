@@ -46,9 +46,9 @@ export function addObjs(env: Env, ...args: NumberOrString[]): Obj {
       throw handleError(env,"At least one argument is required");
     }
 
-    if (typeof args[0].value.literal === "string") {
+    if (typeof args[0].value === "string") {
       const result = (args as String_Obj[]).reduce(
-        (acc, arg) => acc + arg.value.literal,
+        (acc, arg) => acc + arg.value,
         ""
       );
       return new String_Obj(result);
@@ -652,7 +652,7 @@ export const builtinVars: { [key: string]: Bool } = {
 function quote(env: Env,  exprList: Expr[]): Obj {
   try {
     if (exprList.length === 2 && exprList[1].type === ExprType.ATOM) {
-      return new ExprObj(new Expr(ExprType.ATOM, exprList[1].literal));
+      return new ExprObj(new Expr(ExprType.ATOM, exprList[1].value));
     } else {
       return new ExprObj(new Expr(ExprType.LST_EXPR, exprList.slice(1)));
     }
@@ -663,7 +663,7 @@ function quote(env: Env,  exprList: Expr[]): Obj {
 
 function bind(env: Env,  exprList: Expr[]): Obj {
   try {
-    const var_name = exprList[1].literal;
+    const var_name = exprList[1].value;
     const func_name = "_update_" + var_name;
     const body = exprList.slice(1).slice(1);
     const lambdaString = `function ${func_name}`;
@@ -681,7 +681,7 @@ function bind(env: Env,  exprList: Expr[]): Obj {
 }
 
 function atomAsEnvKey(expr: Expr): Obj {
-  return new Obj(expr.literal);
+  return new Obj(expr.value);
 }
 
 function evalProcedureValue(
@@ -707,11 +707,11 @@ function evalProcedureValue(
     workingEnv.functionDepth = bodyEnv.functionDepth + 1;
 
     argNames.forEach((argName, index) => {
-      if (typeof argName.literal === "string") {
-        workingEnv.set(argName.literal, args[index]);
+      if (typeof argName.value === "string") {
+        workingEnv.set(argName.value, args[index]);
       } else {
         console.error(
-          `Error: Invalid argument name type: ${typeof argName.literal}`
+          `Error: Invalid argument name type: ${typeof argName.value}`
         );
       }
     });
@@ -790,10 +790,10 @@ function updateVar(env: Env,  exprList: Expr[]): Obj {
   try {
     const objValue = evalExpr(env, exprList[2])
     
-    env.set((exprList[1].literal as Atom), objValue);
+    env.set((exprList[1].value as Atom), objValue);
 
     const procedure = env.get(
-      `_update_${exprList[1].literal}`
+      `_update_${exprList[1].value}`
     ) as Lambda_Procedure;
     if (procedure !== undefined) {
       evalProcedureValue(env, [], procedure.body as Expr[]);
@@ -858,10 +858,10 @@ export function whileFunc(env: Env,  exprList: Expr[]): Obj {
 
 function lambdaObj(env: Env,  exprList: Expr[]): Obj {
   exprList = exprList.slice(1)
-  let argNames = exprList[0].literal as Expr[];
+  let argNames = exprList[0].value as Expr[];
   let body = exprList.slice(1);
 
-  const functionString = `(${argNames.map((arg) => arg.literal).join(", ")})`;
+  const functionString = `(${argNames.map((arg) => arg.value).join(", ")})`;
   const lambdaString = `function${functionString}`;
 
   const func = new Lambda_Procedure(

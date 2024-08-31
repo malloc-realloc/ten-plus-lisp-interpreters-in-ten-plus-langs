@@ -8,25 +8,25 @@ export enum ExprType {
 
 export type Atom = string;
 
-export type Literal = Atom | Array<Atom | Expr>;
+export type AtomOrExprVec = Atom | Array<Atom | Expr>;
 
 export class Expr {
   type: ExprType;
-  literal: Literal;
+  value: AtomOrExprVec;
 
-  constructor(type: ExprType, literal: Literal) {
+  constructor(type: ExprType, value: AtomOrExprVec) {
     this.type = type;
-    this.literal = literal;
+    this.value = value;
   }
 
   toString(): string {
-    if (Array.isArray(this.literal)) {
-      const literalStr = this.literal
+    if (Array.isArray(this.value)) {
+      const literalStr = this.value
         .map((item) => item.toString())
         .join(",\n  ");
-      return `{\n  "Type": "${ExprType[this.type]}",\n  "Literal": [\n  ${literalStr}\n  ]\n}`;
+      return `{\n  "Type": "${ExprType[this.type]}",\n  "AtomOrExprVec": [\n  ${literalStr}\n  ]\n}`;
     } else {
-      return `{\n  "Type": "${ExprType[this.type]}",\n  "Literal": "${this.literal}"\n}`;
+      return `{\n  "Type": "${ExprType[this.type]}",\n  "AtomOrExprVec": "${this.value}"\n}`;
     }
   }
 }
