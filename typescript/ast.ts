@@ -9,7 +9,6 @@ export enum ExprType {
 export type Atom = string;
 
 export type AtomOrExprVec = Atom | Array<Atom | Expr>;
-
 export class Expr {
   type: ExprType;
   value: AtomOrExprVec;
