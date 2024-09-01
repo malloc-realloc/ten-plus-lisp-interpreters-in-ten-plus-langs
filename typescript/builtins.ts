@@ -43,7 +43,7 @@ function isTsLispFalse(obj: Obj): Boolean {
 export function addObjs(env: Env, ...args: NumberOrString[]): Obj {
   try {
     if (args.length === 0) {
-      throw handleError(env,"At least one argument is required");
+      throw handleError(env, "At least one argument is required");
     }
 
     if (typeof args[0].value === "string") {
@@ -59,7 +59,7 @@ export function addObjs(env: Env, ...args: NumberOrString[]): Obj {
         else
           return handleError(
             env,
-            "+ cannot be applied to objects with type except number, string",
+            "+ cannot be applied to objects with type except number, string"
           );
       }
       return Number.isInteger(result)
@@ -75,8 +75,8 @@ export function subObjs(env: Env, ...args: Number[]): Obj {
   try {
     let result = args[0].value;
     for (const arg of args.slice(1)) {
-      if (Number.isInteger(arg.value)) result-= arg.value;
-      else return handleError(env, "-")
+      if (Number.isInteger(arg.value)) result -= arg.value;
+      else return handleError(env, "-");
     }
     if (Number.isInteger(result)) {
       return new IntNumber(result);
@@ -84,20 +84,20 @@ export function subObjs(env: Env, ...args: Number[]): Obj {
       return new FloatNumber(result);
     }
   } catch (error) {
-    return handleError(env, '-');
+    return handleError(env, "-");
   }
 }
 
 export function powerObjs(env: Env, obj1: Number, obj2: Number): Obj {
   try {
-    let result = obj1.value ** (obj2.value);
+    let result = obj1.value ** obj2.value;
     if (Number.isInteger(result)) {
       return new IntNumber(result);
     } else {
       return new FloatNumber(result);
     }
   } catch (error) {
-    return handleError(env,"**");
+    return handleError(env, "**");
   }
 }
 
@@ -113,7 +113,7 @@ export function mulObjs(env: Env, ...args: Number[]): Obj {
       return new FloatNumber(result);
     }
   } catch (error) {
-    return handleError(env,"*");
+    return handleError(env, "*");
   }
 }
 
@@ -126,7 +126,7 @@ export function makeStr(env: Env, ...objs: Obj[]): Obj {
     }
     return new String_Obj(s.slice(0, -1));
   } catch (error) {
-    return handleError(env,"str");
+    return handleError(env, "str");
   }
 }
 
@@ -135,7 +135,7 @@ export function divObjs(env: Env, ...args: Number[]): Obj {
     let result = args[0].value;
     for (const arg of args.slice(1)) {
       if (arg.value === 0) {
-        throw handleError(env,"Division by zero");
+        throw handleError(env, "Division by zero");
       }
       result /= arg.value;
     }
@@ -145,7 +145,7 @@ export function divObjs(env: Env, ...args: Number[]): Obj {
       return new FloatNumber(result);
     }
   } catch (error) {
-    return handleError(env,"/");
+    return handleError(env, "/");
   }
 }
 
@@ -157,7 +157,7 @@ export function listObj(env: Env, ...args: Obj[]): Obj {
     }
     return obj;
   } catch (error) {
-    return handleError(env,"list");
+    return handleError(env, "list");
   }
 }
 
@@ -167,7 +167,7 @@ export function dictObj(env: Env, ...args: Obj[]): Obj {
     for (const [index, value] of args.entries()) {
       if (index % 2 === 0) {
         if (typeof args[index].value !== "string") {
-          throw handleError(env,"key must be string");
+          throw handleError(env, "key must be string");
         }
         obj.value[args[index].value] = args[index + 1];
       } else {
@@ -176,7 +176,7 @@ export function dictObj(env: Env, ...args: Obj[]): Obj {
     }
     return obj;
   } catch (error) {
-    return handleError(env,"dict");
+    return handleError(env, "dict");
   }
 }
 
@@ -184,7 +184,7 @@ export function gtObjs(env: Env, arg1: Number, arg2: Number): Obj {
   try {
     return arg1.value > arg2.value ? TRUE : FALSE;
   } catch (error) {
-    return handleError(env,">");
+    return handleError(env, ">");
   }
 }
 
@@ -192,7 +192,7 @@ export function ltObjs(env: Env, arg1: Number, arg2: Number): Obj {
   try {
     return arg1.value < arg2.value ? TRUE : FALSE;
   } catch (error) {
-    return handleError(env,"<");
+    return handleError(env, "<");
   }
 }
 
@@ -200,7 +200,7 @@ export function geObjs(env: Env, arg1: Number, arg2: Number): Obj {
   try {
     return arg1.value >= arg2.value ? TRUE : FALSE;
   } catch (error) {
-    return handleError(env,">=");
+    return handleError(env, ">=");
   }
 }
 
@@ -208,7 +208,7 @@ export function leObjs(env: Env, arg1: Number, arg2: Number): Obj {
   try {
     return arg1.value <= arg2.value ? TRUE : FALSE;
   } catch (error) {
-    return handleError(env,"<=");
+    return handleError(env, "<=");
   }
 }
 
@@ -216,7 +216,7 @@ export function eqObjs(env: Env, arg1: Obj, arg2: Obj): Obj {
   try {
     return arg1.value === arg2.value ? TRUE : FALSE;
   } catch (error) {
-    return handleError(env,"=");
+    return handleError(env, "=");
   }
 }
 
@@ -229,7 +229,7 @@ export function absObj(env: Env, arg: Number): Obj {
       return new FloatNumber(result);
     }
   } catch (error) {
-    return handleError(env,"abs");
+    return handleError(env, "abs");
   }
 }
 
@@ -237,7 +237,7 @@ export function evalExprObj(env: Env, expr: ExprObj): Obj {
   try {
     return evalExpr(env, expr.value);
   } catch (error) {
-    return handleError(env,"eval");
+    return handleError(env, "eval");
   }
 }
 
@@ -257,7 +257,7 @@ export function display(env: Env, ...args: Obj[]): Obj {
     }
     return args[args.length - 1];
   } catch (error) {
-    return handleError(env,"display");
+    return handleError(env, "display");
   }
 }
 
@@ -265,7 +265,7 @@ export function begin(env: Env, ...args: Obj[]): Obj {
   try {
     return args[args.length - 1];
   } catch (error) {
-    return handleError(env,"begin");
+    return handleError(env, "begin");
   }
 }
 
@@ -275,7 +275,7 @@ export function cdr(env: Env, exprObj: ExprObj): Obj {
       new Expr(ExprType.LST_EXPR, exprObj.value.literal.slice(1))
     );
   } catch (error) {
-    return handleError(env,"cdr");
+    return handleError(env, "cdr");
   }
 }
 
@@ -295,7 +295,7 @@ export function car(env: Env, exprObj: ExprObj): Obj {
       }
     }
   } catch (error) {
-    return handleError(env,"car");
+    return handleError(env, "car");
   }
 }
 
@@ -314,7 +314,7 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
       );
     }
   } catch (error) {
-    return handleError(env,"cons");
+    return handleError(env, "cons");
   }
 }
 
@@ -365,10 +365,11 @@ export function getFromContainer(
   try {
     if (obj1.type === ObjType.LIST_OBJ) {
       if (obj0.value < 0) {
-        throw handleError(env,"index must be positive");
+        throw handleError(env, "index must be positive");
       }
       if (obj1.value.length <= obj0.value) {
-        throw handleError(env,
+        throw handleError(
+          env,
           `index ${obj0.value} must be smaller than length of list ${obj1.value.length}`
         );
       }
@@ -377,12 +378,12 @@ export function getFromContainer(
       if (obj1.value.hasOwnProperty(obj0.value)) {
         return obj1.value[obj0.value];
       } else {
-        throw handleError(env,`key ${obj0.value} not found in dictionary`);
+        throw handleError(env, `key ${obj0.value} not found in dictionary`);
       }
     }
-    throw handleError(env,"Invalid usage of get");
+    throw handleError(env, "Invalid usage of get");
   } catch (error) {
-    return handleError(env,"get");
+    return handleError(env, "get");
   }
 }
 
@@ -395,10 +396,11 @@ export function setContainer(
   try {
     if (obj1.type === ObjType.LIST_OBJ) {
       if (obj0.value < 0) {
-        throw handleError(env,"index must be positive");
+        throw handleError(env, "index must be positive");
       }
       if (obj1.value.length <= obj0.value) {
-        throw handleError(env,
+        throw handleError(
+          env,
           `index ${obj0.value} must be smaller than length of list ${obj1.value.length}`
         );
       }
@@ -409,11 +411,11 @@ export function setContainer(
         obj1.value[obj0.value] = value;
         return value;
       } else {
-        throw handleError(env,`key ${obj0.value} not found in dictionary`);
+        throw handleError(env, `key ${obj0.value} not found in dictionary`);
       }
     }
   } catch (error) {
-    return handleError(env,"set");
+    return handleError(env, "set");
   }
 }
 
@@ -422,7 +424,7 @@ export function pushIntoContainer(env: Env, value: Obj, obj1: List_Obj): Obj {
     obj1.value.push(value);
     return value;
   } catch (error) {
-    return handleError(env,"push");
+    return handleError(env, "push");
   }
 }
 
@@ -430,7 +432,7 @@ export function arrayFunc(env: Env, ...args: IntNumber[]): Obj {
   try {
     return new ArrayObj(createMultiDimArray(args.map((arg) => arg.value)));
   } catch (error) {
-    return handleError(env,"array");
+    return handleError(env, "array");
   }
 }
 
@@ -453,7 +455,7 @@ export function setArrFunc(
 
       // Check if the index is within bounds
       if (!Array.isArray(arr) || index >= arr.length) {
-        throw handleError(env,`Index ${index} out of bounds.`);
+        throw handleError(env, `Index ${index} out of bounds.`);
       }
 
       if (i === indexes.length - 2) {
@@ -464,7 +466,7 @@ export function setArrFunc(
     }
     return obj;
   } catch (error) {
-    return handleError(env,"setArr");
+    return handleError(env, "setArr");
   }
 }
 
@@ -486,7 +488,7 @@ export function getArrFunc(
 
       // Check if the index is within bounds
       if (!Array.isArray(arr) || index >= arr.length) {
-        throw handleError(env,`Index ${index} out of bounds.`);
+        throw handleError(env, `Index ${index} out of bounds.`);
       }
 
       if (i === indexes.length - 2) {
@@ -497,7 +499,7 @@ export function getArrFunc(
     }
     throw error;
   } catch (error) {
-    return handleError(env,"getArr");
+    return handleError(env, "getArr");
   }
 }
 
@@ -510,7 +512,7 @@ export function randomFunc(env: Env, arg1: Obj, arg2: Obj): Obj {
     const result = new IntNumber(Math.random() * (max - min) + min);
     return result;
   } catch (error) {
-    return handleError(env,"random");
+    return handleError(env, "random");
   }
 }
 
@@ -525,7 +527,7 @@ export function randInt(env: Env, arg1: Obj, arg2: Obj): Obj {
     );
     return result;
   } catch (error) {
-    return handleError(env,"randInt");
+    return handleError(env, "randInt");
   }
 }
 
@@ -535,7 +537,7 @@ export function randChoice(env: Env, ...args: Obj[]): Obj {
     const i = Math.floor(Math.random() * l);
     return args[i];
   } catch (error) {
-    return handleError(env,"randChoice");
+    return handleError(env, "randChoice");
   }
 }
 
@@ -544,7 +546,7 @@ export function returnFunc(env: Env, arg: Obj): Obj {
     env.functionDepth--;
     return arg;
   } catch (error) {
-    return handleError(env,"return");
+    return handleError(env, "return");
   }
 }
 
@@ -553,11 +555,12 @@ export function getItem(
   instanceObj: Instance_Obj,
   name: Undefined_Obj
 ): Obj {
-  try 
-  {const obj = instanceObj.value.get(name.value);
+  try {
+    const obj = instanceObj.value.get(name.value);
 
-  return obj;}catch (error) {
-    return handleError(env,"return")
+    return obj;
+  } catch (error) {
+    return handleError(env, "return");
   }
 }
 
@@ -572,7 +575,7 @@ export function setMethod(
   return procedure;
 }
 
-export function call_method(env: Env,  exprList: Expr[]): Obj {
+export function call_method(env: Env, exprList: Expr[]): Obj {
   const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
 
   const instance = parameters[0] as Instance_Obj;
@@ -592,22 +595,24 @@ export function call_method(env: Env,  exprList: Expr[]): Obj {
 }
 
 function andFunc(env: Env, ...objs: Obj[]): Obj {
-  try{
-  for (let obj of objs) {
-    if (isTsLispFalse(obj)) return TsLispInnerFalse;
-  }
-  return TsLispInnerTrue;} catch (error) {
-    return handleError(env, "and")
+  try {
+    for (let obj of objs) {
+      if (isTsLispFalse(obj)) return TsLispInnerFalse;
+    }
+    return TsLispInnerTrue;
+  } catch (error) {
+    return handleError(env, "and");
   }
 }
 
 function orFunc(env: Env, ...objs: Obj[]): Obj {
-  try{
-  for (let obj of objs) {
-    if (!isTsLispFalse(obj)) return TsLispInnerTrue;
-  }
-  return TsLispInnerFalse;} catch(error) {
-    return handleError(env, "or")
+  try {
+    for (let obj of objs) {
+      if (!isTsLispFalse(obj)) return TsLispInnerTrue;
+    }
+    return TsLispInnerFalse;
+  } catch (error) {
+    return handleError(env, "or");
   }
 }
 
@@ -616,16 +621,17 @@ export function defineClassInstance(
   classObj: Class_Obj,
   name: Undefined_Obj
 ): Obj {
-  try{
-  const instance = new Instance_Obj(
-    env.classes.get(classObj.value) as Map<string, Obj>,
-    name.value,
-    classObj.value
-  );
-  env.set(name.value, instance);
+  try {
+    const instance = new Instance_Obj(
+      env.classes.get(classObj.value) as Map<string, Obj>,
+      name.value,
+      classObj.value
+    );
+    env.set(name.value, instance);
 
-  return instance;} catch (error) {
-    return handleError(env, "instance")
+    return instance;
+  } catch (error) {
+    return handleError(env, "instance");
   }
 }
 
@@ -635,11 +641,12 @@ export function setItem(
   name: Undefined_Obj,
   obj: Obj
 ): Obj {
-  try{
-  instanceObj.value.set(name.value, obj);
+  try {
+    instanceObj.value.set(name.value, obj);
 
-  return obj;} catch (error) {
-    return handleError(env, "setItem")
+    return obj;
+  } catch (error) {
+    return handleError(env, "setItem");
   }
 }
 
@@ -648,8 +655,7 @@ export const builtinVars: { [key: string]: Bool } = {
   "#f": FALSE,
 };
 
-
-function quote(env: Env,  exprList: Expr[]): Obj {
+function quote(env: Env, exprList: Expr[]): Obj {
   try {
     if (exprList.length === 2 && exprList[1].type === ExprType.ATOM) {
       return new ExprObj(new Expr(ExprType.ATOM, exprList[1].value));
@@ -657,11 +663,11 @@ function quote(env: Env,  exprList: Expr[]): Obj {
       return new ExprObj(new Expr(ExprType.LST_EXPR, exprList.slice(1)));
     }
   } catch (error) {
-    return handleError(env,"quote");
+    return handleError(env, "quote");
   }
 }
 
-function bind(env: Env,  exprList: Expr[]): Obj {
+function bind(env: Env, exprList: Expr[]): Obj {
   try {
     const var_name = exprList[1].value;
     const func_name = "_update_" + var_name;
@@ -671,12 +677,12 @@ function bind(env: Env,  exprList: Expr[]): Obj {
       "LambdaObj",
       lambdaString,
       [] as Expr[],
-      body,
+      body
     );
     env.set(func_name, expressions);
     return expressions;
   } catch (error) {
-    return handleError(env,"bind");
+    return handleError(env, "bind");
   }
 }
 
@@ -698,10 +704,9 @@ function evalProcedureValue(
     let workingEnv: Env;
 
     workingEnv = new Env();
-      for (let [key, value] of bodyEnv) {
-        if (value !== undefined) workingEnv.set(key, value);
-      } // structuredClone(bodyEnv) is WRONG!
-
+    for (let [key, value] of bodyEnv) {
+      if (value !== undefined) workingEnv.set(key, value);
+    } // structuredClone(bodyEnv) is WRONG!
 
     // when entering function, env.functionDepth ++
     workingEnv.functionDepth = bodyEnv.functionDepth + 1;
@@ -726,11 +731,11 @@ function evalProcedureValue(
     }
     return result;
   } catch (error) {
-    return handleError(bodyEnv,"evalProcedureValue");
+    return handleError(bodyEnv, "evalProcedureValue");
   }
 }
 
-function forFunc(env: Env,  body: Expr[]): Obj {
+function forFunc(env: Env, body: Expr[]): Obj {
   try {
     const condExpr: Expr = body[2];
     const updateExpr: Expr = body[3];
@@ -782,15 +787,15 @@ function forFunc(env: Env,  body: Expr[]): Obj {
 
     return result;
   } catch (error) {
-    return handleError(env,"for");
+    return handleError(env, "for");
   }
 }
 
-function updateVar(env: Env,  exprList: Expr[]): Obj {
+function updateVar(env: Env, exprList: Expr[]): Obj {
   try {
-    const objValue = evalExpr(env, exprList[2])
-    
-    env.set((exprList[1].value as Atom), objValue);
+    const objValue = evalExpr(env, exprList[2]);
+
+    env.set(exprList[1].value as Atom, objValue);
 
     const procedure = env.get(
       `_update_${exprList[1].value}`
@@ -800,26 +805,25 @@ function updateVar(env: Env,  exprList: Expr[]): Obj {
     }
     return objValue;
   } catch (error) {
-    return handleError(env,"updateVar");
+    return handleError(env, "updateVar");
   }
 }
 
-function defineVar(env: Env,  exprList: Expr[]): Obj {
+function defineVar(env: Env, exprList: Expr[]): Obj {
   try {
-    const varName = atomAsEnvKey(exprList[1])
-    const varValue = evalExpr(env, exprList[2])
+    const varName = atomAsEnvKey(exprList[1]);
+    const varValue = evalExpr(env, exprList[2]);
 
-    isValidVariableName(varName.value)
-    
+    isValidVariableName(varName.value);
+
     env.set(varName.value, varValue);
-    return varValue
-
+    return varValue;
   } catch (error) {
-    return handleError(env,"defineVar");
+    return handleError(env, "defineVar");
   }
 }
 
-export function ifFunc(env: Env,  exprList: Expr[]): Obj {
+export function ifFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const condition: Obj = evalExpr(env, exprList[1]);
     if (isTsLispFalse(condition)) {
@@ -829,20 +833,16 @@ export function ifFunc(env: Env,  exprList: Expr[]): Obj {
       return evalExpr(env, exprList[2]);
     }
   } catch (error) {
-    return handleError(env,"if");
+    return handleError(env, "if");
   }
 }
 
-export function whileFunc(env: Env,  exprList: Expr[]): Obj {
+export function whileFunc(env: Env, exprList: Expr[]): Obj {
   try {
     let condition: Obj = evalExpr(env, exprList[1]);
     let result: Obj = None_Obj;
     while (
-      !(
-        condition === FALSE ||
-        condition === None_Obj ||
-        (condition.value === 0)
-      )
+      !(condition === FALSE || condition === None_Obj || condition.value === 0)
     ) {
       for (let i = 2; i < exprList.length - 1; i++) {
         evalExpr(env, exprList[i]);
@@ -852,12 +852,12 @@ export function whileFunc(env: Env,  exprList: Expr[]): Obj {
     }
     return result;
   } catch (error) {
-    return handleError(env,"while");
+    return handleError(env, "while");
   }
 }
 
-function lambdaObj(env: Env,  exprList: Expr[]): Obj {
-  exprList = exprList.slice(1)
+function lambdaObj(env: Env, exprList: Expr[]): Obj {
+  exprList = exprList.slice(1);
   let argNames = exprList[0].value as Expr[];
   let body = exprList.slice(1);
 
@@ -868,14 +868,13 @@ function lambdaObj(env: Env,  exprList: Expr[]): Obj {
     "LambdaObj",
     lambdaString,
     (argNames = argNames),
-    (body = body),
+    (body = body)
   );
 
-  return func
+  return func;
 }
 
-
-function evalLambdaObj(env: Env, opt: Procedure,  exprList: Expr[]): Obj {
+export function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
   if (opt instanceof Lambda_Procedure) {
     return evalProcedureValue(
@@ -885,11 +884,11 @@ function evalLambdaObj(env: Env, opt: Procedure,  exprList: Expr[]): Obj {
       ...parameters
     );
   } else {
-    return handleError(env,"invalid use of procedure");
+    return handleError(env, "invalid use of procedure");
   }
 }
 
-function _displayFuncDepth(env: Env,  exprList: Expr[]): Obj {
+function _displayFuncDepth(env: Env, exprList: Expr[]): Obj {
   return new IntNumber(env.functionDepth);
 }
 
@@ -897,11 +896,10 @@ const exprLiteralOpts: { [key: string]: Function } = {
   quote: quote,
   bind: bind,
   update: updateVar,
-  "=":defineVar,
+  "=": defineVar,
   define: defineVar,
   "set!": defineVar,
   lambda: lambdaObj,
-  LambdaObj: evalLambdaObj,
   if: ifFunc,
   while: whileFunc,
   _displayFuncDepth: _displayFuncDepth,
@@ -951,7 +949,6 @@ const objOpts: { [key: string]: Function } = {
   getArr: getArrFunc,
 };
 
-
 // special operators works on expressions.
 export function isExprLiteralOpt(opt: Procedure): Boolean {
   for (let item in exprLiteralOpts) {
@@ -961,18 +958,14 @@ export function isExprLiteralOpt(opt: Procedure): Boolean {
   return false;
 }
 
-export const builtinOpts = Object.assign(
-  {},
-  objOpts,
-  exprLiteralOpts
-);
+export const builtinOpts = Object.assign({}, objOpts, exprLiteralOpts);
 
 function isValidVariableName(name: string): boolean {
   // Check if it's a C keyword
   if (Object.keys(builtinOpts).includes(name)) {
     return false;
   }
-  
+
   // Check if it matches the C variable naming pattern
   const variablePattern = /^[^0-9+\-*/%^=<>!&|~][^+\-*/%^=<>!&|~]*$/;
 

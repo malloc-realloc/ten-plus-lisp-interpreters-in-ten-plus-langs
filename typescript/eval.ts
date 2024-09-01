@@ -12,6 +12,7 @@ import { Env } from "./env";
 import {
   builtinOpts,
   builtinVars,
+  evalLambdaObj,
   isExprLiteralOpt,
 } from "./builtins";
 import { handleError } from "./commons";
@@ -32,12 +33,12 @@ export function evalExpr(env: Env, expr: Expr): Obj {
     return result;
   } else {
     const obj = new ErrorObj(env.errorMessage);
-    env.cleanup()
+    env.cleanup();
     return obj;
   }
 }
 
-function evalStringExpr( expr: Expr): String_Obj | ErrorObj {
+function evalStringExpr(expr: Expr): String_Obj | ErrorObj {
   return new String_Obj(expr.value as Atom);
 }
 
@@ -55,14 +56,17 @@ function evalListExpr(env: Env, expr: Expr): Obj {
       opt = evalListExpr(env, firstExpr);
     }
 
+    let result: Obj;
     const func = builtinOpts[(opt as Procedure).value];
-    if (isExprLiteralOpt(opt as Procedure)) {
-      let result: Obj;
-      if ((opt as Procedure).value === "LambdaObj") {
-         result = func(env, opt, exprList);
-      } else  {
-        result = func(env, exprList);
+    if ((opt as Procedure).value === "LambdaObj") {
+      result = evalLambdaObj(env, opt, exprList);
+      if (result instanceof ErrorObj) {
+        return new ErrorObj(result.value);
+      } else {
+        return result;
       }
+    } else if (isExprLiteralOpt(opt as Procedure)) {
+      result = func(env, exprList);
       if (result instanceof ErrorObj) {
         return new ErrorObj(result.value);
       } else {
@@ -87,29 +91,29 @@ function evalAtom(env: Env, expr: Expr): Obj {
   try {
     const literal = expr.value as Atom;
 
-  if (isInt(literal)) {
-    return new IntNumber(parseInt(literal, 10));
-  } else if (isFloat(literal)) {
-    return new FloatNumber(parseFloat(literal));
-  } else if (isBuiltin(literal)) {
-    return getBuiltin(env, literal);
-  } else {
-    return getFromEnv(env, literal);
-  }
+    if (isInt(literal)) {
+      return new IntNumber(parseInt(literal, 10));
+    } else if (isFloat(literal)) {
+      return new FloatNumber(parseFloat(literal));
+    } else if (isBuiltin(literal)) {
+      return getBuiltin(env, literal);
+    } else {
+      return getFromEnv(env, literal);
+    }
   } catch (error) {
-    return handleError(env, `Invalid use of ${expr.value as Atom}`)
+    return handleError(env, `Invalid use of ${expr.value as Atom}`);
   }
 }
 
 export function getFromEnv(env: Env, literal: string): Obj {
-  try  {
+  try {
     const value = env.get(literal);
     if (value === undefined) {
       return new Obj(literal);
     }
     return value;
-  } catch(error) {
-    return handleError(env, `${literal} not found in env.`)
+  } catch (error) {
+    return handleError(env, `${literal} not found in env.`);
   }
 }
 
@@ -126,20 +130,21 @@ function isBuiltin(s: Atom): boolean {
 }
 
 export function getBuiltin(env: Env, s: string): Procedure {
-  try{
-  const proc = builtinOpts[s];
-  if (proc !== undefined) {
-    return new Procedure(s);
-  } else {
-    const builtinVar = getBuiltinVars(s);
-    if (builtinVar instanceof Procedure) {
-      return builtinVar;
+  try {
+    const proc = builtinOpts[s];
+    if (proc !== undefined) {
+      return new Procedure(s);
     } else {
-      throw new Error(`Undefined built-in procedure: ${s}`);
+      const builtinVar = getBuiltinVars(s);
+      if (builtinVar instanceof Procedure) {
+        return builtinVar;
+      } else {
+        throw new Error(`Undefined built-in procedure: ${s}`);
+      }
     }
-  }} catch( error) {
-     handleError(env, `builtin function ${s} does not exist.`)
-     return new Procedure("")
+  } catch (error) {
+    handleError(env, `builtin function ${s} does not exist.`);
+    return new Procedure("");
   }
 }
 
