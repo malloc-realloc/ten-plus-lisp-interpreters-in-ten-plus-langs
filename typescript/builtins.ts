@@ -438,10 +438,10 @@ export function setArrFunc(
   env: Env,
   obj: Obj,
   arrObj: ArrayObj,
-  ...Numberindexes: Number[]
+  ...NumberIndexes: Number[]
 ): Obj {
   try {
-    const indexes: number[] = Numberindexes.map((i) => i.value);
+    const indexes: number[] = NumberIndexes.map((i) => i.value);
     let arr = arrObj.value;
 
     if (indexes.length === 1) {
@@ -703,7 +703,7 @@ function evalProcedureValue(
       } // structuredClone(bodyEnv) is WRONG!
 
 
-    // when entering function, env.funtionDepth ++
+    // when entering function, env.functionDepth ++
     workingEnv.functionDepth = bodyEnv.functionDepth + 1;
 
     argNames.forEach((argName, index) => {

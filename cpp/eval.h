@@ -50,7 +50,7 @@ Obj addObjs(Env &env, const std::vector<Obj> &args) {
       throw handleError(env, "At least one argument is required");
     }
 
-    if (TCast<String_Obj>(args[0])) {
+    if (args[0].value.type() == typeid(string)) {
       std::string result = "";
       for (const auto &arg : args) {
         result += std::any_cast<std::string>(arg);
@@ -59,7 +59,7 @@ Obj addObjs(Env &env, const std::vector<Obj> &args) {
     } else {
       int result = 0;
       for (const auto &arg : args) {
-        if (TCast<IntNumber>(arg)) {
+        if (arg.value.type() == typeid(string)) {
           result += std::any_cast<double>(arg);
         } else {
           return handleError(
@@ -78,7 +78,7 @@ Obj subObjs(Env &env, const std::vector<Obj> &args) {
   try {
     int result = std::any_cast<double>(args[0]);
     for (size_t i = 1; i < args.size(); ++i) {
-      if (TCast<IntNumber>(args[i])) {
+      if (args[i].value.type() == typeid(int)) {
         result -= std::any_cast<int>(args[i]);
       } else {
         return handleError(env, "-");
@@ -717,12 +717,12 @@ Obj evalExpr(Env &env, const Expr &expr) {
 }
 
 Obj evalStringExpr(const Expr &expr) {
-  return String_Obj(TCast<string>(expr.value));
+  return String_Obj(std::any_cast<string>(expr.value));
 }
 
 // evalListExpr 是运行时的主要性能消耗
 Obj evalListExpr(Env &env, const Expr &expr) {
-  const std::vector<Expr> &exprList = TCast<vector<Expr>>(expr.value);
+  const std::vector<Expr> &exprList = std::any_cast<vector<Expr>>(expr.value);
   const Expr &firstExpr = exprList[0]; // 获取表达式的第一个元素
 
   try {
@@ -733,20 +733,20 @@ Obj evalListExpr(Env &env, const Expr &expr) {
       opt = static_cast<Procedure>(evalListExpr(env, firstExpr));
     }
 
-    string key = TCast<Procedure>(opt).value;
+    string key = std::any_cast<string>(opt.value);
     Obj result;
     if (key == "LambdaObj") {
       result = evalLambdaObj(env, opt, exprList);
-      if (TCast<ErrorObj>(result)) {
-        return ErrorObj(TCast<string>(result.value));
+      if (typeid(result) == typeid(InnerErrorObj)) {
+        return ErrorObj(std::any_cast<string>(result.value));
       } else {
         return result;
       }
     } else if (auto keys = extractKeys(exprLiteralOpts);
                keys.find(key) != keys.end()) {
       result = exprLiteralOpts[key](env, exprList);
-      if (TCast<ErrorObj>(result)) {
-        return ErrorObj(TCast<string>(result.value));
+      if (typeid(result) == typeid(InnerErrorObj)) {
+        return ErrorObj(std::any_cast<string>(result.value));
       } else {
         return result;
       }
@@ -758,8 +758,8 @@ Obj evalListExpr(Env &env, const Expr &expr) {
 
       Obj result = objOpts[key](env, parameters); // 调用函数并传递参数
 
-      if (TCast<ErrorObj>(result)) {
-        return ErrorObj(TCast<std::string>(result.value));
+      if (typeid(result) == typeid(InnerErrorObj)) {
+        return ErrorObj(std::any_cast<std::string>(result.value));
       } else {
         return result;
       }
@@ -772,17 +772,17 @@ Obj evalListExpr(Env &env, const Expr &expr) {
 
 Obj evalAtom(Env &env, const Expr &expr) {
   try {
-    const std::string &literal = TCast<string>(expr.value);
+    const std::string &literal = std::any_cast<string>(expr.value);
 
     if (isInt(literal)) {
       return IntNumber(std::stoi(literal));
     } else if (isFloat(literal)) {
       return FloatNumber(std::stof(literal));
     } else {
-      return String_Obj(TCast<string>(env.get(literal)));
+      return String_Obj(std::any_cast<string>(env.get(literal)));
     }
   } catch (...) {
-    env.setErrorMessage("Invalid use of " + TCast<string>(expr.value));
+    env.setErrorMessage("Invalid use of " + std::any_cast<string>(expr.value));
     return ErrorObj("");
   }
 }
@@ -790,7 +790,7 @@ Obj evalAtom(Env &env, const Expr &expr) {
 Obj getFromEnv(Env env, string literal) {
   try {
     auto value = env.get(literal);
-    if (!TCast<void *>(value).value) {
+    if (typeid(value) == typeid(InnerErrorObj)) {
       return Obj(literal);
     }
     return value;

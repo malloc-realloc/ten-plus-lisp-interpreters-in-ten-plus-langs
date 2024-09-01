@@ -23,6 +23,8 @@ public:
   ErrorObj(const std::string &val) : Obj(val) {}
 };
 
+auto const InnerErrorObj = ErrorObj("");
+
 using Number = any;
 
 class IntNumber : public Obj {
