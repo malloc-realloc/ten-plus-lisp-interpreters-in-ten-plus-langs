@@ -691,7 +691,7 @@ function atomAsEnvKey(expr: Expr): Obj {
 }
 
 function evalProcedureValue(
-  bodyEnv: Env,
+  env: Env,
   argNames: Expr[],
   body: Expr[],
   ...args: any[]
@@ -701,19 +701,12 @@ function evalProcedureValue(
       console.error("Error: Invalid number of arguments");
     }
 
-    let workingEnv: Env;
-
-    workingEnv = new Env();
-    for (let [key, value] of bodyEnv) {
-      if (value !== undefined) workingEnv.set(key, value);
-    } // structuredClone(bodyEnv) is WRONG!
-
-    // when entering function, env.functionDepth ++
-    workingEnv.functionDepth = bodyEnv.functionDepth + 1;
+    const originalDepth = env.functionDepth;
+    env.functionDepth = env.functionDepth + 1;
 
     argNames.forEach((argName, index) => {
       if (typeof argName.value === "string") {
-        workingEnv.set(argName.value, args[index]);
+        env.set(argName.value, args[index]);
       } else {
         console.error(
           `Error: Invalid argument name type: ${typeof argName.value}`
@@ -722,16 +715,16 @@ function evalProcedureValue(
     });
 
     let result: Obj = None_Obj;
-    let funcDepth = workingEnv.functionDepth;
+    let funcDepth = env.functionDepth;
     for (let expr of body) {
-      result = evalExpr(workingEnv, expr);
-      if (workingEnv.functionDepth < funcDepth) {
+      result = evalExpr(env, expr);
+      if (originalDepth >= funcDepth) {
         return result;
       }
     }
     return result;
   } catch (error) {
-    return handleError(bodyEnv, "evalProcedureValue");
+    return handleError(env, "evalProcedureValue");
   }
 }
 
@@ -856,7 +849,7 @@ export function whileFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
-function lambdaObj(env: Env, exprList: Expr[]): Obj {
+function returnLambdaObj(env: Env, exprList: Expr[]): Obj {
   exprList = exprList.slice(1);
   let argNames = exprList[0].value as Expr[];
   let body = exprList.slice(1);
@@ -868,7 +861,8 @@ function lambdaObj(env: Env, exprList: Expr[]): Obj {
     "LambdaObj",
     lambdaString,
     (argNames = argNames),
-    (body = body)
+    (body = body),
+    (env = env)
   );
 
   return func;
@@ -878,7 +872,7 @@ export function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
   if (opt instanceof Lambda_Procedure) {
     return evalProcedureValue(
-      env,
+      opt.env,
       opt.argNames,
       opt.body as Expr[],
       ...parameters
@@ -899,7 +893,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "=": defineVar,
   define: defineVar,
   "set!": defineVar,
-  lambda: lambdaObj,
+  lambda: returnLambdaObj,
   if: ifFunc,
   while: whileFunc,
   _displayFuncDepth: _displayFuncDepth,
