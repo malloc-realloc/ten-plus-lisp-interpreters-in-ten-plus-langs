@@ -24,10 +24,13 @@ function evalExpression(expr: string): Obj {
 }
 
 const exprs: string[] = [
-  "(define r 1)", 
-  "(define fn (lambda (x) (define r 2) (+ x r)))",
+  // "(define r 1)",
+  // "(define fn (lambda (x) (define r 2) (+ x r)))",
+  // "(fn 2)",
+  // "(display r)",
+  "(define r 1)",
+  "(define fn (lambda (x) (+ x r)))",
   "(fn 2)",
-  "(display r)",
   // '(define a "Hah")',
   // "{what is the number [a]}",
   // "(define a 2)",
@@ -149,6 +152,6 @@ const exprs: string[] = [
 const results: any[] = [];
 
 for (const expr of exprs) {
-  results.push(evalExpression(expr).toString()); 
+  results.push(evalExpression(expr).toString());
   console.log(results[results.length - 1]);
 }

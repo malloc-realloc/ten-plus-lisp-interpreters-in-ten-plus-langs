@@ -107,7 +107,7 @@ function evalAtom(env: Env, expr: Expr): Obj {
 
 export function getFromEnv(env: Env, literal: string): Obj {
   try {
-    const value = env.get(literal);
+    const value = env.getFromEnv(literal);
     if (value === undefined) {
       return new Obj(literal);
     }
@@ -165,7 +165,7 @@ function evalLLMExpr(env: Env, expr: Expr): Obj {
         i++;
       }
 
-      let v: Obj | undefined = env.get(varName);
+      let v: Obj | undefined = env.getFromEnv(varName);
       if (v === undefined) {
         continue;
       } else {

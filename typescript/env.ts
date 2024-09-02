@@ -1,3 +1,4 @@
+import { handleError } from "./commons";
 import { None_Obj, Obj } from "./obj";
 
 export class Env extends Map<string, Obj> {
@@ -10,11 +11,11 @@ export class Env extends Map<string, Obj> {
   fatherEnv: Env | undefined = undefined;
 
   cleanup() {
-    this.functionDepth = 0
+    this.functionDepth = 0;
     this.hasFailed = false;
-    this.errorMessage = ""
-    this.thisStack = []
-    this.thisValueStack = [None_Obj]
+    this.errorMessage = "";
+    this.thisStack = [];
+    this.thisValueStack = [None_Obj];
   }
 
   newThis(s: string, obj: Obj) {
@@ -48,5 +49,29 @@ export class Env extends Map<string, Obj> {
   setErrorMessage(message: string) {
     this.hasFailed = true;
     this.errorMessage = `Invalid invocation: ${message}.\n`;
+  }
+
+  getFromEnv(literal: string): Obj | undefined {
+    try {
+      const value = this.get(literal);
+      if (value !== undefined) {
+        return value;
+      }
+
+      let env: Env | undefined = this;
+      while (true) {
+        if (env.fatherEnv !== undefined) {
+          env = env.fatherEnv;
+          const value = env.get(literal);
+          if (value !== undefined) {
+            return value;
+          }
+        } else {
+          return undefined;
+        }
+      }
+    } catch (error) {
+      return handleError(this, `${literal} not found in env.`);
+    }
   }
 }
