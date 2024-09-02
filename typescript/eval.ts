@@ -7,6 +7,7 @@ import {
   LLM_EXPRObj,
   String_Obj,
   ErrorObj,
+  Undefined_Obj,
 } from "./obj";
 import { Env } from "./env";
 import {
@@ -109,7 +110,8 @@ export function getFromEnv(env: Env, literal: string): Obj {
   try {
     const value = env.getFromEnv(literal);
     if (value === undefined) {
-      return new Obj(literal);
+      // The reason why we don't throw error here is that sometimes we need plain literal of a symbol, e.g. defining subclass'
+      return new Undefined_Obj(literal);
     }
     return value;
   } catch (error) {
