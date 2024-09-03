@@ -24,6 +24,7 @@ import { evalExpr } from "./eval";
 import { handleError } from "./commons";
 import { Instance_Obj } from "./obj";
 import { error } from "console";
+import { reverse } from "lodash";
 
 type Number = IntNumber | FloatNumber;
 
@@ -512,6 +513,15 @@ export function getArrFunc(
   }
 }
 
+export function callLLM(env: Env, ...args: Obj[]): Obj {
+  let returnValue = "";
+  for (let i = 0; i < args.length; i++) {
+    returnValue += (args[i].value + " ") as string;
+  }
+
+  return new String_Obj(returnValue);
+}
+
 export function randomFunc(env: Env, arg1: Obj, arg2: Obj): Obj {
   try {
     const n1 = arg1.value;
@@ -951,6 +961,8 @@ const objOpts: { [key: string]: Function } = {
   array: arrayFunc,
   setArr: setArrFunc,
   getArr: getArrFunc,
+  LLM: callLLM,
+  AI: callLLM,
 };
 
 // special operators works on expressions.

@@ -5,6 +5,7 @@ import { evalExpr } from "./eval";
 import { Env } from "./env";
 import { ErrorObj, Obj } from "./obj";
 import { ExprType } from "./ast";
+import { callLLM } from "./builtins";
 
 const globalEnv = new Env();
 
@@ -12,7 +13,7 @@ function evalExpression(expr: string): Obj {
   const tokenizedExpr: string[] = tokenize(expr);
   if (tokenizedExpr.length === 0) {
     // all expressions are comment.
-    return new ErrorObj("Lexer Error");
+    return new Obj(null);
   }
   const ast = parseExpr(tokenizedExpr);
   if (ast.type === ExprType.ERROR) {
@@ -65,18 +66,20 @@ const exprs: string[] = [
   // "(cdr (quote 1 2 3))",
   // "(cons `1 `(1 1))",
   // "(cons (quote +) `(1 1 ))",
-  "(define oneAddOneForm (cons (quote +) `(1 1 )))",
-  "(eval oneAddOneForm)",
-  "(cons `+ `(1 1))",
-  "(quote 1)",
-  "(define 世界 1)",
-  "(display 世界)",
-  "(define temp (cons `a `(1 1)))",
-  "(cons `(a b) `(b c d))", // "(cons `(a b) `(b c d))" is wrong
-  "(cons `(a b) `c)",
-  "(cons `a `3)",
-  "(define shit (quote + 1 1))",
+  // "(define oneAddOneForm (cons (quote +) `(1 1 )))",
+  // "(eval oneAddOneForm)",
+  // "(cons `+ `(1 1))",
+  // "(quote 1)",
+  // "(define 世界 1)",
+  // "(display 世界)",
+  // "(define temp (cons `a `(1 1)))",
+  // "(cons `(a b) `(b c d))", // "(cons `(a b) `(b c d))" is wrong
+  // "(cons `(a b) `c)",
+  // "(cons `a `3)",
+  // "(define shit (quote + 1 1))",
   // "(eval shit)",
+  // "",
+  // '(define a "sanyan"',
   // "{你好 [a] Hah hello world!}",
   // '(define m "hello, world")',
   // '"hello, world"',
@@ -153,6 +156,9 @@ const exprs: string[] = [
   // "(setArr (** 2 3) arr 0 0  0)",
   // "(getArr arr 0 0 0)",
   // "arr",
+  "(define a 1)",
+  "(LLM ha a)", // The reason why this works is that ha is undefined and I treat it as plain literal.
+  "(AI 你好 a )",
 ];
 
 const results: any[] = [];
