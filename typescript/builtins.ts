@@ -304,7 +304,16 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
     if (obj1.value.type === ExprType.LST_EXPR) {
       const newObj = structuredClone(obj1.value.value);
       newObj.unshift(new Expr(obj0.value.type, obj0.value.value));
-      return new ExprObj(new Expr(ExprType.LST_EXPR, newObj));
+
+      let ExprObjValueValue = [obj0.value];
+      if (obj1.value.type == ExprType.ATOM) {
+        ExprObjValueValue.push(obj1.value);
+      } else {
+        for (let i = 0; i < obj1.value.value.length; i++) {
+          ExprObjValueValue.push(obj1.value.value[i]);
+        }
+      }
+      return new ExprObj(new Expr(ExprType.LST_EXPR, ExprObjValueValue));
     } else {
       return new ExprObj(
         new Expr(ExprType.LST_EXPR, [

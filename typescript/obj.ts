@@ -1,4 +1,4 @@
-import { Expr, Atom } from "./ast";
+import { Expr, Atom, ExprType } from "./ast";
 import { Env } from "./env";
 
 export enum ObjType {
@@ -98,7 +98,7 @@ export class ExprObj extends Obj {
   }
 
   toString(): string {
-    return `ExprObj: t = ${String(this.value.type)}, v = ${String(this.value.value)}`;
+    return `ExprObj: ${String(this.value)}`;
   }
 }
 

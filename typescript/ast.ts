@@ -19,13 +19,24 @@ export class Expr {
   }
 
   toString(): string {
-    if (Array.isArray(this.value)) {
-      const literalStr = this.value
-        .map((item) => item.toString())
-        .join(",\n  ");
-      return `{\n  "Type": "${ExprType[this.type]}",\n  "AtomOrExprVec": [\n  ${literalStr}\n  ]\n}`;
-    } else {
-      return `{\n  "Type": "${ExprType[this.type]}",\n  "AtomOrExprVec": "${this.value}"\n}`;
-    }
+    const getLiteralStr = (value: any): string => {
+      if (Array.isArray(value)) {
+        let result = "[";
+        for (let i = 0; i < value.length; i++) {
+          // 递归处理数组中的每个元素
+          result += getLiteralStr(value[i]);
+          if (i < value.length - 1) {
+            result += ","; // 添加逗号分隔符
+          }
+        }
+        result += "]";
+        return result;
+      } else {
+        // 处理基本类型
+        return `${value}`;
+      }
+    };
+
+    return getLiteralStr(this.value);
   }
 }
