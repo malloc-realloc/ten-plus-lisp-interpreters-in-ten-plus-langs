@@ -26,12 +26,12 @@ function evalExpression(expr: string): Obj {
 
 const exprs: string[] = [
   // "(define r 1)",
-  // "(define fn (lambda (x) (define r 2) (+ x r)))",
-  // "(fn 2)",
+  // "(define func (lambda (x) (define r 2) (+ x r)))",
+  // "(func 2)",
   // "(display r)",
   // "(define r 1)",
-  // "(define fn (lambda (x) (+ x r)))",
-  // "(fn 2)",
+  // "(define func (lambda (x) (+ x r)))",
+  // "(func 2)",
   // '(define a "Hah")',
   // "{what is the number [a]}",
   // "(define a 2)",
@@ -156,9 +156,11 @@ const exprs: string[] = [
   // "(setArr (** 2 3) arr 0 0  0)",
   // "(getArr arr 0 0 0)",
   // "arr",
-  "(define a 1)",
-  "(LLM ha a)", // The reason why this works is that ha is undefined and I treat it as plain literal.
-  "(AI 你好 a )",
+  // "(define a 1)",
+  // "(LLM ha a)", // The reason why this works is that ha is undefined and I treat it as plain literal.
+  // "(AI 你好 a )",
+  "(= 1 2)",
+  "(= 1 1)",
 ];
 
 const results: any[] = [];

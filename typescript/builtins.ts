@@ -514,12 +514,16 @@ export function getArrFunc(
 }
 
 export function callLLM(env: Env, ...args: Obj[]): Obj {
-  let returnValue = "";
-  for (let i = 0; i < args.length; i++) {
-    returnValue += (args[i].value + " ") as string;
-  }
+  try {
+    let returnValue = "";
+    for (let i = 0; i < args.length; i++) {
+      returnValue += (args[i].value + " ") as string;
+    }
 
-  return new String_Obj(returnValue);
+    return new String_Obj(returnValue);
+  } catch (error) {
+    return handleError(env, "call large language model.");
+  }
 }
 
 export function randomFunc(env: Env, arg1: Obj, arg2: Obj): Obj {
@@ -910,10 +914,10 @@ const exprLiteralOpts: { [key: string]: Function } = {
   quote: quote,
   bind: bind,
   update: updateVar,
-  "=": defineVar,
   define: defineVar,
   "set!": defineVar,
   lambda: returnLambdaObj,
+  fn: returnLambdaObj,
   if: ifFunc,
   while: whileFunc,
   _displayFuncDepth: _displayFuncDepth,
@@ -933,6 +937,7 @@ const objOpts: { [key: string]: Function } = {
   ">=": geObjs,
   "<=": leObjs,
   "==": eqObjs,
+  "=": eqObjs,
   abs: absObj,
   display: display,
   begin: begin,
