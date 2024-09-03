@@ -272,7 +272,7 @@ export function begin(env: Env, ...args: Obj[]): Obj {
 export function cdr(env: Env, exprObj: ExprObj): Obj {
   try {
     return new ExprObj(
-      new Expr(ExprType.LST_EXPR, exprObj.value.literal.slice(1))
+      new Expr(ExprType.LST_EXPR, exprObj.value.value.slice(1))
     );
   } catch (error) {
     return handleError(env, "cdr");
@@ -282,15 +282,15 @@ export function cdr(env: Env, exprObj: ExprObj): Obj {
 export function car(env: Env, exprObj: ExprObj): Obj {
   try {
     if (exprObj.value.type === ExprType.ATOM) {
-      return new ExprObj(new Expr(ExprType.ATOM, exprObj.value.literal));
+      return exprObj;
     } else {
-      if (exprObj.value.literal[0].type === ExprType.ATOM) {
+      if (exprObj.value.value[0].type === ExprType.ATOM) {
         return new ExprObj(
-          new Expr(ExprType.ATOM, exprObj.value.literal[0].literal)
+          new Expr(ExprType.ATOM, exprObj.value.value[0].value)
         );
       } else {
         return new ExprObj(
-          new Expr(ExprType.LST_EXPR, exprObj.value.literal[0].literal)
+          new Expr(ExprType.LST_EXPR, exprObj.value.value[0].value)
         );
       }
     }
@@ -302,14 +302,14 @@ export function car(env: Env, exprObj: ExprObj): Obj {
 export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
   try {
     if (obj1.value.type === ExprType.LST_EXPR) {
-      const newObj = structuredClone(obj1.value.literal);
-      newObj.unshift(new Expr(obj0.value.type, obj0.value.literal));
+      const newObj = structuredClone(obj1.value.value);
+      newObj.unshift(new Expr(obj0.value.type, obj0.value.value));
       return new ExprObj(new Expr(ExprType.LST_EXPR, newObj));
     } else {
       return new ExprObj(
         new Expr(ExprType.LST_EXPR, [
-          new Expr(obj0.value.type, obj0.value.literal),
-          obj1.value.literal,
+          new Expr(obj0.value.type, obj0.value.value),
+          obj1.value.value,
         ])
       );
     }
