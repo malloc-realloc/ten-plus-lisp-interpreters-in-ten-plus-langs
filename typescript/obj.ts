@@ -92,8 +92,13 @@ export const FALSE = new Bool(false);
 export const None_Obj = new Obj(null);
 
 export class ExprObj extends Obj {
+  /* quoted Expr is transformed into ExprObj so that eval can evaluate. */
   constructor(value: Expr) {
     super(value);
+  }
+
+  toString(): string {
+    return `ExprObj: t = ${String(this.value.type)}, v = ${String(this.value.value)}`;
   }
 }
 

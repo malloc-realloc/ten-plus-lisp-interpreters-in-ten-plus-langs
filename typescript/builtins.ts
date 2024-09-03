@@ -656,6 +656,7 @@ export const builtinVars: { [key: string]: Bool } = {
 };
 
 function quote(env: Env, exprList: Expr[]): Obj {
+  /* This is where Expr becomes ExprObj, enabling eval to eval quote. */
   try {
     if (exprList.length === 2 && exprList[1].type === ExprType.ATOM) {
       return new ExprObj(new Expr(ExprType.ATOM, exprList[1].value));

@@ -65,8 +65,11 @@ const exprs: string[] = [
   // "(cdr (quote 1 2 3))",
   // "(cons `1 `(1 1))",
   // "(cons (quote +) `(1 1 ))",
+  // "(define oneAddOneForm (cons (quote +) `(1 1 )))",
+  // "(eval oneAddOneForm)",
   // "(cons `+ `(1 1))",
   // "(define 世界 1)",
+  "(quote 1)",
   // "(display 世界)",
   // "(define temp (cons `a `(1 1)))",
   // "(cons `(a b) `(b c d))", // "(cons `(a b) `(b c d))" is wrong
@@ -155,6 +158,8 @@ const exprs: string[] = [
 const results: any[] = [];
 
 for (const expr of exprs) {
-  results.push(evalExpression(expr).toString());
+  const result = evalExpression(expr);
+  const resultStr = result.toString();
+  results.push(resultStr);
   console.log(results[results.length - 1]);
 }
