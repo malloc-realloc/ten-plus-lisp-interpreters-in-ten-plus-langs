@@ -55,7 +55,7 @@
     <td>This loop continuously displays the value of <code>d</code> and decrements it by <code>1</code> until <code>d</code> is false (e.g., <code>0</code>).</td>
   </tr>
   <tr>
-    <td><code>'(randChoice 1 2 "Hah")</code></td>
+    <td><code>(randChoice 1 2 "Hah")</code></td>
     <td>One of the values: <code>1</code>, <code>2</code>, or <code>"Hah"</code></td>
     <td>Calls a function to randomly choose between <code>1</code>, <code>2</code>, and <code>"Hah"</code>. Returns one of these values.</td>
   </tr>

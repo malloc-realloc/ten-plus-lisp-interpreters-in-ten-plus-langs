@@ -85,6 +85,15 @@ export class Dict_Obj extends Obj {
     super(value);
     this.type = type;
   }
+
+  toString(): string {
+    let result = "{";
+    for (let key in this.value) {
+      result += key + ":" + this.value[key] + ", ";
+    }
+    result += "}";
+    return result;
+  }
 }
 
 export const TRUE = new Bool(true);
@@ -132,6 +141,14 @@ export class Instance_Obj extends Obj {
     super(value);
     this.instanceName = instanceName;
     this.className = className;
+  }
+
+  toString(): string {
+    let result = `${this.instanceName}(${this.className}) `;
+    for (let key of this.value) {
+      result += `{${key}}}`;
+    }
+    return result;
   }
 }
 
