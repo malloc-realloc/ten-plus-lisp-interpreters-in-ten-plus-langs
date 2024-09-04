@@ -17,6 +17,7 @@ import {
   Undefined_Obj,
   createMultiDimArray,
   ArrayObj,
+  AIObj,
 } from "./obj";
 import { Env } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
@@ -533,7 +534,7 @@ export function callLLM(env: Env, ...args: Obj[]): Obj {
       returnValue += (args[i].value + " ") as string;
     }
 
-    return new String_Obj(returnValue);
+    return new AIObj(returnValue);
   } catch (error) {
     return handleError(env, "call large language model.");
   }

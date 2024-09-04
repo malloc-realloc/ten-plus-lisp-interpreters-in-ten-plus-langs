@@ -175,6 +175,13 @@ export class Undefined_Obj extends Obj {
   }
 }
 
+export class AIObj extends Obj {
+  name = "AIObj";
+  constructor(value: string) {
+    super(value);
+  }
+}
+
 type MultiDimArray = Obj | MultiDimArray[];
 
 export class ArrayObj extends Obj {
