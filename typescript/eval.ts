@@ -8,6 +8,7 @@ import {
   String_Obj,
   ErrorObj,
   Undefined_Obj,
+  None_Obj,
 } from "./obj";
 import { Env } from "./env";
 import {
@@ -17,6 +18,14 @@ import {
   isExprLiteralOpt,
 } from "./builtins";
 import { handleError } from "./commons";
+
+export function evalExprs(env: Env, exprs: Expr[]): Obj {
+  let obj: Obj = None_Obj;
+  for (let i = 0; i < exprs.length; i++) {
+    obj = evalExpr(env, exprs[i]);
+  }
+  return obj;
+}
 
 export function evalExpr(env: Env, expr: Expr): Obj {
   let result: Obj;

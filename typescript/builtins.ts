@@ -20,11 +20,12 @@ import {
 } from "./obj";
 import { Env } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
-import { evalExpr } from "./eval";
+import { evalExpr, evalExprs } from "./eval";
 import { handleError } from "./commons";
 import { Instance_Obj } from "./obj";
 import { error } from "console";
 import { reverse } from "lodash";
+import exp from "constants";
 
 type Number = IntNumber | FloatNumber;
 
@@ -598,6 +599,14 @@ export function setMethod(
   return procedure;
 }
 
+export function letFunc(env: Env, exprList: Expr[]): Obj {
+  let newEnv = new Env();
+  newEnv.fatherEnv = env;
+  evalExprs(newEnv, exprList.slice(1));
+
+  return None_Obj;
+}
+
 export function call_method(env: Env, exprList: Expr[]): Obj {
   const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
 
@@ -923,6 +932,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   _displayFuncDepth: _displayFuncDepth,
   callMethod: call_method,
   for: forFunc,
+  let: letFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
