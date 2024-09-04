@@ -67,33 +67,36 @@ function evalListExpr(env: Env, expr: Expr): Obj {
     }
 
     let result: Obj;
-    const func = builtinOpts[(opt as Procedure).value];
-    if ((opt as Procedure).value === "LambdaObj") {
-      result = evalLambdaObj(env, opt, exprList);
-      if (result instanceof ErrorObj) {
-        return new ErrorObj(result.value);
+    try {
+      const func = builtinOpts[(opt as Procedure).value];
+      if ((opt as Procedure).value === "LambdaObj") {
+        result = evalLambdaObj(env, opt, exprList);
+        if (result instanceof ErrorObj) {
+          return new ErrorObj(result.value);
+        } else {
+          return result;
+        }
+      } else if (isExprLiteralOpt(opt as Procedure)) {
+        result = func(env, exprList);
+        if (result instanceof ErrorObj) {
+          return new ErrorObj(result.value);
+        } else {
+          return result;
+        }
       } else {
-        return result;
+        const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
+        const result = func(env, ...parameters);
+        if (result instanceof ErrorObj) {
+          return new ErrorObj(result.value);
+        } else {
+          return result;
+        }
       }
-    } else if (isExprLiteralOpt(opt as Procedure)) {
-      result = func(env, exprList);
-      if (result instanceof ErrorObj) {
-        return new ErrorObj(result.value);
-      } else {
-        return result;
-      }
-    } else {
-      const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
-      const result = func(env, ...parameters);
-      if (result instanceof ErrorObj) {
-        return new ErrorObj(result.value);
-      } else {
-        return result;
-      }
+    } catch (error) {
+      return handleError(env, "Invalid function call.");
     }
   } catch (e: any) {
-    console.error(`An error occurred: ${e.message}`);
-    throw e;
+    return handleError(env, "evaluation failed.");
   }
 }
 

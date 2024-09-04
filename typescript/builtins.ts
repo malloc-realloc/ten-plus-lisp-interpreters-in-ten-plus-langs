@@ -24,7 +24,7 @@ import { evalExpr, evalExprs } from "./eval";
 import { handleError } from "./commons";
 import { Instance_Obj } from "./obj";
 import { error } from "console";
-import { reverse } from "lodash";
+import { concat, reverse } from "lodash";
 import exp from "constants";
 
 type Number = IntNumber | FloatNumber;
@@ -160,6 +160,18 @@ export function listObj(env: Env, ...args: Obj[]): Obj {
     return obj;
   } catch (error) {
     return handleError(env, "list");
+  }
+}
+
+export function concatFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    let obj: List_Obj = new List_Obj(new Array<Obj>(), ObjType.LIST_OBJ);
+    for (let i = 0; i < args.length; i++) {
+      obj.value = obj.value.concat(args[i].value as Array<Obj>);
+    }
+    return obj;
+  } catch (error) {
+    return handleError(env, "concat");
   }
 }
 
@@ -608,7 +620,7 @@ export function switchFunc(env: Env, exprList: Expr[]): Obj {
     const key = evalExpr(env, exprList[1]);
     for (let i = 2; i < exprList.length; i++) {
       const caseKey = evalExpr(env, exprList[i].value[0] as Expr);
-      if (caseKey.value === key.value && caseKey.name === caseKey.name) {
+      if (caseKey.value === key.value) {
         const obj = evalExprs(env, (exprList[i].value as Expr[]).slice(1));
         return obj;
       }
@@ -1020,6 +1032,7 @@ const objOpts: { [key: string]: Function } = {
   getArr: getArrFunc,
   LLM: callLLM,
   AI: callLLM,
+  concat: concatFunc,
 };
 
 // special operators works on expressions.
