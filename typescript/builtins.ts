@@ -594,36 +594,65 @@ export function setMethod(
   name: Undefined_Obj,
   procedure: Procedure
 ): Obj {
-  env.classes.get(classObj.value)?.set(name.value, procedure);
+  try {
+    env.classes.get(classObj.value)?.set(name.value, procedure);
 
-  return procedure;
+    return procedure;
+  } catch (error) {
+    return None_Obj;
+  }
+}
+
+export function switchFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const key = evalExpr(env, exprList[1]);
+    for (let i = 2; i < exprList.length; i++) {
+      const caseKey = evalExpr(env, exprList[i].value[0] as Expr);
+      if (caseKey.value === key.value && caseKey.name === caseKey.name) {
+        const obj = evalExprs(env, (exprList[i].value as Expr[]).slice(1));
+        return obj;
+      }
+    }
+
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "switch");
+  }
 }
 
 export function letFunc(env: Env, exprList: Expr[]): Obj {
-  let newEnv = new Env();
-  newEnv.fatherEnv = env;
-  evalExprs(newEnv, exprList.slice(1));
+  try {
+    let newEnv = new Env();
+    newEnv.fatherEnv = env;
+    const obj = evalExprs(newEnv, exprList.slice(1));
 
-  return None_Obj;
+    return obj;
+  } catch (error) {
+    return handleError(env, "let");
+  }
 }
 
 export function call_method(env: Env, exprList: Expr[]): Obj {
-  const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
+  try {
+    const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
 
-  const instance = parameters[0] as Instance_Obj;
-  const methodName = parameters[1] as String_Obj;
+    const instance = parameters[0] as Instance_Obj;
+    const methodName = parameters[1] as String_Obj;
 
-  env.newThis(instance.instanceName, instance);
+    env.newThis(instance.instanceName, instance);
 
-  const procedure: Procedure = env.classes
-    .get(instance.className)
-    ?.get(methodName.value) as Procedure;
+    const procedure: Procedure = env.classes
+      .get(instance.className)
+      ?.get(methodName.value) as Procedure;
 
-  const obj: Obj = evalLambdaObj(env, procedure, exprList.slice(2));
+    const obj: Obj = evalLambdaObj(env, procedure, exprList.slice(2));
 
-  env.popThis();
+    env.popThis();
 
-  return obj;
+    return obj;
+  } catch (error) {
+    return handleError(env, "call_method");
+  }
 }
 
 function andFunc(env: Env, ...objs: Obj[]): Obj {
@@ -720,7 +749,11 @@ function bind(env: Env, exprList: Expr[]): Obj {
 }
 
 function atomAsEnvKey(expr: Expr): Obj {
-  return new Obj(expr.value);
+  try {
+    return new Obj(expr.value);
+  } catch (error) {
+    return None_Obj;
+  }
 }
 
 function evalProcedureValue(
@@ -883,35 +916,43 @@ export function whileFunc(env: Env, exprList: Expr[]): Obj {
 }
 
 function returnLambdaObj(env: Env, exprList: Expr[]): Obj {
-  exprList = exprList.slice(1);
-  let argNames = exprList[0].value as Expr[];
-  let body = exprList.slice(1);
+  try {
+    exprList = exprList.slice(1);
+    let argNames = exprList[0].value as Expr[];
+    let body = exprList.slice(1);
 
-  const functionString = `(${argNames.map((arg) => arg.value).join(", ")})`;
-  const lambdaString = `function${functionString}`;
+    const functionString = `(${argNames.map((arg) => arg.value).join(", ")})`;
+    const lambdaString = `function${functionString}`;
 
-  const func = new Lambda_Procedure(
-    "LambdaObj",
-    lambdaString,
-    (argNames = argNames),
-    (body = body),
-    (env = env)
-  );
+    const func = new Lambda_Procedure(
+      "LambdaObj",
+      lambdaString,
+      (argNames = argNames),
+      (body = body),
+      (env = env)
+    );
 
-  return func;
+    return func;
+  } catch (error) {
+    return handleError(env, "LambdaObj");
+  }
 }
 
 export function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
-  const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
-  if (opt instanceof Lambda_Procedure) {
-    return evalProcedureValue(
-      opt.env,
-      opt.argNames,
-      opt.body as Expr[],
-      ...parameters
-    );
-  } else {
-    return handleError(env, "invalid use of procedure");
+  try {
+    const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
+    if (opt instanceof Lambda_Procedure) {
+      return evalProcedureValue(
+        opt.env,
+        opt.argNames,
+        opt.body as Expr[],
+        ...parameters
+      );
+    } else {
+      return handleError(env, "invalid use of procedure");
+    }
+  } catch (error) {
+    return handleError(env, "evaluate lambda function");
   }
 }
 
@@ -933,6 +974,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   callMethod: call_method,
   for: forFunc,
   let: letFunc,
+  switch: switchFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

@@ -167,7 +167,7 @@ const exprs: string[] = [
   // "(= 1 1)",
   // "(define d 10)",
   "(let (define a 2) (+ 1 a))",
-  "a",
+  "(switch 10 (1 2) ((+ 5 5) 3) (7 10))",
 ];
 
 const results: any[] = [];
