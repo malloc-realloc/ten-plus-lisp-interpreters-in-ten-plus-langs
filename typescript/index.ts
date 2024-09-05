@@ -161,14 +161,20 @@ const exprs: string[] = [
   // "(getArr arr 0 0 0)",
   // "arr",
   // "(define a 1)",
-  "(LLM ha a)", // The reason why this works is that ha is undefined and I treat it as plain literal.
-  "(AI 你好 a )",
+  // "(LLM ha a)", // The reason why this works is that ha is undefined and I treat it as plain literal.
+  // "(AI 你好 a )",
   // "(= 1 2)",
   // "(= 1 1)",
   // "(define d 10)",
   // "(let (define a 2) (+ 1 a))",
   // "(switch 10 (1 2) ((+ 5 5) 3) (7 10))",
   // "(concat (list 1 2) (list 3 5))",
+  "(define a 1)",
+  "(define b (++ a ))",
+  "b",
+  "a",
+  "(-- a)",
+  "a",
 ];
 
 const results: any[] = [];

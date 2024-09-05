@@ -616,6 +616,44 @@ export function setMethod(
   }
 }
 
+export function plusPlusFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const obj: Obj | undefined = env.get(exprList[1].value as string);
+    if (obj === undefined) return handleError(env, "++: invalid variable name");
+    obj.value++;
+    env.set(exprList[1].value as string, obj);
+
+    if (obj instanceof IntNumber) {
+      return new IntNumber(obj.value - 1);
+    } else if (obj instanceof FloatNumber) {
+      return new FloatNumber(obj.value - 1);
+    } else {
+      return handleError(env, "++ can only be applied on number");
+    }
+  } catch (error) {
+    return handleError(env, "++");
+  }
+}
+
+export function minusMinusFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const obj: Obj | undefined = env.get(exprList[1].value as string);
+    if (obj === undefined) return handleError(env, "--: invalid variable name");
+    obj.value--;
+    env.set(exprList[1].value as string, obj);
+
+    if (obj instanceof IntNumber) {
+      return new IntNumber(obj.value + 1);
+    } else if (obj instanceof FloatNumber) {
+      return new FloatNumber(obj.value + 1);
+    } else {
+      return handleError(env, "-- can only be applied on number");
+    }
+  } catch (error) {
+    return handleError(env, "--");
+  }
+}
+
 export function switchFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const key = evalExpr(env, exprList[1]);
@@ -988,6 +1026,8 @@ const exprLiteralOpts: { [key: string]: Function } = {
   for: forFunc,
   let: letFunc,
   switch: switchFunc,
+  "++": plusPlusFunc,
+  "--": minusMinusFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
