@@ -654,6 +654,89 @@ export function minusMinusFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function plusEqualFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const obj: Obj | undefined = env.get(exprList[1].value as string);
+    if (obj === undefined) return handleError(env, "+=: invalid variable name");
+    const val = evalExpr(env, exprList[2]);
+    obj.value += val.value;
+    env.set(exprList[1].value as string, obj);
+
+    if (obj instanceof IntNumber) {
+      return new IntNumber(obj.value);
+    } else if (obj instanceof FloatNumber) {
+      return new FloatNumber(obj.value);
+    } else {
+      return handleError(env, "+= can only be applied on number");
+    }
+  } catch (error) {
+    return handleError(env, "+=");
+  }
+}
+
+export function minusEqualFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const obj: Obj | undefined = env.get(exprList[1].value as string);
+    if (obj === undefined) return handleError(env, "-=: invalid variable name");
+    const val = evalExpr(env, exprList[2]);
+    obj.value -= val.value;
+    env.set(exprList[1].value as string, obj);
+
+    if (obj instanceof IntNumber) {
+      return new IntNumber(obj.value);
+    } else if (obj instanceof FloatNumber) {
+      return new FloatNumber(obj.value);
+    } else {
+      return handleError(env, "-= can only be applied on number");
+    }
+  } catch (error) {
+    return handleError(env, "-=");
+  }
+}
+
+export function mulEqualFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const obj: Obj | undefined = env.get(exprList[1].value as string);
+    if (obj === undefined) return handleError(env, "*=: invalid variable name");
+    const val = evalExpr(env, exprList[2]);
+    obj.value *= val.value;
+    env.set(exprList[1].value as string, obj);
+
+    if (obj instanceof IntNumber) {
+      return new IntNumber(obj.value);
+    } else if (obj instanceof FloatNumber) {
+      return new FloatNumber(obj.value);
+    } else {
+      return handleError(env, "*= can only be applied on number");
+    }
+  } catch (error) {
+    return handleError(env, "*=");
+  }
+}
+
+export function divEqualFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const obj: Obj | undefined = env.get(exprList[1].value as string);
+    if (obj === undefined) return handleError(env, "/=: invalid variable name");
+    const val = evalExpr(env, exprList[2]);
+    if (val.value === 0) {
+      return handleError(env, "can not divide by 0");
+    }
+    obj.value /= val.value;
+    env.set(exprList[1].value as string, obj);
+
+    if (obj instanceof IntNumber) {
+      return new IntNumber(obj.value);
+    } else if (obj instanceof FloatNumber) {
+      return new FloatNumber(obj.value);
+    } else {
+      return handleError(env, "/= can only be applied on number");
+    }
+  } catch (error) {
+    return handleError(env, "/=");
+  }
+}
+
 export function switchFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const key = evalExpr(env, exprList[1]);
@@ -1028,6 +1111,10 @@ const exprLiteralOpts: { [key: string]: Function } = {
   switch: switchFunc,
   "++": plusPlusFunc,
   "--": minusMinusFunc,
+  "+=": plusEqualFunc,
+  "-=": minusEqualFunc,
+  "/=": divEqualFunc,
+  "*=": mulEqualFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

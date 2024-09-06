@@ -169,12 +169,18 @@ const exprs: string[] = [
   // "(let (define a 2) (+ 1 a))",
   // "(switch 10 (1 2) ((+ 5 5) 3) (7 10))",
   // "(concat (list 1 2) (list 3 5))",
-  "(define a 1)",
-  "(define b (++ a ))",
-  "b",
+  // "(define a 1)",
+  // "(define b (++ a ))",
+  // "b",
+  // "a",
+  // "(-- a)",
+  // "a",
+  "(define a 5)",
+  "(+= a 3)",
   "a",
-  "(-- a)",
-  "a",
+  "(-= a 3)",
+  "(*= a 4)",
+  "(/= a 4)",
 ];
 
 const results: any[] = [];
