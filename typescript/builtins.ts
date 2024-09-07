@@ -176,6 +176,27 @@ export function concatFunc(env: Env, ...args: Obj[]): Obj {
   }
 }
 
+export function formatFunc(env: Env, ...args: Obj[]): Obj {
+  function formatString(template: string, ...args: string[]): string {
+    return template.replace(/\$(\d+)/g, (match, index) => {
+      const argIndex = parseInt(index, 10);
+      return argIndex < args.length ? args[argIndex] : match;
+    });
+  }
+
+  try {
+    let stringArgs: string[] = [];
+    for (let i = 1; i < args.length; i++) {
+      stringArgs.push(args[i].value);
+    }
+
+    const s = formatString(args[0].value, ...stringArgs);
+    return new String_Obj(s);
+  } catch (error) {
+    return handleError(env, "format");
+  }
+}
+
 export function dictObj(env: Env, ...args: Obj[]): Obj {
   try {
     let obj = new Dict_Obj({});
@@ -1161,6 +1182,7 @@ const objOpts: { [key: string]: Function } = {
   LLM: callLLM,
   AI: callLLM,
   concat: concatFunc,
+  format: formatFunc,
 };
 
 // special operators works on expressions.

@@ -175,12 +175,13 @@ const exprs: string[] = [
   // "a",
   // "(-- a)",
   // "a",
-  "(define a 5)",
-  "(+= a 3)",
-  "a",
-  "(-= a 3)",
-  "(*= a 4)",
-  "(/= a 4)",
+  // "(define a 5)",
+  // "(+= a 3)",
+  // "a",
+  // "(-= a 3)",
+  // "(*= a 4)",
+  // "(/= a 4)",
+  '(format "hello, $0, $1, 1" "sanyan" "world" 1)',
 ];
 
 const results: any[] = [];
