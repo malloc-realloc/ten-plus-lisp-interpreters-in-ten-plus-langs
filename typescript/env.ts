@@ -9,6 +9,7 @@ export class Env extends Map<string, Obj> {
   thisValueStack: Obj[] = [None_Obj]; // there is always a None_Obj as value of "this"
   classes: Map<string, Map<string, Obj>> = new Map<string, Map<string, Obj>>();
   fatherEnv: Env | undefined = undefined;
+  macros: [RegExp, string][] = [];
 
   cleanup() {
     this.functionDepth = 0;

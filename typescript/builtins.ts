@@ -1183,6 +1183,7 @@ const objOpts: { [key: string]: Function } = {
   AI: callLLM,
   concat: concatFunc,
   format: formatFunc,
+  // macro: macroFun
 };
 
 // special operators works on expressions.

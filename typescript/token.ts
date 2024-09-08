@@ -1,4 +1,6 @@
-export function preprocessString(expr: string): string {
+import { Env } from "./env";
+
+export function preprocessString(env: Env, expr: string): string {
   // works like builtin macro
   // Use a regular expression with global replacement to handle all instances of `(
   expr = expr.replace(/`\(/g, "(quote "); // global search
@@ -8,12 +10,16 @@ export function preprocessString(expr: string): string {
 
   expr = expr.replace(/\(/g, "( ").replace(/\)/g, " )");
 
+  for (let i = 0; i < env.macros.length; i++) {
+    expr = expr.replace(env.macros[i][0], env.macros[i][1]);
+  }
+
   return expr;
 }
 
-export function tokenize(expr: string): string[] {
+export function tokenize(env: Env, expr: string): string[] {
   try {
-    expr = preprocessString(expr);
+    expr = preprocessString(env, expr);
 
     const result: string[] = [];
 

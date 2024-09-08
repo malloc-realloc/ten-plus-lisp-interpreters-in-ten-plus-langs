@@ -7,23 +7,6 @@ import { ErrorObj, Obj } from "./obj";
 import { ExprType } from "./ast";
 import { callLLM } from "./builtins";
 
-const globalEnv = new Env();
-
-function evalExpression(expr: string): Obj {
-  const tokenizedExpr: string[] = tokenize(expr);
-  if (tokenizedExpr.length === 0) {
-    // all expressions are comment.
-    return new Obj(null);
-  }
-  const ast = parseExpr(tokenizedExpr);
-  if (ast.type === ExprType.ERROR) {
-    return new ErrorObj("Parsing Error");
-  } else {
-    const result: Obj = evalExpr(globalEnv, ast);
-    return result;
-  }
-}
-
 const exprs: string[] = [
   // "(define r 1)",
   // "(define func (lambda (x) (define r 2) (+ x r)))",
@@ -182,12 +165,30 @@ const exprs: string[] = [
   // "(*= a 4)",
   // "(/= a 4)",
   '(format "hello, $0, $1, 1" "sanyan" "world" 1)',
+  '(macro "hAha" "haha")',
 ];
 
 const results: any[] = [];
 
+const globalEnv = new Env();
+
+function evalExpression(env: Env, expr: string): Obj {
+  const tokenizedExpr: string[] = tokenize(env, expr);
+  if (tokenizedExpr.length === 0) {
+    // all expressions are comment.
+    return new Obj(null);
+  }
+  const ast = parseExpr(tokenizedExpr);
+  if (ast.type === ExprType.ERROR) {
+    return new ErrorObj("Parsing Error");
+  } else {
+    const result: Obj = evalExpr(globalEnv, ast);
+    return result;
+  }
+}
+
 for (const expr of exprs) {
-  const result = evalExpression(expr);
+  const result = evalExpression(globalEnv, expr);
   const resultStr = result.toString();
   results.push(resultStr);
   console.log(results[results.length - 1]);
