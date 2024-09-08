@@ -6,6 +6,7 @@ import { Env } from "./env";
 import { ErrorObj, Obj } from "./obj";
 import { ExprType } from "./ast";
 import { callLLM } from "./builtins";
+import exp from "constants";
 
 const exprs: string[] = [
   // "(define r 1)",
@@ -169,17 +170,67 @@ const exprs: string[] = [
   // '"hAha"',
   // "(define hAha 2)",
   // "haha",
-  "{define a 1}",
-  "a",
-  "{+ 1 a}",
-  "(a)(a)",
+  // "{define a 1}",
+  // "a",
+  // "{+ 1 a}",
+  // "(a)(a)",
+  '(define a "世界")',
+  "(define b 1)",
+  "你好{a},{b}次",
 ];
 
 const results: any[] = [];
 
 const globalEnv = new Env();
 
-function evalExpressions(env: Env, expr: string): Obj[] {
+function getExpr(expr: string, start: number, startChar: string): number {
+  if (startChar === "(") {
+    const startOfExpr = start;
+    let leftBraceCount = 1;
+    let rightBraceCount = 0;
+
+    let i = start + 1;
+    for (; leftBraceCount > rightBraceCount; i++) {
+      if (expr[i] === ")") rightBraceCount++;
+      else if (expr[i] === "(") leftBraceCount++;
+    }
+
+    return i - 1;
+  }
+  if (startChar === "{") {
+    const startOfExpr = start;
+    let leftBraceCount = 1;
+    let rightBraceCount = 0;
+
+    let i = start + 1;
+    for (; leftBraceCount > rightBraceCount; i++) {
+      if (expr[i] === "}") rightBraceCount++;
+      else if (expr[i] === "{") leftBraceCount++;
+    }
+
+    return i - 1;
+  }
+  return -1;
+}
+
+function evalExpression(env: Env, expr: string): string {
+  let result: string = "";
+  for (let i = 0; i < expr.length; i++) {
+    if (expr[i] === "(" || expr[i] === "{") {
+      const end = getExpr(expr, i, expr[i]);
+      const tokenizedExpr: string[] = tokenize(env, expr.slice(i, end + 1));
+      const ast = parseExpr(tokenizedExpr);
+      const exprResult: Obj = evalExpr(env, ast);
+      result += exprResult.value;
+      i = end;
+    } else {
+      result += expr[i];
+    }
+  }
+  return result;
+}
+
+function evalExtractedExpressions(env: Env, expr: string): Obj[] {
   const results: Obj[] = [];
 
   const tokenizedExpr: string[] = tokenize(env, expr);
@@ -201,7 +252,8 @@ function evalExpressions(env: Env, expr: string): Obj[] {
 }
 
 for (const expr of exprs) {
-  const result = evalExpressions(globalEnv, expr);
+  // const result = evalExtractedExpressions(globalEnv, expr);
+  const result = evalExpression(globalEnv, expr);
   const resultStr = result.toString();
   results.push(resultStr);
   console.log(results[results.length - 1]);
