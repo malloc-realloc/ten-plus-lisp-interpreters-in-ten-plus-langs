@@ -1,4 +1,14 @@
+import exp from "constants";
 import { Expr, ExprType, Atom } from "./ast";
+
+export function parseExprs(tokens: string[]): Expr[] {
+  const exprs: Expr[] = [];
+  while (tokens.length >= 1) {
+    exprs.push(parseExpr(tokens));
+  }
+
+  return exprs;
+}
 
 export function parseExpr(tokens: string[]): Expr {
   try {
