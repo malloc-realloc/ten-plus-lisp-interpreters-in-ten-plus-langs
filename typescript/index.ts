@@ -164,11 +164,14 @@ const exprs: string[] = [
   // "(-= a 3)",
   // "(*= a 4)",
   // "(/= a 4)",
-  '(format "hello, $0, $1, 1" "sanyan" "world" 1)',
-  '(macro "hAha" "haha")',
-  '"hAha"',
-  "(define hAha 2)",
-  "haha",
+  // '(format "hello, $0, $1, 1" "sanyan" "world" 1)',
+  // '(macro "hAha" "haha")',
+  // '"hAha"',
+  // "(define hAha 2)",
+  // "haha",
+  "{define a 1}",
+  "a",
+  "{+ 1 a}",
 ];
 
 const results: any[] = [];

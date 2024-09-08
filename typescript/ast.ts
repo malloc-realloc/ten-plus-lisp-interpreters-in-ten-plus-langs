@@ -1,7 +1,7 @@
 export enum ExprType {
   ATOM,
   LST_EXPR,
-  LLM_EXPR,
+  PRINTED_EXPR,
   STRING_EXPR,
   ERROR,
 }

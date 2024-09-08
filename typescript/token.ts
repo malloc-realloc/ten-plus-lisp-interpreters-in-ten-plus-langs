@@ -9,6 +9,7 @@ export function preprocessString(env: Env, expr: string): string {
   expr = expr.replace(/`([\w+\-*/!@#$%^&=<>?]+|[^\s\(\)]+)/g, "(quote $1)");
 
   expr = expr.replace(/\(/g, "( ").replace(/\)/g, " )");
+  expr = expr.replace(/\{/g, "{ ").replace(/\}/g, " }");
 
   for (let i = 0; i < env.macros.length; i++) {
     expr = expr.replace(env.macros[i][0], env.macros[i][1]);
@@ -29,6 +30,8 @@ export function tokenize(env: Env, expr: string): string[] {
         continue;
       } else if (expr[i] === "(" || expr[i] === ")") {
         result.push(expr[i]);
+      } else if (expr[i] === "{" || expr[i] === "}") {
+        result.push(expr[i]);
       } else if (expr[i] === '"') {
         let token = "";
         result.push('"');
@@ -40,17 +43,6 @@ export function tokenize(env: Env, expr: string): string[] {
         }
         result.push(token);
         result.push('"');
-      } else if (expr[i] === "{") {
-        let token = "";
-        result.push("{");
-
-        i++;
-        while (expr[i] !== "}") {
-          token += expr[i];
-          i++;
-        }
-        result.push(token);
-        result.push("}");
       } else if (expr[i] === "'") {
         // '' contains comments
         i++;

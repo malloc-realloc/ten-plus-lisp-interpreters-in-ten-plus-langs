@@ -15,11 +15,16 @@ export function parseExpr(tokens: string[]): Expr {
     }
 
     if (token === "{") {
-      const llmExpr: Expr = new Expr(ExprType.LLM_EXPR, tokens[0] as Atom);
-      tokens.shift();
-      if (tokens.length > 0) tokens.shift();
-
-      return llmExpr;
+      const lstExpr: Expr[] = [];
+      while (tokens[0] !== "}") {
+        if (!tokens[0]) {
+          throw new Error("Unexpected end of tokens");
+        }
+        const expr = parseExpr(tokens);
+        lstExpr.push(expr);
+      }
+      tokens.shift(); // remove ')'
+      return new Expr(ExprType.PRINTED_EXPR, lstExpr);
     }
 
     if (token === "(") {

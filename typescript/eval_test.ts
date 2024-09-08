@@ -4,7 +4,7 @@ import { Env } from "./env";
 import { evalExpr } from "./eval";
 
 let exprs: Expr[] = [
-  new Expr(ExprType.LLM_EXPR, "你好 [a] 哈哈 hello world ! "),
+  new Expr(ExprType.PRINTED_EXPR, "你好 [a] 哈哈 hello world ! "),
 ];
 
 let global_env: Env = new Env();

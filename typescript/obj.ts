@@ -9,6 +9,7 @@ export enum ObjType {
 export class Obj {
   value: any;
   name: string = "Obj"; // Name property representing the class name
+  needsPrinted: Boolean = false;
 
   constructor(value: any) {
     this.value = value;
@@ -123,8 +124,8 @@ export class ExprObj extends Obj {
   }
 }
 
-export class LLM_EXPRObj extends Obj {
-  name = "LLM_EXPRObj"; // Class name
+export class PRINTED_EXPRObj extends Obj {
+  name = "PRINTED_EXPRObj"; // Class name
   constructor(value: Expr) {
     super(value);
   }

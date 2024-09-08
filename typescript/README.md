@@ -66,13 +66,13 @@
   </tr>
   <tr>
   <td><code>(LLM ha a)</code></td>
-  <td>[LLM_EXPRObj] Large language model output</td>
+  <td>[PRINTED_EXPRObj] Large language model output</td>
   <td>Call large language model to evaluate given parameters. If a parameter is not defined, it is treated as literal string. If a parameter is defined, it's treated as value of that parameter. For example, when <code>(= a 1)</code>, and <code>ha</code> is not defined, the parameters are <code>["ha", 1]</code></td>
   <td>.</td>
 </tr>
 <tr>
   <td><code>(AI 你好 a)</code></td>
-  <td>[LLM_EXPRObj] </td>
+  <td>[PRINTED_EXPRObj] </td>
   <td>AI and LLM are 2 equivalent functions.</td>
   <td></td>
 </tr>

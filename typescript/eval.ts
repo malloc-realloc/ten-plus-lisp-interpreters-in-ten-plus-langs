@@ -4,7 +4,7 @@ import {
   IntNumber,
   FloatNumber,
   Procedure,
-  LLM_EXPRObj,
+  PRINTED_EXPRObj,
   String_Obj,
   ErrorObj,
   Undefined_Obj,
@@ -33,8 +33,9 @@ export function evalExpr(env: Env, expr: Expr): Obj {
     result = evalAtom(env, expr);
   } else if (expr.type === ExprType.STRING_EXPR) {
     result = evalStringExpr(expr);
-  } else if (expr.type === ExprType.LLM_EXPR) {
-    result = evalLLMExpr(env, expr);
+  } else if (expr.type === ExprType.PRINTED_EXPR) {
+    result = evalListExpr(env, expr);
+    result.needsPrinted = true;
   } else {
     result = evalListExpr(env, expr);
   }
@@ -164,29 +165,4 @@ export function getBuiltin(env: Env, s: string): Procedure {
 
 function getBuiltinVars(s: Atom): Obj {
   return builtinVars[s];
-}
-
-function evalLLMExpr(env: Env, expr: Expr): Obj {
-  let new_literal: string = "";
-  for (let i = 0; i < expr.value.length; i++) {
-    if (expr.value[i] !== "[") {
-      new_literal += expr.value[i];
-    } else {
-      let varName = "";
-      i++; // skip [
-      for (let j = i; j < expr.value.length && expr.value[j] !== "]"; j++) {
-        varName += expr.value[j];
-        i++;
-      }
-
-      let v: Obj | undefined = env.getFromEnv(varName);
-      if (v === undefined) {
-        continue;
-      } else {
-        new_literal += String(v.value);
-      }
-    }
-  }
-
-  return new LLM_EXPRObj(new Expr(ExprType.LLM_EXPR, new_literal));
 }
