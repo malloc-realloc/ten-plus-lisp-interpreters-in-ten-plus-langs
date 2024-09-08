@@ -172,6 +172,7 @@ const exprs: string[] = [
   "{define a 1}",
   "a",
   "{+ 1 a}",
+  "(a)",
 ];
 
 const results: any[] = [];

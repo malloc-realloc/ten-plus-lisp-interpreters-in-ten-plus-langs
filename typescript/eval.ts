@@ -4,7 +4,6 @@ import {
   IntNumber,
   FloatNumber,
   Procedure,
-  PRINTED_EXPRObj,
   String_Obj,
   ErrorObj,
   Undefined_Obj,
@@ -56,8 +55,15 @@ function evalStringExpr(expr: Expr): String_Obj | ErrorObj {
 // most of running time is spent here.
 function evalListExpr(env: Env, expr: Expr): Obj {
   const exprList = expr.value as Expr[];
-
   const firstExpr = exprList[0]; // get operator with ExprType.LST_EXPR (these expressions in the form of (opt arg1 arg2 ...) )
+
+  if (exprList.length === 1) {
+    try {
+      return evalAtom(env, firstExpr);
+    } catch (error) {
+      return handleError(env, "evaluation failed.");
+    }
+  }
 
   try {
     let opt: Obj; // opt is of type Procedure, notice opt itself can be of type ExprType.LST_EXPR
