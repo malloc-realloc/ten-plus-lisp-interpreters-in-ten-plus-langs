@@ -176,7 +176,8 @@ const exprs: string[] = [
   // "(a)(a)",
   '(define a "世界")',
   "(define b 1)",
-  "你好{a},{b}次",
+  "你好{a}        ,{b}次,不显示括号里的东西(define c 1)",
+  "{c}",
 ];
 
 const results: any[] = [];
@@ -221,7 +222,7 @@ function evalExpression(env: Env, expr: string): string {
       const tokenizedExpr: string[] = tokenize(env, expr.slice(i, end + 1));
       const ast = parseExpr(tokenizedExpr);
       const exprResult: Obj = evalExpr(env, ast);
-      result += exprResult.value;
+      if (expr[i] === "{") result += exprResult.value;
       i = end;
     } else {
       result += expr[i];
