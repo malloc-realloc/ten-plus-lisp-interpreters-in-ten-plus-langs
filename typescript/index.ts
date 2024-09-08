@@ -166,6 +166,9 @@ const exprs: string[] = [
   // "(/= a 4)",
   '(format "hello, $0, $1, 1" "sanyan" "world" 1)',
   '(macro "hAha" "haha")',
+  '"hAha"',
+  "(define hAha 2)",
+  "haha",
 ];
 
 const results: any[] = [];

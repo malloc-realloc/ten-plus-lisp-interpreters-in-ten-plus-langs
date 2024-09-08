@@ -176,14 +176,27 @@ export function concatFunc(env: Env, ...args: Obj[]): Obj {
   }
 }
 
-export function formatFunc(env: Env, ...args: Obj[]): Obj {
-  function formatString(template: string, ...args: string[]): string {
-    return template.replace(/\$(\d+)/g, (match, index) => {
-      const argIndex = parseInt(index, 10);
-      return argIndex < args.length ? args[argIndex] : match;
-    });
-  }
+function saveRegex(pattern: string, flags: string = ""): RegExp {
+  return new RegExp(pattern, flags);
+}
 
+export function macroFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    env.macros.push([saveRegex(args[0].value), args[1].value]);
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "macro");
+  }
+}
+
+function formatString(template: string, ...args: string[]): string {
+  return template.replace(/\$(\d+)/g, (match, index) => {
+    const argIndex = parseInt(index, 10);
+    return argIndex < args.length ? args[argIndex] : match;
+  });
+}
+
+export function formatFunc(env: Env, ...args: Obj[]): Obj {
   try {
     let stringArgs: string[] = [];
     for (let i = 1; i < args.length; i++) {
@@ -1183,7 +1196,7 @@ const objOpts: { [key: string]: Function } = {
   AI: callLLM,
   concat: concatFunc,
   format: formatFunc,
-  // macro: macroFun
+  macro: macroFunc,
 };
 
 // special operators works on expressions.
