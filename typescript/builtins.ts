@@ -1022,9 +1022,9 @@ function updateVar(env: Env, exprList: Expr[]): Obj {
   try {
     const objValue = evalExpr(env, exprList[2]);
 
-    const v = getFromEnv(env, exprList[1].value as Atom);
+    const whereIsVar = env.whereIsVar(exprList[1].value as Atom);
 
-    if (v) v.value = objValue.value;
+    if (whereIsVar) whereIsVar.set(exprList[1].value as Atom, objValue);
     else env.set(exprList[1].value as Atom, objValue);
 
     const procedure = env.get(

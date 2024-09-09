@@ -75,4 +75,28 @@ export class Env extends Map<string, Obj> {
       return handleError(this, `${literal} not found in env.`);
     }
   }
+
+  whereIsVar(literal: string): Env | undefined {
+    try {
+      const value = this.get(literal);
+      if (value !== undefined) {
+        return this;
+      }
+
+      let env: Env | undefined = this;
+      while (true) {
+        if (env.fatherEnv !== undefined) {
+          env = env.fatherEnv;
+          const value = env.get(literal);
+          if (value !== undefined) {
+            return env;
+          }
+        } else {
+          return undefined;
+        }
+      }
+    } catch (error) {
+      return undefined;
+    }
+  }
 }
