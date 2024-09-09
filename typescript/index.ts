@@ -178,10 +178,10 @@ const exprs: string[] = [
   // "(define b 1)",
   // "你好{a}        ,{b}次,不显示括号里的东西(define c 1)",
   // "{c}",
-  "{define a 1}",
-  "(define f (lambda (x) (update a x)))",
-  "{f 2}",
-  "{a}",
+  // "{define a 1}",
+  // "(define f (lambda (x) (update a x)))",
+  // "{f 2}",
+  // "{a}",
 ];
 
 const results: any[] = [];
@@ -218,7 +218,7 @@ function getExpr(expr: string, start: number, startChar: string): number {
   return -1;
 }
 
-function evalExpression(env: Env, expr: string): string {
+export function evalExpression(env: Env, expr: string): string {
   try {
     let result: string = "";
     for (let i = 0; i < expr.length; i++) {
@@ -250,23 +250,23 @@ for (const expr of exprs) {
   console.log(results[results.length - 1]);
 }
 
-function evalExtractedExpressions(env: Env, expr: string): Obj[] {
-  const results: Obj[] = [];
+// export function evalExtractedExpressions(env: Env, expr: string): Obj[] {
+//   const results: Obj[] = [];
 
-  const tokenizedExpr: string[] = tokenize(env, expr);
-  if (tokenizedExpr.length === 0) {
-    // all expressions are comment.
-    results.push(new Obj(null));
-  }
-  const ast = parseExprs(tokenizedExpr);
-  for (let i = 0; i < ast.length; i++) {
-    if (ast[i].type === ExprType.ERROR) {
-      results.push(new ErrorObj("Parsing Error"));
-    } else {
-      const result: Obj = evalExpr(globalEnv, ast[i]);
-      results.push(result);
-    }
-  }
+//   const tokenizedExpr: string[] = tokenize(env, expr);
+//   if (tokenizedExpr.length === 0) {
+//     // all expressions are comment.
+//     results.push(new Obj(null));
+//   }
+//   const ast = parseExprs(tokenizedExpr);
+//   for (let i = 0; i < ast.length; i++) {
+//     if (ast[i].type === ExprType.ERROR) {
+//       results.push(new ErrorObj("Parsing Error"));
+//     } else {
+//       const result: Obj = evalExpr(globalEnv, ast[i]);
+//       results.push(result);
+//     }
+//   }
 
-  return results;
-}
+//   return results;
+// }
