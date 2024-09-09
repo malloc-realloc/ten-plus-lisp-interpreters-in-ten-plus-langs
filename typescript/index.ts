@@ -249,24 +249,3 @@ for (const expr of exprs) {
   results.push(resultStr);
   console.log(results[results.length - 1]);
 }
-
-// export function evalExtractedExpressions(env: Env, expr: string): Obj[] {
-//   const results: Obj[] = [];
-
-//   const tokenizedExpr: string[] = tokenize(env, expr);
-//   if (tokenizedExpr.length === 0) {
-//     // all expressions are comment.
-//     results.push(new Obj(null));
-//   }
-//   const ast = parseExprs(tokenizedExpr);
-//   for (let i = 0; i < ast.length; i++) {
-//     if (ast[i].type === ExprType.ERROR) {
-//       results.push(new ErrorObj("Parsing Error"));
-//     } else {
-//       const result: Obj = evalExpr(globalEnv, ast[i]);
-//       results.push(result);
-//     }
-//   }
-
-//   return results;
-// }

@@ -17,6 +17,12 @@ import {
   isExprLiteralOpt,
 } from "./builtins";
 import { handleError } from "./commons";
+import { parseExprs } from "./parser";
+import { tokenize } from "./token";
+
+export function evalStrExprs(env: Env, s: string): Obj {
+  return evalExprs(env, parseExprs(tokenize(env, s)));
+}
 
 export function evalExprs(env: Env, exprs: Expr[]): Obj {
   let obj: Obj = None_Obj;

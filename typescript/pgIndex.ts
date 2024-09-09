@@ -1,6 +1,6 @@
 import { evalExpression } from ".";
 import { Env } from "./env";
-import { evalExpr, evalExprs } from "./eval";
+import { evalExpr, evalExprs, evalStrExprs } from "./eval";
 import { parseExprs } from "./parser";
 import { tokenize } from "./token";
 
@@ -11,10 +11,10 @@ function userInit(
   expr: string,
   monitor: Map<string, [string[], string]>
 ) {
-  evalExprs(env, parseExprs(tokenize(env, expr)));
+  evalStrExprs(env, expr);
 
   for (let [key, value] of monitor) {
-    env.set(key, evalExprs(env, parseExprs(tokenize(env, value[1]))));
+    env.set(key, evalStrExprs(env, value[1]));
   }
 }
 
@@ -24,11 +24,11 @@ function userChangeMonitorAndRerun(
   value: [string[], string],
   monitor: Map<string, [string[], string]>
 ) {
-  env.set(varName, evalExprs(env, parseExprs(tokenize(env, value[1]))));
+  env.set(varName, evalStrExprs(env, value[1]));
   for (let [key, value] of monitor) {
     if (key !== varName) {
       if (value[0].includes(varName)) {
-        env.set(key, evalExprs(env, parseExprs(tokenize(env, value[1]))));
+        env.set(key, evalStrExprs(env, value[1]));
       }
     }
   }
