@@ -21,7 +21,7 @@ import {
 } from "./obj";
 import { Env } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
-import { evalExpr, evalExprs } from "./eval";
+import { evalExpr, evalExprs, getFromEnv } from "./eval";
 import { handleError } from "./commons";
 import { Instance_Obj } from "./obj";
 import { error } from "console";
@@ -1022,7 +1022,10 @@ function updateVar(env: Env, exprList: Expr[]): Obj {
   try {
     const objValue = evalExpr(env, exprList[2]);
 
-    env.set(exprList[1].value as Atom, objValue);
+    const v = getFromEnv(env, exprList[1].value as Atom);
+
+    if (v) v.value = objValue.value;
+    else env.set(exprList[1].value as Atom, objValue);
 
     const procedure = env.get(
       `_update_${exprList[1].value}`

@@ -242,6 +242,14 @@ function evalExpression(env: Env, expr: string): string {
   }
 }
 
+for (const expr of exprs) {
+  // const result = evalExtractedExpressions(globalEnv, expr);
+  const result = evalExpression(globalEnv, expr);
+  const resultStr = result.toString();
+  results.push(resultStr);
+  console.log(results[results.length - 1]);
+}
+
 function evalExtractedExpressions(env: Env, expr: string): Obj[] {
   const results: Obj[] = [];
 
@@ -261,12 +269,4 @@ function evalExtractedExpressions(env: Env, expr: string): Obj[] {
   }
 
   return results;
-}
-
-for (const expr of exprs) {
-  // const result = evalExtractedExpressions(globalEnv, expr);
-  const result = evalExpression(globalEnv, expr);
-  const resultStr = result.toString();
-  results.push(resultStr);
-  console.log(results[results.length - 1]);
 }
