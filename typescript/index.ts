@@ -174,10 +174,14 @@ const exprs: string[] = [
   // "a",
   // "{+ 1 a}",
   // "(a)(a)",
-  '(define a "世界")',
-  "(define b 1)",
-  "你好{a}        ,{b}次,不显示括号里的东西(define c 1)",
-  "{c}",
+  // '(define a "世界")',
+  // "(define b 1)",
+  // "你好{a}        ,{b}次,不显示括号里的东西(define c 1)",
+  // "{c}",
+  "{define a 1}",
+  "(define f (lambda (x) (update a x)))",
+  "{f 2}",
+  "{a}",
 ];
 
 const results: any[] = [];
@@ -191,12 +195,12 @@ function getExpr(expr: string, start: number, startChar: string): number {
     let rightBraceCount = 0;
 
     let i = start + 1;
-    for (; leftBraceCount > rightBraceCount; i++) {
+    for (; leftBraceCount > rightBraceCount && i < expr.length; i++) {
       if (expr[i] === ")") rightBraceCount++;
       else if (expr[i] === "(") leftBraceCount++;
     }
 
-    return i - 1;
+    return expr[i - 1] === ")" ? i - 1 : -1;
   }
   if (startChar === "{") {
     const startOfExpr = start;
@@ -204,31 +208,38 @@ function getExpr(expr: string, start: number, startChar: string): number {
     let rightBraceCount = 0;
 
     let i = start + 1;
-    for (; leftBraceCount > rightBraceCount; i++) {
+    for (; leftBraceCount > rightBraceCount && i < expr.length; i++) {
       if (expr[i] === "}") rightBraceCount++;
       else if (expr[i] === "{") leftBraceCount++;
     }
 
-    return i - 1;
+    return expr[i - 1] === "}" ? i - 1 : -1;
   }
   return -1;
 }
 
 function evalExpression(env: Env, expr: string): string {
-  let result: string = "";
-  for (let i = 0; i < expr.length; i++) {
-    if (expr[i] === "(" || expr[i] === "{") {
-      const end = getExpr(expr, i, expr[i]);
-      const tokenizedExpr: string[] = tokenize(env, expr.slice(i, end + 1));
-      const ast = parseExpr(tokenizedExpr);
-      const exprResult: Obj = evalExpr(env, ast);
-      if (expr[i] === "{") result += exprResult.value;
-      i = end;
-    } else {
-      result += expr[i];
+  try {
+    let result: string = "";
+    for (let i = 0; i < expr.length; i++) {
+      if (expr[i] === "(" || expr[i] === "{") {
+        const end = getExpr(expr, i, expr[i]);
+        if (end === -1) {
+          return "Error: Any '('/'{' should be matched with a ')'/'}'.";
+        }
+        const tokenizedExpr: string[] = tokenize(env, expr.slice(i, end + 1));
+        const ast = parseExpr(tokenizedExpr);
+        const exprResult: Obj = evalExpr(env, ast);
+        if (expr[i] === "{") result += exprResult.value;
+        i = end;
+      } else {
+        result += expr[i];
+      }
     }
+    return result;
+  } catch (error) {
+    return "Error: Invalid input.";
   }
-  return result;
 }
 
 function evalExtractedExpressions(env: Env, expr: string): Obj[] {
