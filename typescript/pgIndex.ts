@@ -19,11 +19,7 @@ function userInit(env: Env, expr: string, monitor: MonitorType) {
 function handleMonitorError(env: Env, varName: string, value: Obj) {
   if (value === None_Obj || value.name === "ErrorObj") {
     env.setErrorMessage(
-      "Expression bound to " +
-        varName +
-        " is either invalid or null. Get value" +
-        value.toString() +
-        ".\n"
+      "Expression bound to " + varName + " is either invalid or null.\n"
     );
   }
   env.set(varName, value);
@@ -90,10 +86,10 @@ function rerunMonitor(env: Env, monitor: MonitorType) {
 }
 
 function displayedText(env: Env): string {
-  if (!env.errorMessages) {
+  if (env.errorMessages.length === 0) {
     return evalExpression(env, text) + "\n";
   } else {
-    let result = evalExpression(env, text) + "\n";
+    let result = evalExpression(env, text) + "\n\nError Reports:\n";
     for (let i = 0; i < env.errorMessages.length; i++) {
       result += env.errorMessages[i];
     }
@@ -123,8 +119,10 @@ function pgIndex() {
   );
 
   rerunMonitor(env, monitor);
+  console.log(displayedText(env));
 
   userInit(env, "(define taxRate 2)", monitor);
+  rerunMonitor(env, monitor);
 
   console.log(displayedText(env));
 
