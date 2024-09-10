@@ -1,6 +1,7 @@
 import { evalExpression } from ".";
 import { Env } from "./env";
 import { evalExpr, evalExprs, evalStrExprs } from "./eval";
+import { None_Obj, Obj } from "./obj";
 import { parseExprs } from "./parser";
 import { tokenize } from "./token";
 
@@ -14,6 +15,19 @@ function userInit(env: Env, expr: string, monitor: MonitorType) {
   evalStrExprs(env, expr);
 }
 
+function handleMonitorError(env: Env, varName: string, value: Obj) {
+  if (value === None_Obj || value.name === "ErrorObj") {
+    env.setErrorMessage(
+      "Expression bound to" +
+        varName +
+        "is either invalid or null. Get value" +
+        value.toString() +
+        "."
+    );
+  }
+  env.set(varName, value);
+}
+
 function userChangeMonitorAndRerun(
   env: Env,
   varName: string,
@@ -22,7 +36,11 @@ function userChangeMonitorAndRerun(
   monitor: MonitorType
 ) {
   let isNewItem = true;
-  env.set(varName, evalStrExprs(env, expr));
+  const value = evalStrExprs(env, expr);
+  handleMonitorError(env, varName, value);
+
+  env.set(varName, value);
+
   for (let i = 0; i < monitor.length; i++) {
     if (monitor[i][0] === varName) {
       isNewItem = false;
@@ -31,7 +49,9 @@ function userChangeMonitorAndRerun(
     }
 
     if (monitor[i][1].includes(varName)) {
-      env.set(varName, evalStrExprs(env, monitor[i][2]));
+      const value: Obj = evalStrExprs(env, monitor[i][2]);
+      handleMonitorError(env, varName, value);
+      env.set(varName, value);
     }
   }
   if (isNewItem) {
@@ -60,12 +80,18 @@ function userChangeMonitor(
 
 function rerunMonitor(env: Env, monitor: MonitorType) {
   for (let i = 0; i < monitor.length; i++) {
-    env.set(monitor[i][0], evalStrExprs(env, monitor[i][2]));
+    const value = evalStrExprs(env, monitor[i][2]);
+    handleMonitorError(env, monitor[i][0], value);
+    env.set(monitor[i][0], value);
   }
 }
 
 function displayedText(env: Env): string {
-  return evalExpression(env, text);
+  if (!env.errorMessage) {
+    return evalExpression(env, text) + "\n";
+  } else {
+    return evalExpression(env, text) + "\n" + env.errorMessage;
+  }
 }
 
 function pgIndex() {
@@ -73,7 +99,7 @@ function pgIndex() {
 
   text = "A: Today a Tesla stock price is {a}. {func1}\n{func2}";
 
-  userInit(env, "(define taxRate 10)", monitor);
+  // userInit(env, "(define taxRate 10)", monitor);
 
   userChangeMonitor("a", [], "20000", monitor);
   userChangeMonitor(

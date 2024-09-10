@@ -230,7 +230,10 @@ export function evalExpression(env: Env, expr: string): string {
         const tokenizedExpr: string[] = tokenize(env, expr.slice(i, end + 1));
         const ast = parseExpr(tokenizedExpr);
         const exprResult: Obj = evalExpr(env, ast);
-        if (expr[i] === "{") result += exprResult.value;
+        if (expr[i] === "{") {
+          if (exprResult.name !== "ErrorObj") result += exprResult.value;
+          else result += "[ERROR]";
+        }
         i = end;
       } else {
         result += expr[i];

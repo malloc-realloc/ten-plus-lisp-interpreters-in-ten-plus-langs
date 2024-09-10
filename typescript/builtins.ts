@@ -18,6 +18,7 @@ import {
   createMultiDimArray,
   ArrayObj,
   AIObj,
+  ErrorObj,
 } from "./obj";
 import { Env } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
@@ -43,27 +44,33 @@ function isTsLispFalse(obj: Obj): Boolean {
   );
 }
 
-export function addObjs(env: Env, ...args: NumberOrString[]): Obj {
+export function addObjs(env: Env, ...args: Obj[]): Obj {
   try {
     if (args.length === 0) {
       throw handleError(env, "At least one argument is required");
     }
 
     if (typeof args[0].value === "string") {
-      const result = (args as String_Obj[]).reduce(
-        (acc, arg) => acc + arg.value,
-        ""
-      );
+      let result = "";
+      for (let arg of args) {
+        if (arg.name === "ErrorObj") {
+          return handleError(env, "+");
+        } else {
+          result += arg.value;
+        }
+      }
       return new String_Obj(result);
-    } else {
+    } else if (typeof args[0].value === "number") {
       let result = 0;
       for (let arg of args) {
-        if (Number.isInteger(arg.value)) result += arg.value;
-        else
+        if (Number.isInteger(arg.value)) {
+          result += arg.value;
+        } else {
           return handleError(
             env,
             "+ cannot be applied to objects with type except number, string"
           );
+        }
       }
       return Number.isInteger(result)
         ? new IntNumber(result)
@@ -72,49 +79,77 @@ export function addObjs(env: Env, ...args: NumberOrString[]): Obj {
   } catch (error) {
     return handleError(env, "+");
   }
+
+  return handleError(env, "+");
 }
 
-export function subObjs(env: Env, ...args: Number[]): Obj {
+export function subObjs(env: Env, ...args: NumberOrString[]): Obj {
   try {
+    if (args.length === 0) {
+      throw handleError(env, "At least one argument is required");
+    }
+
+    if (typeof args[0].value === "string") {
+      return handleError(env, "- cannot be applied to strings");
+    }
+
     let result = args[0].value;
     for (const arg of args.slice(1)) {
-      if (Number.isInteger(arg.value)) result -= arg.value;
-      else return handleError(env, "-");
+      if (typeof arg.value === "string") {
+        return handleError(env, "- cannot be applied to strings");
+      }
+      if (Number.isInteger(arg.value)) {
+        result -= arg.value;
+      } else {
+        return handleError(env, "- can only be applied to integer numbers");
+      }
     }
-    if (Number.isInteger(result)) {
-      return new IntNumber(result);
-    } else {
-      return new FloatNumber(result);
-    }
+    return Number.isInteger(result)
+      ? new IntNumber(result)
+      : new FloatNumber(result);
   } catch (error) {
     return handleError(env, "-");
   }
 }
 
-export function powerObjs(env: Env, obj1: Number, obj2: Number): Obj {
+export function powerObjs(env: Env, ...args: NumberOrString[]): Obj {
   try {
-    let result = obj1.value ** obj2.value;
-    if (Number.isInteger(result)) {
-      return new IntNumber(result);
-    } else {
-      return new FloatNumber(result);
+    if (args.length !== 2) {
+      throw handleError(env, "Exactly two arguments are required for **");
     }
+
+    if (
+      typeof args[0].value === "string" ||
+      typeof args[1].value === "string"
+    ) {
+      return handleError(env, "** cannot be applied to strings");
+    }
+
+    let result = args[0].value ** args[1].value;
+    return Number.isInteger(result)
+      ? new IntNumber(result)
+      : new FloatNumber(result);
   } catch (error) {
     return handleError(env, "**");
   }
 }
 
-export function mulObjs(env: Env, ...args: Number[]): Obj {
+export function mulObjs(env: Env, ...args: NumberOrString[]): Obj {
   try {
+    if (args.length === 0) {
+      throw handleError(env, "At least one argument is required");
+    }
+
     let result = 1;
     for (const arg of args) {
+      if (typeof arg.value === "string") {
+        return handleError(env, "* cannot be applied to strings");
+      }
       result *= arg.value;
     }
-    if (Number.isInteger(result)) {
-      return new IntNumber(result);
-    } else {
-      return new FloatNumber(result);
-    }
+    return Number.isInteger(result)
+      ? new IntNumber(result)
+      : new FloatNumber(result);
   } catch (error) {
     return handleError(env, "*");
   }
@@ -122,10 +157,14 @@ export function mulObjs(env: Env, ...args: Number[]): Obj {
 
 export function makeStr(env: Env, ...objs: Obj[]): Obj {
   try {
+    if (objs.length === 0) {
+      throw handleError(env, "At least one argument is required");
+    }
+
     let s: string = "";
     for (let i = 1; i < objs.length; i++) {
       s += String(objs[i].value);
-      s += objs[0].value;
+      s += String(objs[0].value);
     }
     return new String_Obj(s.slice(0, -1));
   } catch (error) {
@@ -133,20 +172,29 @@ export function makeStr(env: Env, ...objs: Obj[]): Obj {
   }
 }
 
-export function divObjs(env: Env, ...args: Number[]): Obj {
+export function divObjs(env: Env, ...args: NumberOrString[]): Obj {
   try {
+    if (args.length < 2) {
+      throw handleError(env, "At least two arguments are required");
+    }
+
+    if (typeof args[0].value === "string") {
+      return handleError(env, "/ cannot be applied to strings");
+    }
+
     let result = args[0].value;
     for (const arg of args.slice(1)) {
+      if (typeof arg.value === "string") {
+        return handleError(env, "/ cannot be applied to strings");
+      }
       if (arg.value === 0) {
         throw handleError(env, "Division by zero");
       }
       result /= arg.value;
     }
-    if (Number.isInteger(result)) {
-      return new IntNumber(result);
-    } else {
-      return new FloatNumber(result);
-    }
+    return Number.isInteger(result)
+      ? new IntNumber(result)
+      : new FloatNumber(result);
   } catch (error) {
     return handleError(env, "/");
   }
