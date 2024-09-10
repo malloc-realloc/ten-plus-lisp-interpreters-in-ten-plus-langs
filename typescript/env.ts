@@ -10,6 +10,7 @@ export class Env extends Map<string, Obj> {
   classes: Map<string, Map<string, Obj>> = new Map<string, Map<string, Obj>>();
   fatherEnv: Env | undefined = undefined;
   macros: [RegExp, string][] = [];
+  errorMessages: string[] = [];
 
   cleanup() {
     this.functionDepth = 0;
@@ -17,6 +18,7 @@ export class Env extends Map<string, Obj> {
     this.errorMessage = "";
     this.thisStack = [];
     this.thisValueStack = [None_Obj];
+    this.errorMessages = [];
   }
 
   newThis(s: string, obj: Obj) {
@@ -50,6 +52,7 @@ export class Env extends Map<string, Obj> {
   setErrorMessage(message: string) {
     this.hasFailed = true;
     this.errorMessage = `Invalid invocation: ${message}.\n`;
+    this.errorMessages.push(this.errorMessage);
   }
 
   getFromEnv(literal: string): Obj | undefined {

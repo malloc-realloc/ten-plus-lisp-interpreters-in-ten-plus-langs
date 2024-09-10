@@ -49,7 +49,7 @@ export function evalExpr(env: Env, expr: Expr): Obj {
     return result;
   } else {
     const obj = new ErrorObj(env.errorMessage);
-    env.cleanup();
+    // env.cleanup();
     return obj;
   }
 }

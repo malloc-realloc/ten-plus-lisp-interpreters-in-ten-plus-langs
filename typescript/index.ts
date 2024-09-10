@@ -248,6 +248,7 @@ export function evalExpression(env: Env, expr: string): string {
 for (const expr of exprs) {
   // const result = evalExtractedExpressions(globalEnv, expr);
   const result = evalExpression(globalEnv, expr);
+  globalEnv.cleanup();
   const resultStr = result.toString();
   results.push(resultStr);
   console.log(results[results.length - 1]);

@@ -12,17 +12,18 @@ let text = "";
 let monitor: [string, string[], string][] = [];
 
 function userInit(env: Env, expr: string, monitor: MonitorType) {
+  env.cleanup();
   evalStrExprs(env, expr);
 }
 
 function handleMonitorError(env: Env, varName: string, value: Obj) {
   if (value === None_Obj || value.name === "ErrorObj") {
     env.setErrorMessage(
-      "Expression bound to" +
+      "Expression bound to " +
         varName +
-        "is either invalid or null. Get value" +
+        " is either invalid or null. Get value" +
         value.toString() +
-        "."
+        ".\n"
     );
   }
   env.set(varName, value);
@@ -35,6 +36,7 @@ function userChangeMonitorAndRerun(
   expr: string,
   monitor: MonitorType
 ) {
+  env.cleanup();
   let isNewItem = true;
   const value = evalStrExprs(env, expr);
   handleMonitorError(env, varName, value);
@@ -79,6 +81,7 @@ function userChangeMonitor(
 }
 
 function rerunMonitor(env: Env, monitor: MonitorType) {
+  env.cleanup();
   for (let i = 0; i < monitor.length; i++) {
     const value = evalStrExprs(env, monitor[i][2]);
     handleMonitorError(env, monitor[i][0], value);
@@ -87,10 +90,14 @@ function rerunMonitor(env: Env, monitor: MonitorType) {
 }
 
 function displayedText(env: Env): string {
-  if (!env.errorMessage) {
+  if (!env.errorMessages) {
     return evalExpression(env, text) + "\n";
   } else {
-    return evalExpression(env, text) + "\n" + env.errorMessage;
+    let result = evalExpression(env, text) + "\n";
+    for (let i = 0; i < env.errorMessages.length; i++) {
+      result += env.errorMessages[i];
+    }
+    return result + "\n-------\n";
   }
 }
 
