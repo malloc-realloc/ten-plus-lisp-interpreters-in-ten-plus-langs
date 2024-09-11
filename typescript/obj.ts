@@ -1,4 +1,4 @@
-import { Expr, Atom, ExprType } from "./ast";
+import { Expr, Atom } from "./ast";
 import { Env } from "./env";
 
 export enum ObjType {

@@ -1,12 +1,9 @@
 // main.ts
 import { tokenize } from "./token";
-import { parseExpr, parseExprs } from "./parser";
+import { parseExpr } from "./parser";
 import { evalExpr } from "./eval";
 import { Env } from "./env";
-import { ErrorObj, Obj } from "./obj";
-import { ExprType } from "./ast";
-import { callLLM } from "./builtins";
-import exp from "constants";
+import { Obj } from "./obj";
 
 const exprs: string[] = [
   // "(define r 1)",

@@ -1,6 +1,4 @@
-import { tokenize } from "./token";
-import { parseExpr } from "./parser";
-import { evalExpr, evalStrExprs } from "./eval";
+import { evalStrExprs } from "./eval";
 import { Env } from "./env";
 import * as readline from "readline";
 

@@ -18,16 +18,13 @@ import {
   createMultiDimArray,
   ArrayObj,
   AIObj,
-  ErrorObj,
 } from "./obj";
 import { Env } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
-import { evalExpr, evalExprs, getFromEnv } from "./eval";
+import { evalExpr, evalExprs } from "./eval";
 import { handleError } from "./commons";
 import { Instance_Obj } from "./obj";
 import { error } from "console";
-import { concat, reverse } from "lodash";
-import exp from "constants";
 
 type Number = IntNumber | FloatNumber;
 

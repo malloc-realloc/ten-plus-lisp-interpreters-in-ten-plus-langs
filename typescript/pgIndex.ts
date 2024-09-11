@@ -1,9 +1,7 @@
 import { evalExpression } from ".";
 import { Env } from "./env";
-import { evalExpr, evalExprs, evalStrExprs } from "./eval";
+import { evalStrExprs } from "./eval";
 import { None_Obj, Obj } from "./obj";
-import { parseExprs } from "./parser";
-import { tokenize } from "./token";
 
 type MonitorType = [string, string[], string][];
 
