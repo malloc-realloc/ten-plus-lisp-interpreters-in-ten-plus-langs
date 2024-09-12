@@ -19,6 +19,7 @@ import {
 import { handleError } from "./commons";
 import { parseExprs } from "./parser";
 import { tokenize } from "./token";
+import exp from "constants";
 
 export function evalStrExprs(env: Env, s: string): Obj {
   return evalExprs(env, parseExprs(tokenize(env, s)));
@@ -60,6 +61,10 @@ function evalStringExpr(expr: Expr): String_Obj | ErrorObj {
 
 // most of running time is spent here.
 function evalListExpr(env: Env, expr: Expr): Obj {
+  if (expr.value.length === 0) {
+    return None_Obj;
+  }
+
   const exprList = expr.value as Expr[];
   const firstExpr = exprList[0]; // get operator with ExprType.LST_EXPR (these expressions in the form of (opt arg1 arg2 ...) )
 

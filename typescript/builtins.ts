@@ -25,6 +25,8 @@ import { evalExpr, evalExprs } from "./eval";
 import { handleError } from "./commons";
 import { Instance_Obj } from "./obj";
 import { error } from "console";
+import { tokenize } from "./token";
+import { parseExpr } from "./parser";
 
 type Number = IntNumber | FloatNumber;
 
@@ -239,6 +241,27 @@ function formatString(template: string, ...args: string[]): string {
     const argIndex = parseInt(index, 10);
     return argIndex < args.length ? args[argIndex] : match;
   });
+}
+
+export function mapFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    const lst: List_Obj = args[0] as List_Obj;
+    const opt: Lambda_Procedure = args[1] as Lambda_Procedure;
+    let result: List_Obj = new List_Obj(new Array<Obj>());
+    for (let i = 0; i < (lst.value as Array<Obj>).length; i++) {
+      result.value.push(
+        evalProcedureValue(
+          opt.env,
+          opt.argNames,
+          opt.body as Expr[],
+          lst.value[i]
+        )
+      );
+    }
+    return result;
+  } catch (error) {
+    return handleError(env, "map");
+  }
 }
 
 export function formatFunc(env: Env, ...args: Obj[]): Obj {
@@ -973,7 +996,7 @@ function evalProcedureValue(
   env: Env,
   argNames: Expr[],
   body: Expr[],
-  ...args: any[]
+  ...args: any[] // Obj[]
 ): Obj {
   try {
     if (args.length !== argNames.length) {
@@ -1156,7 +1179,9 @@ function returnLambdaObj(env: Env, exprList: Expr[]): Obj {
 
 export function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   try {
-    const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
+    const parameters: Obj[] = exprList
+      .slice(1)
+      .map((expr) => evalExpr(env, expr));
     if (opt instanceof Lambda_Procedure) {
       return evalProcedureValue(
         opt.env,
@@ -1245,6 +1270,7 @@ const objOpts: { [key: string]: Function } = {
   concat: concatFunc,
   format: formatFunc,
   macro: macroFunc,
+  map: mapFunc,
 };
 
 // special operators works on expressions.

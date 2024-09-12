@@ -1,9 +1,10 @@
 // main.ts
 import { tokenize } from "./token";
-import { parseExpr } from "./parser";
-import { evalExpr } from "./eval";
+import { parseExprs } from "./parser";
+import { evalExpr, evalExprs } from "./eval";
 import { Env } from "./env";
 import { Obj } from "./obj";
+import { Expr } from "./ast";
 
 const exprs: string[] = [
   // "(define r 1)",
@@ -179,74 +180,17 @@ const exprs: string[] = [
   // "(define f (lambda (x) (update a x)))",
   // "{f 2}",
   // "{a}",
+  "{define a {list 1 2 3}}",
+  "{define double {lambda (x) (* 2 x)}}",
+  "{map a double}",
 ];
-
-const results: any[] = [];
 
 const globalEnv = new Env();
 
-function getExpr(expr: string, start: number, startChar: string): number {
-  if (startChar === "(") {
-    const startOfExpr = start;
-    let leftBraceCount = 1;
-    let rightBraceCount = 0;
-
-    let i = start + 1;
-    for (; leftBraceCount > rightBraceCount && i < expr.length; i++) {
-      if (expr[i] === ")") rightBraceCount++;
-      else if (expr[i] === "(") leftBraceCount++;
-    }
-
-    return expr[i - 1] === ")" ? i - 1 : -1;
-  }
-  if (startChar === "{") {
-    const startOfExpr = start;
-    let leftBraceCount = 1;
-    let rightBraceCount = 0;
-
-    let i = start + 1;
-    for (; leftBraceCount > rightBraceCount && i < expr.length; i++) {
-      if (expr[i] === "}") rightBraceCount++;
-      else if (expr[i] === "{") leftBraceCount++;
-    }
-
-    return expr[i - 1] === "}" ? i - 1 : -1;
-  }
-  return -1;
-}
-
-export function evalExpression(env: Env, expr: string): string {
-  try {
-    let result: string = "";
-    for (let i = 0; i < expr.length; i++) {
-      if (expr[i] === "(" || expr[i] === "{") {
-        const end = getExpr(expr, i, expr[i]);
-        if (end === -1) {
-          return "Error: Any '('/'{' should be matched with a ')'/'}'.";
-        }
-        const tokenizedExpr: string[] = tokenize(env, expr.slice(i, end + 1));
-        const ast = parseExpr(tokenizedExpr);
-        const exprResult: Obj = evalExpr(env, ast);
-        if (expr[i] === "{") {
-          if (exprResult.name !== "ErrorObj") result += exprResult.value;
-          else result += "[ERROR]";
-        }
-        i = end;
-      } else {
-        result += expr[i];
-      }
-    }
-    return result;
-  } catch (error) {
-    return "Error: Invalid input.";
-  }
-}
-
 for (const expr of exprs) {
   // const result = evalExtractedExpressions(globalEnv, expr);
-  const result = evalExpression(globalEnv, expr);
-  globalEnv.cleanup();
-  const resultStr = result.toString();
-  results.push(resultStr);
-  console.log(results[results.length - 1]);
+  const tokens: string[] = tokenize(globalEnv, expr);
+  const ast: Expr[] = parseExprs(tokens);
+  const results: Obj = evalExprs(globalEnv, ast);
+  console.log(results.toString());
 }
