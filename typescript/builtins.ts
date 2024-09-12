@@ -996,7 +996,7 @@ function evalProcedureValue(
   env: Env,
   argNames: Expr[],
   body: Expr[],
-  ...args: any[] // Obj[]
+  ...args: Obj[] // any[]
 ): Obj {
   try {
     if (args.length !== argNames.length) {
