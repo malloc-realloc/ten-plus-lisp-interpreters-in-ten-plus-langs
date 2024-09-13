@@ -5,6 +5,7 @@ import { evalExpr, evalExprs } from "./eval";
 import { Env } from "./env";
 import { Obj } from "./obj";
 import { Expr } from "./ast";
+import { readFileSync } from "fs";
 
 const exprs: string[] = [
   // "(define r 1)",
@@ -180,9 +181,11 @@ const exprs: string[] = [
   // "(define f (lambda (x) (update a x)))",
   // "{f 2}",
   // "{a}",
-  "{define a {list 1 2 3}}",
-  "{define double {lambda (x) (* 2 x)}}",
-  "{map a double}",
+  // "{define a {list 1 2 3}}",
+  // "{define double {lambda (x) (* 2 x)}}",
+  // "{map a double}",
+  '{import "./typescript/math.tslisp"}',
+  "(triple 3)",
 ];
 
 const globalEnv = new Env();

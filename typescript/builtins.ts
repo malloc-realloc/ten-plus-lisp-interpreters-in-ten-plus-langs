@@ -26,7 +26,8 @@ import { handleError } from "./commons";
 import { Instance_Obj } from "./obj";
 import { error } from "console";
 import { tokenize } from "./token";
-import { parseExpr } from "./parser";
+import { parseExprs } from "./parser";
+import { readFile, readFileSync } from "fs";
 
 type Number = IntNumber | FloatNumber;
 
@@ -241,6 +242,19 @@ function formatString(template: string, ...args: string[]): string {
     const argIndex = parseInt(index, 10);
     return argIndex < args.length ? args[argIndex] : match;
   });
+}
+
+export function importFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    let obj: Obj = None_Obj;
+    for (let i = 0; i < args.length; i++) {
+      const fileContent: string = readFileSync(args[i].value, "utf-8");
+      obj = evalExprs(env, parseExprs(tokenize(env, fileContent)));
+    }
+    return obj;
+  } catch (error) {
+    return handleError(env, "import error: failed to open the file");
+  }
 }
 
 export function mapFunc(env: Env, ...args: Obj[]): Obj {
@@ -1271,6 +1285,7 @@ const objOpts: { [key: string]: Function } = {
   format: formatFunc,
   macro: macroFunc,
   map: mapFunc,
+  import: importFunc,
 };
 
 // special operators works on expressions.
