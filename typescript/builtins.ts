@@ -28,6 +28,7 @@ import { error } from "console";
 import { tokenize } from "./token";
 import { parseExprs } from "./parser";
 import { readFile, readFileSync } from "fs";
+import exp from "constants";
 
 type Number = IntNumber | FloatNumber;
 
@@ -810,6 +811,18 @@ export function minusEqualFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function colonColonFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const fatherFunc: Lambda_Procedure = evalExpr(
+      env,
+      exprList[1]
+    ) as Lambda_Procedure;
+    return evalExpr(fatherFunc.env, exprList[2]);
+  } catch (error) {
+    return handleError(env, "::");
+  }
+}
+
 export function mulEqualFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const obj: Obj | undefined = env.get(exprList[1].value as string);
@@ -1236,6 +1249,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "-=": minusEqualFunc,
   "/=": divEqualFunc,
   "*=": mulEqualFunc,
+  "::": colonColonFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

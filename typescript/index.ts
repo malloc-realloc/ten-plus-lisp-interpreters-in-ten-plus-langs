@@ -184,8 +184,12 @@ const exprs: string[] = [
   // "{define a {list 1 2 3}}",
   // "{define double {lambda (x) (* 2 x)}}",
   // "{map a double}",
-  '{import "./typescript/math.tslisp"}',
-  "(triple 3)",
+  // '{import "./typescript/math.tslisp"}',
+  // "(triple 3)",
+  "{define fun (lambda (x) (define fun2 (lambda (y) (+ y x))) (define fun3 (lambda (z) (define tt (* x z)) (define fun4 (lambda (t) (/ tt t)))))) }",
+  "(:: (fun 1) fun2)",
+  "((:: (fun 1) fun2) 4)",
+  "((:: ((:: (fun 1) fun3) 4) fun4) 2)",
 ];
 
 const globalEnv = new Env();
