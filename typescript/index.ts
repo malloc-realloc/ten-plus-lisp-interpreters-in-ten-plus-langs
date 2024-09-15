@@ -194,12 +194,12 @@ const exprs: string[] = [
   // "(:: ((:: (fun 1) fun3) 4) tt)",
   "(define fa (lambda (x) (update a 2)))",
   "(define a 1)",
-  "(fa a)",
-  "a",
-  "(define fb (lambda (&x) (update x 2) (display x)))",
+  "(fa a)", // ordinary parameter works like reference para in C++
+  "a", // 2
+  "(define fb (lambda (*x) (update x 2) (display x)))", // *x means make a copy of x
   "(define  b 1)",
   "(fb b)",
-  "b",
+  "b", // 1
   "(define fc (lambda (x) (update c 2)))",
   "(define c 1)",
   "(fc c)",

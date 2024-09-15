@@ -1204,7 +1204,7 @@ function evalProcedureValue(
 
     argNames.forEach((argName, index) => {
       if (typeof argName.value === "string") {
-        if (argName.value[0] == "&") {
+        if (argName.value[0] == "*") {
           env.set(
             argName.value.slice(1, argName.value.length),
             args[index].copy()
