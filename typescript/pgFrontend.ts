@@ -1,4 +1,4 @@
-import { evalExpression } from "./pgindex";
+import { evalExpression } from "./pgIndex";
 import { Env } from "./env";
 import { evalStrExprs } from "./eval";
 import { None_Obj, Obj } from "./obj";

@@ -18,6 +18,13 @@ export class Obj {
   toString(): string {
     return `[${this.name}] ${String(this.value)}`;
   }
+
+  copy(): Obj {
+    let obj = new Obj(this.value);
+    obj.needsPrinted = this.needsPrinted;
+
+    return obj;
+  }
 }
 
 export class ErrorObj extends Obj {
@@ -71,6 +78,17 @@ export class Lambda_Procedure extends Obj {
   toString(): string {
     return `[${this.name}] ${this.value}, ${this.info}`;
   }
+
+  copy(): Lambda_Procedure {
+    let obj = new Lambda_Procedure(
+      this.value,
+      this.info,
+      this.argNames,
+      this.body,
+      this.env.fatherEnv
+    );
+    return obj;
+  }
 }
 
 export class Bool extends Obj {
@@ -87,6 +105,10 @@ export class List_Obj extends Obj {
   constructor(value: Array<Obj>, type: ObjType = ObjType.LIST_OBJ) {
     super(value);
     this.type = type;
+  }
+
+  copy(): List_Obj {
+    return new List_Obj(this.value, this.type);
   }
 }
 
@@ -106,6 +128,10 @@ export class Dict_Obj extends Obj {
     }
     result += "}";
     return result;
+  }
+
+  copy(): Dict_Obj {
+    return new Dict_Obj(this.value, this.type);
   }
 }
 
@@ -166,6 +192,10 @@ export class Instance_Obj extends Obj {
       result += `{${key}}}`;
     }
     return result;
+  }
+
+  copy(): Instance_Obj {
+    return new Instance_Obj(this.value, this.instanceName, this.className);
   }
 }
 

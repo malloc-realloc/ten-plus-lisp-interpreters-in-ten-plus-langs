@@ -1019,44 +1019,6 @@ function atomAsEnvKey(expr: Expr): Obj {
   }
 }
 
-function evalProcedureValue(
-  env: Env,
-  argNames: Expr[],
-  body: Expr[],
-  ...args: Obj[] // any[]
-): Obj {
-  try {
-    if (args.length !== argNames.length) {
-      console.error("Error: Invalid number of arguments");
-    }
-
-    const originalDepth = env.functionDepth;
-    env.functionDepth = env.functionDepth + 1;
-
-    argNames.forEach((argName, index) => {
-      if (typeof argName.value === "string") {
-        env.set(argName.value, args[index]);
-      } else {
-        console.error(
-          `Error: Invalid argument name type: ${typeof argName.value}`
-        );
-      }
-    });
-
-    let result: Obj = None_Obj;
-    let funcDepth = env.functionDepth;
-    for (let expr of body) {
-      result = evalExpr(env, expr);
-      if (originalDepth >= funcDepth) {
-        return result;
-      }
-    }
-    return result;
-  } catch (error) {
-    return handleError(env, "evalProcedureValue");
-  }
-}
-
 function forFunc(env: Env, body: Expr[]): Obj {
   try {
     const condExpr: Expr = body[2];
@@ -1206,9 +1168,11 @@ function returnLambdaObj(env: Env, exprList: Expr[]): Obj {
 
 export function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   try {
-    const parameters: Obj[] = exprList
-      .slice(1)
-      .map((expr) => evalExpr(env, expr));
+    const parameters: Obj[] = [];
+    for (let i = 1; i < exprList.length; i++) {
+      parameters.push(evalExpr(env, exprList[i]));
+    }
+
     if (opt instanceof Lambda_Procedure) {
       return evalProcedureValue(
         opt.env,
@@ -1221,6 +1185,51 @@ export function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
     }
   } catch (error) {
     return handleError(env, "evaluate lambda function");
+  }
+}
+
+function evalProcedureValue(
+  env: Env,
+  argNames: Expr[],
+  body: Expr[],
+  ...args: Obj[] // any[]
+): Obj {
+  try {
+    if (args.length !== argNames.length) {
+      console.error("Error: Invalid number of arguments");
+    }
+
+    const originalDepth = env.functionDepth;
+    env.functionDepth = env.functionDepth + 1;
+
+    argNames.forEach((argName, index) => {
+      if (typeof argName.value === "string") {
+        if (argName.value[0] == "&") {
+          env.set(
+            argName.value.slice(1, argName.value.length),
+            args[index].copy()
+          );
+        } else {
+          env.set(argName.value, args[index]);
+        }
+      } else {
+        console.error(
+          `Error: Invalid argument name type: ${typeof argName.value}`
+        );
+      }
+    });
+
+    let result: Obj = None_Obj;
+    let funcDepth = env.functionDepth;
+    for (let expr of body) {
+      result = evalExpr(env, expr);
+      if (originalDepth >= funcDepth) {
+        return result;
+      }
+    }
+    return result;
+  } catch (error) {
+    return handleError(env, "evalProcedureValue");
   }
 }
 
