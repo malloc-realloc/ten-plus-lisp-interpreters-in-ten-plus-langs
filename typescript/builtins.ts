@@ -1188,6 +1188,14 @@ export function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   }
 }
 
+export function typeFunc(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+  try {
+    return new String_Obj(opt.name);
+  } catch (error) {
+    return handleError(env, "type");
+  }
+}
+
 function evalProcedureValue(
   env: Env,
   argNames: Expr[],
@@ -1309,6 +1317,7 @@ const objOpts: { [key: string]: Function } = {
   macro: macroFunc,
   map: mapFunc,
   import: importFunc,
+  type: typeFunc,
 };
 
 // special operators works on expressions.

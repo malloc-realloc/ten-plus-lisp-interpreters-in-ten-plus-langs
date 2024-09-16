@@ -192,18 +192,20 @@ const exprs: string[] = [
   // "((:: (fun 1) fun2) 4)",
   // "((:: ((:: (fun 1) fun3) 4) fun4) 2)",
   // "(:: ((:: (fun 1) fun3) 4) tt)",
-  "(define fa (lambda (x) (update a 2)))",
-  "(define a 1)",
-  "(fa a)", // ordinary parameter works like reference para in C++
-  "a", // 2
-  "(define fb (lambda (*x) (update x 2) (display x)))", // *x means make a copy of x
-  "(define  b 1)",
-  "(fb b)",
-  "b", // 1
-  "(define fc (lambda (x) (update c 2)))",
-  "(define c 1)",
-  "(fc c)",
-  "c",
+  // "(define fa (lambda (x) (update a 2)))",
+  // "(define a 1)",
+  // "(fa a)", // ordinary parameter works like reference para in C++
+  // "a", // 2
+  // "(define fb (lambda (*x) (update x 2) (display x)))", // *x means make a copy of x
+  // "(define  b 1)",
+  // "(fb b)",
+  // "b", // 1
+  // "(define fc (lambda (x) (update c 2)))",
+  // "(define c 1)",
+  // "(fc c)",
+  // "c",
+  "'abc'", // comment using ''
+  "(type 1)",
 ];
 
 const globalEnv = new Env();
