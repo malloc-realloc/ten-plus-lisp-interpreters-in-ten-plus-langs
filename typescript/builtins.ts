@@ -1081,8 +1081,15 @@ function updateVar(env: Env, exprList: Expr[]): Obj {
 
     const whereIsVar = env.whereIsVar(exprList[1].value as Atom);
 
-    if (whereIsVar) whereIsVar.set(exprList[1].value as Atom, objValue);
-    else env.set(exprList[1].value as Atom, objValue);
+    if (whereIsVar) {
+      if (!isNotConst(whereIsVar, exprList[1].value as Atom)) {
+        return None_Obj;
+      } else {
+        whereIsVar.set(exprList[1].value as Atom, objValue);
+      }
+    } else {
+      env.set(exprList[1].value as Atom, objValue);
+    }
 
     const procedure = env.get(
       `_update_${exprList[1].value}`
@@ -1099,11 +1106,30 @@ function updateVar(env: Env, exprList: Expr[]): Obj {
 function defineVar(env: Env, exprList: Expr[]): Obj {
   try {
     const varName = atomAsEnvKey(exprList[1]);
+    if (!isNotConst(env, varName.value)) {
+      return None_Obj;
+    }
+
     const varValue = evalExpr(env, exprList[2]);
 
     isValidVariableName(varName.value);
 
     env.set(varName.value, varValue);
+    return varValue;
+  } catch (error) {
+    return handleError(env, "defineVar");
+  }
+}
+
+function constFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const varName = atomAsEnvKey(exprList[1]);
+    const varValue = evalExpr(env, exprList[2]);
+
+    isValidVariableName(varName.value);
+
+    env.set(varName.value, varValue);
+    env.constVarNames.push(varName.value);
     return varValue;
   } catch (error) {
     return handleError(env, "defineVar");
@@ -1267,6 +1293,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "/=": divEqualFunc,
   "*=": mulEqualFunc,
   "::": colonColonFunc,
+  const: constFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
@@ -1341,4 +1368,8 @@ function isValidVariableName(name: string): boolean {
   const variablePattern = /^[^0-9+\-*/%^=<>!&|~][^+\-*/%^=<>!&|~]*$/;
 
   return variablePattern.test(name);
+}
+
+function isNotConst(env: Env, name: string): boolean {
+  return !env.constVarNames.includes(name);
 }

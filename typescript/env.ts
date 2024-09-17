@@ -11,6 +11,7 @@ export class Env extends Map<string, Obj> {
   fatherEnv: Env | undefined = undefined;
   macros: [RegExp, string][] = [];
   errorMessages: string[] = [];
+  constVarNames: string[] = [];
 
   cleanup() {
     this.functionDepth = 0;
