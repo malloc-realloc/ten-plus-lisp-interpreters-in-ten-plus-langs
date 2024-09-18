@@ -206,9 +206,11 @@ const exprs: string[] = [
   // "c",
   // "'abc'", // comment using ''
   // "(type 1)",
-  "(const constVar 2)",
-  "(define constVar 3)",
-  "(update constVar 4)",
+  // "(const constVar 2)",
+  // "(define constVar 3)",
+  // "(update constVar 4)",
+  "(not 2)",
+  "(! 0)",
 ];
 
 const globalEnv = new Env();

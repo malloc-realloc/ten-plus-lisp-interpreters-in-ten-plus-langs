@@ -173,6 +173,18 @@ export function makeStr(env: Env, ...objs: Obj[]): Obj {
   }
 }
 
+export function notFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    if (isTsLispFalse(args[0])) {
+      return TsLispInnerFalse;
+    } else {
+      return TsLispInnerTrue;
+    }
+  } catch (error) {
+    return handleError(env, "not/!");
+  }
+}
+
 export function divObjs(env: Env, ...args: NumberOrString[]): Obj {
   try {
     if (args.length < 2) {
@@ -1214,7 +1226,7 @@ export function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
   }
 }
 
-export function typeFunc(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+export function typeFunc(env: Env, opt: Procedure): Obj {
   try {
     return new String_Obj(opt.name);
   } catch (error) {
@@ -1345,6 +1357,8 @@ const objOpts: { [key: string]: Function } = {
   map: mapFunc,
   import: importFunc,
   type: typeFunc,
+  not: notFunc,
+  "!": notFunc,
 };
 
 // special operators works on expressions.
