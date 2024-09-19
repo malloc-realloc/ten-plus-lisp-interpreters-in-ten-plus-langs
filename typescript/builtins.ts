@@ -471,24 +471,6 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
   }
 }
 
-export function defineClass(
-  env: Env,
-  className: Undefined_Obj,
-  ...args: String_Obj[]
-): Obj {
-  let classProperties = new Map<string, Obj>();
-
-  for (let arg of args) {
-    classProperties.set(arg.value, None_Obj);
-  }
-
-  env.classes.set(className.value as string, classProperties);
-
-  env.set(className.value, new Class_Obj(className.value));
-
-  return None_Obj;
-}
-
 export function defineSubClass(
   env: Env,
   fatherClassName: Class_Obj,
@@ -716,15 +698,13 @@ export function returnFunc(env: Env, arg: Obj): Obj {
   }
 }
 
-export function getItem(
-  env: Env,
-  instanceObj: Instance_Obj,
-  name: Undefined_Obj
-): Obj {
+export function getItem(env: Env, exprList: Expr[]): Obj {
   try {
-    const obj = instanceObj.value.get(name.value);
+    const instanceName: string = exprList[1].value as string;
+    const obj: Instance_Obj = env.getFromEnv(instanceName) as Instance_Obj;
+    const result = obj.value.get(exprList[2].value as string);
 
-    return obj;
+    return result;
   } catch (error) {
     return handleError(env, "return");
   }
@@ -781,6 +761,25 @@ export function minusMinusFunc(env: Env, exprList: Expr[]): Obj {
   } catch (error) {
     return handleError(env, "--");
   }
+}
+
+export function defineClass(env: Env, exprList: Expr[]): Obj {
+  let classProperties = new Map<string, Obj>();
+
+  exprList.shift();
+  const className = exprList.shift();
+
+  for (let arg of exprList) {
+    classProperties.set(arg.value as string, None_Obj);
+  }
+
+  env.classes.set(className?.value as string, classProperties);
+
+  const obj = new Class_Obj(className?.value as string);
+
+  env.set(className?.value as string, obj);
+
+  return obj;
 }
 
 export function plusEqualFunc(env: Env, exprList: Expr[]): Obj {
@@ -952,18 +951,18 @@ function orFunc(env: Env, ...objs: Obj[]): Obj {
   }
 }
 
-export function defineClassInstance(
-  env: Env,
-  classObj: Class_Obj,
-  name: Undefined_Obj
-): Obj {
+export function defineClassInstance(env: Env, exprList: Expr[]): Obj {
   try {
+    const classObj: Map<string, Obj> = env.classes.get(
+      exprList[1].value as string
+    ) as Map<string, Obj>;
+
     const instance = new Instance_Obj(
-      env.classes.get(classObj.value) as Map<string, Obj>,
-      name.value,
-      classObj.value
+      classObj as Map<string, Obj>,
+      exprList[2].value as string,
+      exprList[1].value as string
     );
-    env.set(name.value, instance);
+    env.set(exprList[2].value as string, instance);
 
     return instance;
   } catch (error) {
@@ -971,16 +970,15 @@ export function defineClassInstance(
   }
 }
 
-export function setItem(
-  env: Env,
-  instanceObj: Instance_Obj,
-  name: Undefined_Obj,
-  obj: Obj
-): Obj {
+export function setItem(env: Env, exprList: Expr[]): Obj {
   try {
-    instanceObj.value.set(name.value, obj);
+    const instanceObj: Instance_Obj = env.getFromEnv(
+      exprList[1].value as string
+    ) as Instance_Obj;
+    const result = evalExpr(env, exprList[3]);
+    instanceObj.value.set(exprList[2].value, result);
 
-    return obj;
+    return result;
   } catch (error) {
     return handleError(env, "setItem");
   }
@@ -1306,6 +1304,10 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "*=": mulEqualFunc,
   "::": colonColonFunc,
   const: constFunc,
+  class: defineClass,
+  instance: defineClassInstance,
+  getItem: getItem,
+  setItem: setItem,
 };
 
 const objOpts: { [key: string]: Function } = {
@@ -1338,10 +1340,7 @@ const objOpts: { [key: string]: Function } = {
   randInt: randInt,
   randChoice: randChoice,
   return: returnFunc,
-  class: defineClass,
-  instance: defineClassInstance,
-  getItem: getItem,
-  setItem: setItem,
+
   setMethod: setMethod,
   subclass: defineSubClass,
   and: andFunc,
