@@ -471,25 +471,25 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
   }
 }
 
-export function defineSubClass(
-  env: Env,
-  fatherClassName: Class_Obj,
-  ...args: Undefined_Obj[]
-): Obj {
-  let classProperties: Map<string, Obj> = env.classes.get(
-    fatherClassName.value as string
-  ) as Map<string, Obj>;
-  const subclassName: string = args[0].value as string;
+export function defineSubClass(env: Env, exprList: Expr[]): Obj {
+  try {
+    let classProperties: Map<string, Obj> = env.classes.get(
+      exprList[1].value as string
+    ) as Map<string, Obj>;
+    const subclassName: string = exprList[2].value as string;
 
-  for (let i = 0; i < args.length; i++) {
-    classProperties.set(args[i].value, None_Obj);
+    for (let i = 3; i < exprList.length; i++) {
+      classProperties.set(exprList[i].value as string, None_Obj);
+    }
+
+    env.classes.set(subclassName, classProperties);
+
+    env.set(subclassName, new Class_Obj(subclassName));
+
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "subclass");
   }
-
-  env.classes.set(subclassName, classProperties);
-
-  env.set(subclassName, new Class_Obj(subclassName));
-
-  return None_Obj;
 }
 
 export function getFromContainer(
@@ -1331,6 +1331,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   getItem: getItem,
   setItem: setItem,
   setMethod: setMethod,
+  subclass: defineSubClass,
 };
 
 const objOpts: { [key: string]: Function } = {
@@ -1364,7 +1365,6 @@ const objOpts: { [key: string]: Function } = {
   randChoice: randChoice,
   return: returnFunc,
 
-  subclass: defineSubClass,
   and: andFunc,
   or: orFunc,
   array: arrayFunc,
