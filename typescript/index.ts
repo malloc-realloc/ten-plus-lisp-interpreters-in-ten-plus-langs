@@ -1,11 +1,10 @@
 // main.ts
 import { tokenize } from "./token";
 import { parseExprs } from "./parser";
-import { evalExpr, evalExprs } from "./eval";
+import { evalExprs } from "./eval";
 import { Env } from "./env";
 import { Obj } from "./obj";
 import { Expr } from "./ast";
-import { readFileSync } from "fs";
 
 const exprs: string[] = [
   "(define r 1)",

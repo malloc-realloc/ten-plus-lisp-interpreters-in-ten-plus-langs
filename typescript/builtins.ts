@@ -14,7 +14,6 @@ import {
   Lambda_Procedure,
   Procedure,
   Class_Obj,
-  Undefined_Obj,
   createMultiDimArray,
   ArrayObj,
   AIObj,
@@ -27,8 +26,7 @@ import { Instance_Obj } from "./obj";
 import { error } from "console";
 import { tokenize } from "./token";
 import { parseExprs } from "./parser";
-import { readFile, readFileSync } from "fs";
-import exp from "constants";
+import { readFileSync } from "fs";
 
 type Number = IntNumber | FloatNumber;
 

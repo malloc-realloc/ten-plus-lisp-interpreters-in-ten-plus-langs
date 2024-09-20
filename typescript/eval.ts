@@ -19,7 +19,6 @@ import {
 import { handleError } from "./commons";
 import { parseExprs } from "./parser";
 import { tokenize } from "./token";
-import exp from "constants";
 
 export function evalStrExprs(env: Env, s: string): Obj {
   return evalExprs(env, parseExprs(tokenize(env, s)));
