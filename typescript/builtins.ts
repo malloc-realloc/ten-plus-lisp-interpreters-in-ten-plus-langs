@@ -710,20 +710,35 @@ export function getItem(env: Env, exprList: Expr[]): Obj {
   }
 }
 
-export function setMethod(
-  env: Env,
-  classObj: Class_Obj,
-  name: Undefined_Obj,
-  procedure: Procedure
-): Obj {
+export function setMethod(env: Env, exprList: Expr[]): Obj {
   try {
-    env.classes.get(classObj.value)?.set(name.value, procedure);
+    const classObj = env.get(exprList[1].value as string);
+    const name = exprList[2].value;
+    const procedure = evalExpr(env, exprList[3]);
+    env.classes
+      .get((classObj as Class_Obj).value)
+      ?.set(name as string, procedure);
 
     return procedure;
   } catch (error) {
     return None_Obj;
   }
 }
+
+// export function setMethod(
+//   env: Env,
+//   classObj: Class_Obj,
+//   name: Undefined_Obj,
+//   procedure: Procedure
+// ): Obj {
+//   try {
+//     env.classes.get(classObj.value)?.set(name.value, procedure);
+
+//     return procedure;
+//   } catch (error) {
+//     return None_Obj;
+//   }
+// }
 
 export function plusPlusFunc(env: Env, exprList: Expr[]): Obj {
   try {
@@ -908,7 +923,14 @@ export function letFunc(env: Env, exprList: Expr[]): Obj {
 
 export function call_method(env: Env, exprList: Expr[]): Obj {
   try {
-    const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
+    const parameters: Obj[] = [
+      evalExpr(env, exprList[1]),
+      new String_Obj(exprList[2].value as string),
+    ];
+
+    for (let i = 3; i < exprList.length; i++) {
+      parameters.push(evalExpr(env, exprList[i]));
+    }
 
     const instance = parameters[0] as Instance_Obj;
     const methodName = parameters[1] as String_Obj;
@@ -1308,6 +1330,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   instance: defineClassInstance,
   getItem: getItem,
   setItem: setItem,
+  setMethod: setMethod,
 };
 
 const objOpts: { [key: string]: Function } = {
@@ -1341,7 +1364,6 @@ const objOpts: { [key: string]: Function } = {
   randChoice: randChoice,
   return: returnFunc,
 
-  setMethod: setMethod,
   subclass: defineSubClass,
   and: andFunc,
   or: orFunc,
