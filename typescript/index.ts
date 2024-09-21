@@ -211,6 +211,7 @@ const exprs: string[] = [
   "(define f (lambda (x :IntNumber) (+ x 1)))",
   // "(f 2)",
   "(f 3.2 4)",
+  "(f 3.2)",
 ];
 
 const globalEnv = new Env();
