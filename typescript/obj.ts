@@ -60,19 +60,22 @@ export class Lambda_Procedure extends Obj {
   argNames: Expr[];
   info: string;
   env: Env = new Env();
+  requirements: [number, string][] = [];
 
   constructor(
     value: string = "LambdaObj",
     info: Atom = "",
     argNames: Expr[],
     body: Expr[] | Expr = [],
-    fatherEnv: Env = new Env()
+    fatherEnv: Env = new Env(),
+    requirements: [number, string][] = []
   ) {
     super(value);
     this.info = info;
     this.body = body;
     this.argNames = argNames;
     this.env.fatherEnv = fatherEnv;
+    this.requirements = requirements;
   }
 
   toString(): string {

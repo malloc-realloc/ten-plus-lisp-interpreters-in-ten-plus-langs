@@ -17,6 +17,7 @@ import {
   createMultiDimArray,
   ArrayObj,
   AIObj,
+  ErrorObj,
 } from "./obj";
 import { Env } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
@@ -1202,7 +1203,20 @@ export function whileFunc(env: Env, exprList: Expr[]): Obj {
 function returnLambdaObj(env: Env, exprList: Expr[]): Obj {
   try {
     exprList = exprList.slice(1);
-    let argNames = exprList[0].value as Expr[];
+    let argNames: Expr[] = [];
+    let requirements: [number, string][] = [];
+
+    for (const item of exprList[0].value) {
+      if (((item as Expr).value as string)[0] !== ":") {
+        argNames.push(item as Expr);
+      } else {
+        const i = argNames.length - 1;
+        const l = ((item as Expr).value as string).length;
+        const typeName: string = ((item as Expr).value as string).slice(1, l);
+        requirements.push([i, typeName]);
+      }
+    }
+
     let body = exprList.slice(1);
 
     const functionString = `(${argNames.map((arg) => arg.value).join(", ")})`;
@@ -1213,7 +1227,8 @@ function returnLambdaObj(env: Env, exprList: Expr[]): Obj {
       lambdaString,
       (argNames = argNames),
       (body = body),
-      (env = env)
+      (env = env),
+      requirements
     );
 
     return func;
@@ -1227,6 +1242,15 @@ export function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
     const parameters: Obj[] = [];
     for (let i = 1; i < exprList.length; i++) {
       parameters.push(evalExpr(env, exprList[i]));
+    }
+
+    for (const item of (opt as Lambda_Procedure).requirements) {
+      if (parameters[item[0]].name !== item[1]) {
+        return handleError(
+          env,
+          "type of function argument does not match requirement."
+        );
+      }
     }
 
     if (opt instanceof Lambda_Procedure) {
@@ -1260,7 +1284,7 @@ function evalProcedureValue(
 ): Obj {
   try {
     if (args.length !== argNames.length) {
-      console.error("Error: Invalid number of arguments");
+      return handleError(env, "Error: Invalid number of arguments");
     }
 
     const originalDepth = env.functionDepth;
