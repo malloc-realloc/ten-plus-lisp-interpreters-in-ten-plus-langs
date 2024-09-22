@@ -207,11 +207,18 @@ const exprs: string[] = [
   // "(update constVar 4)",
   // "(not 2)",
   // "(! 0)",
-  "1",
-  "(define f (lambda (x :IntNumber) (+ x 1)))",
+  // "1",
+  // "(define f (lambda (x :IntNumber) (+ x 1)))",
   // "(f 2)",
-  "(f 3.2 4)",
-  "(f 3.2)",
+  // "(f 3.2 4)",
+  // "(f 3.2)",
+  "literal takes in a regex and when a variable with its name satisfying the regex, we evaluate the following expressions.",
+  "(define count 0)",
+  '(literal varForLiteralTest (display "ha") (++ count))',
+  "(define varForLiteralTest 2)",
+  "count",
+  `(literal ^hello\\w*world$ (display "he"))`,
+  "(define helloHelloworld 2)",
 ];
 
 const globalEnv = new Env();

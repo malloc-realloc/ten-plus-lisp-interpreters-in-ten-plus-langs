@@ -1,5 +1,7 @@
 import { handleError } from "./commons";
 import { None_Obj, Obj } from "./obj";
+import { Expr } from "./ast";
+import { evalExprs } from "./eval";
 
 export class Env extends Map<string, Obj> {
   functionDepth: number = 0;
@@ -12,6 +14,7 @@ export class Env extends Map<string, Obj> {
   macros: [RegExp, string][] = [];
   errorMessages: string[] = [];
   constVarNames: string[] = [];
+  literalRegExps: [RegExp, Expr[]][] = [];
 
   cleanup() {
     this.functionDepth = 0;
@@ -103,4 +106,13 @@ export class Env extends Map<string, Obj> {
       return undefined;
     }
   }
+}
+
+export function loopOverLiteralExprs(env: Env, s: string) {
+  for (const item of env.literalRegExps) {
+    if (item[0].test(s)) {
+      evalExprs(env, item[1]);
+    }
+  }
+  if (env.fatherEnv) loopOverLiteralExprs(env.fatherEnv, s);
 }

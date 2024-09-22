@@ -19,7 +19,7 @@ import {
   AIObj,
   ErrorObj,
 } from "./obj";
-import { Env } from "./env";
+import { Env, loopOverLiteralExprs } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
 import { evalExpr, evalExprs } from "./eval";
 import { handleError } from "./commons";
@@ -467,6 +467,18 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
     }
   } catch (error) {
     return handleError(env, "cons");
+  }
+}
+
+export function literalFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const regularExprStr: string = exprList[1].value as string;
+    const regex = new RegExp(regularExprStr);
+    env.literalRegExps.push([regex, exprList.slice().slice()]);
+
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "literal");
   }
 }
 
@@ -1146,6 +1158,9 @@ function defineVar(env: Env, exprList: Expr[]): Obj {
     isValidVariableName(varName.value);
 
     env.set(varName.value, varValue);
+
+    loopOverLiteralExprs(env, varName.value);
+
     return varValue;
   } catch (error) {
     return handleError(env, "defineVar");
@@ -1354,6 +1369,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   setItem: setItem,
   setMethod: setMethod,
   subclass: defineSubClass,
+  literal: literalFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
