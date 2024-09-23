@@ -574,6 +574,15 @@ export function pushIntoContainer(env: Env, obj1: List_Obj, value: Obj): Obj {
   }
 }
 
+export function popFromContainer(env: Env, obj1: List_Obj): Obj {
+  try {
+    const result = obj1.value.pop();
+    return result;
+  } catch (error) {
+    return handleError(env, "push");
+  }
+}
+
 export function arrayFunc(env: Env, ...args: IntNumber[]): Obj {
   try {
     return new ArrayObj(createMultiDimArray(args.map((arg) => arg.value)));
@@ -1396,6 +1405,7 @@ const objOpts: { [key: string]: Function } = {
   get: getFromContainer,
   set: setContainer,
   push: pushIntoContainer,
+  pop: popFromContainer,
   dict: dictObj,
   str: makeStr, // make object into string and join them with given string
   random: randomFunc,
