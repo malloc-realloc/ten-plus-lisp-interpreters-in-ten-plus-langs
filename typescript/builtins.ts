@@ -172,6 +172,14 @@ export function makeStr(env: Env, ...objs: Obj[]): Obj {
   }
 }
 
+export function rangeFunc(env: Env, ...args: Obj[]): Obj {
+  const lstObj = new List_Obj([]);
+  for (let i = 0; i < args.length; i++) {
+    lstObj.value.push(new IntNumber(i));
+  }
+  return lstObj;
+}
+
 export function notFunc(env: Env, ...args: Obj[]): Obj {
   try {
     if (isTsLispFalse(args[0])) {
@@ -221,18 +229,6 @@ export function listObj(env: Env, ...args: Obj[]): Obj {
     return obj;
   } catch (error) {
     return handleError(env, "list");
-  }
-}
-
-export function concatFunc(env: Env, ...args: Obj[]): Obj {
-  try {
-    let obj: List_Obj = new List_Obj(new Array<Obj>(), ObjType.LIST_OBJ);
-    for (let i = 0; i < args.length; i++) {
-      obj.value = obj.value.concat(args[i].value as Array<Obj>);
-    }
-    return obj;
-  } catch (error) {
-    return handleError(env, "concat");
   }
 }
 
@@ -571,6 +567,15 @@ export function pushIntoContainer(env: Env, obj1: List_Obj, value: Obj): Obj {
     return value;
   } catch (error) {
     return handleError(env, "push");
+  }
+}
+
+export function concatFunc(env: Env, obj1: List_Obj, obj2: List_Obj): Obj {
+  try {
+    obj1.value.concat(obj2.value);
+    return obj1;
+  } catch (error) {
+    return handleError(env, "concat");
   }
 }
 
@@ -1428,6 +1433,7 @@ const objOpts: { [key: string]: Function } = {
   type: typeFunc,
   not: notFunc,
   "!": notFunc,
+  range: rangeFunc,
 };
 
 // special operators works on expressions.

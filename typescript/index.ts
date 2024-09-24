@@ -221,8 +221,9 @@ const exprs: string[] = [
   // "(define helloHelloworld 2)",
   // "(define aa 2)",
   // "count",
-  "(define lst (list 1 a (+ 2 3) (lambda (x) (+ x 2))))",
-  "(pop lst)",
+  // "(define lst (list 1 a (+ 2 3) (lambda (x) (+ x 2))))",
+  // "(pop lst)",
+  "(range 10)",
 ];
 
 const globalEnv = new Env();
