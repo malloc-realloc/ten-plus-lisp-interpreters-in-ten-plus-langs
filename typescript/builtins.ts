@@ -172,6 +172,17 @@ export function makeStr(env: Env, ...objs: Obj[]): Obj {
   }
 }
 
+export function percentFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    if (!(args[0].name === "IntNumber" && args[1].name === "IntNumber")) {
+      return handleError(env, "% should be used between integers.");
+    }
+    return new IntNumber(args[0].value % args[1].value);
+  } catch (error) {
+    return handleError(env, "percent");
+  }
+}
+
 export function rangeFunc(env: Env, ...args: Obj[]): Obj {
   const lstObj = new List_Obj([]);
   for (let i = 0; i < args.length; i++) {
@@ -1434,6 +1445,7 @@ const objOpts: { [key: string]: Function } = {
   not: notFunc,
   "!": notFunc,
   range: rangeFunc,
+  "%": percentFunc,
 };
 
 // special operators works on expressions.

@@ -223,7 +223,9 @@ const exprs: string[] = [
   // "count",
   // "(define lst (list 1 a (+ 2 3) (lambda (x) (+ x 2))))",
   // "(pop lst)",
-  "(range 10)",
+  // "(range 10)",
+  "(% 3 2)",
+  "(% 4 2)",
 ];
 
 const globalEnv = new Env();
