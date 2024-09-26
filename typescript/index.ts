@@ -224,8 +224,11 @@ const exprs: string[] = [
   // "(define lst (list 1 a (+ 2 3) (lambda (x) (+ x 2))))",
   // "(pop lst)",
   // "(range 10)",
-  "(% 3 2)",
-  "(% 4 2)",
+  // "(% 3 2)",
+  // "(% 4 2)",
+  "(define l (list 1 2 3))",
+  "(reduce l 0 (lambda (x y) (+ x y)) )",
+  "()",
 ];
 
 const globalEnv = new Env();

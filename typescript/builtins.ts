@@ -172,6 +172,28 @@ export function makeStr(env: Env, ...objs: Obj[]): Obj {
   }
 }
 
+export function reduceFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    const lst: List_Obj = args[0] as List_Obj;
+    let start: Obj = args[1];
+    const funcObj: Lambda_Procedure = args[2] as Lambda_Procedure;
+
+    for (const value of lst.value) {
+      start = evalProcedureValue(
+        funcObj.env,
+        funcObj.argNames,
+        funcObj.body as Expr[],
+        start,
+        value
+      );
+    }
+
+    return start;
+  } catch (error) {
+    return handleError(env, "reduce");
+  }
+}
+
 export function percentFunc(env: Env, ...args: Obj[]): Obj {
   try {
     if (!(args[0].name === "IntNumber" && args[1].name === "IntNumber")) {
@@ -1446,6 +1468,7 @@ const objOpts: { [key: string]: Function } = {
   "!": notFunc,
   range: rangeFunc,
   "%": percentFunc,
+  reduce: reduceFunc,
 };
 
 // special operators works on expressions.
