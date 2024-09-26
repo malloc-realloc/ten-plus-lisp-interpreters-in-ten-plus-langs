@@ -172,6 +172,28 @@ export function makeStr(env: Env, ...objs: Obj[]): Obj {
   }
 }
 
+export function filterFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    const lst: List_Obj = args[0] as List_Obj;
+    const funcObj: Lambda_Procedure = args[1] as Lambda_Procedure;
+    const result: List_Obj = new List_Obj([]);
+
+    for (const value of lst.value) {
+      const r = evalProcedureValue(
+        funcObj.env,
+        funcObj.argNames,
+        funcObj.body as Expr[],
+        value
+      );
+      if (!isTsLispFalse(r)) result.value.push(r);
+    }
+
+    return result;
+  } catch (error) {
+    return handleError(env, "filter");
+  }
+}
+
 export function reduceFunc(env: Env, ...args: Obj[]): Obj {
   try {
     const lst: List_Obj = args[0] as List_Obj;
@@ -1469,6 +1491,7 @@ const objOpts: { [key: string]: Function } = {
   range: rangeFunc,
   "%": percentFunc,
   reduce: reduceFunc,
+  filter: filterFunc,
 };
 
 // special operators works on expressions.
