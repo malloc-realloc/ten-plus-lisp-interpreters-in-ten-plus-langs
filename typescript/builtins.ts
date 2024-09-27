@@ -28,6 +28,7 @@ import { error } from "console";
 import { tokenize } from "./token";
 import { parseExprs } from "./parser";
 import { readFileSync } from "fs";
+import { includes } from "lodash";
 
 type Number = IntNumber | FloatNumber;
 
@@ -189,7 +190,7 @@ function shiftFunc(env: Env, ...args: Obj[]): Obj {
   }
 }
 
-function findFunc(env: Env, ...args: Obj[]): Obj {
+function includedFunc(env: Env, ...args: Obj[]): Obj {
   try {
     const lst: List_Obj = args[0] as List_Obj;
     let obj: number | string;
@@ -1564,7 +1565,7 @@ const objOpts: { [key: string]: Function } = {
   reduce: reduceFunc,
   filter: filterFunc,
   index: indexFunc,
-  find: findFunc,
+  includes: includedFunc,
   shift: shiftFunc,
   unshift: unshiftFunc,
 };

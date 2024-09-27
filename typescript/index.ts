@@ -229,10 +229,11 @@ const exprs: string[] = [
   "(define l (list 0 1 2 3))",
   // "(reduce l 0 (lambda (x y) (+ x y)) )",
   // "(filter l (lambda (x) x))",
-  "(find l 2)",
+  "(includes l 2)",
   "(index l 2)",
   "(shift l )",
   "(unshift l 2)",
+  "// tomorrow implement (noun.method objs)",
 ];
 
 const globalEnv = new Env();
