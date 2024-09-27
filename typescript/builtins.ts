@@ -172,6 +172,52 @@ export function makeStr(env: Env, ...objs: Obj[]): Obj {
   }
 }
 
+function findFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    const lst: List_Obj = args[0] as List_Obj;
+    let obj: number | string;
+    let typeOfGivenObj = typeof args[1].value;
+    if (typeOfGivenObj === "number") {
+      obj = args[1].value as number;
+    } else if (typeOfGivenObj === "string") {
+      obj = args[1].value as string;
+    } else {
+      throw error;
+    }
+    for (let i = 0; i < lst.value.length; i++) {
+      if (typeof lst.value[i].value === typeOfGivenObj) {
+        if (lst.value[i].value === obj) return new IntNumber(1);
+      }
+    }
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "find");
+  }
+}
+
+function indexFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    const lst: List_Obj = args[0] as List_Obj;
+    let obj: number | string;
+    let typeOfGivenObj = typeof args[1].value;
+    if (typeOfGivenObj === "number") {
+      obj = args[1].value as number;
+    } else if (typeOfGivenObj === "string") {
+      obj = args[1].value as string;
+    } else {
+      throw error;
+    }
+    for (let i = 0; i < lst.value.length; i++) {
+      if (typeof lst.value[i].value === typeOfGivenObj) {
+        if (lst.value[i].value === obj) return new IntNumber(i);
+      }
+    }
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "find");
+  }
+}
+
 export function filterFunc(env: Env, ...args: Obj[]): Obj {
   try {
     const lst: List_Obj = args[0] as List_Obj;
@@ -1492,6 +1538,8 @@ const objOpts: { [key: string]: Function } = {
   "%": percentFunc,
   reduce: reduceFunc,
   filter: filterFunc,
+  index: indexFunc,
+  find: findFunc,
 };
 
 // special operators works on expressions.

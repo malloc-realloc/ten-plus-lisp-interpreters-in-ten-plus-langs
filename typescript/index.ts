@@ -227,8 +227,10 @@ const exprs: string[] = [
   // "(% 3 2)",
   // "(% 4 2)",
   "(define l (list 0 1 2 3))",
-  "(reduce l 0 (lambda (x y) (+ x y)) )",
-  "(filter l (lambda (x) x))",
+  // "(reduce l 0 (lambda (x y) (+ x y)) )",
+  // "(filter l (lambda (x) x))",
+  "(find l 2)",
+  "(index l 2)",
 ];
 
 const globalEnv = new Env();
