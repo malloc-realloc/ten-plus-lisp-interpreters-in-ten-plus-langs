@@ -231,6 +231,8 @@ const exprs: string[] = [
   // "(filter l (lambda (x) x))",
   "(find l 2)",
   "(index l 2)",
+  "(shift l )",
+  "(unshift l 2)",
 ];
 
 const globalEnv = new Env();

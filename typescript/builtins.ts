@@ -172,6 +172,23 @@ export function makeStr(env: Env, ...objs: Obj[]): Obj {
   }
 }
 
+function unshiftFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    (args[0] as List_Obj).value.unshift(args[1]);
+    return new IntNumber((args[0] as List_Obj).value.length);
+  } catch (error) {
+    return handleError(env, "shift");
+  }
+}
+
+function shiftFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    return (args[0] as List_Obj).value.shift();
+  } catch (error) {
+    return handleError(env, "shift");
+  }
+}
+
 function findFunc(env: Env, ...args: Obj[]): Obj {
   try {
     const lst: List_Obj = args[0] as List_Obj;
@@ -1067,7 +1084,11 @@ export function call_method(env: Env, exprList: Expr[]): Obj {
       .get(instance.className)
       ?.get(methodName.value) as Procedure;
 
-    const obj: Obj = evalLambdaObj(env, procedure, exprList.slice(2));
+    const obj: Obj = evalExprStartingWithLambdaObj(
+      env,
+      procedure,
+      exprList.slice(2)
+    );
 
     env.popThis();
 
@@ -1367,7 +1388,11 @@ function returnLambdaObj(env: Env, exprList: Expr[]): Obj {
   }
 }
 
-export function evalLambdaObj(env: Env, opt: Procedure, exprList: Expr[]): Obj {
+export function evalExprStartingWithLambdaObj(
+  env: Env,
+  opt: Procedure,
+  exprList: Expr[]
+): Obj {
   try {
     const parameters: Obj[] = [];
     for (let i = 1; i < exprList.length; i++) {
@@ -1540,6 +1565,8 @@ const objOpts: { [key: string]: Function } = {
   filter: filterFunc,
   index: indexFunc,
   find: findFunc,
+  shift: shiftFunc,
+  unshift: unshiftFunc,
 };
 
 // special operators works on expressions.

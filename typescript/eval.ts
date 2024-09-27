@@ -13,7 +13,7 @@ import { Env } from "./env";
 import {
   builtinOpts,
   builtinVars,
-  evalLambdaObj,
+  evalExprStartingWithLambdaObj,
   isExprLiteralOpt,
 } from "./builtins";
 import { handleError } from "./commons";
@@ -87,7 +87,7 @@ function evalListExpr(env: Env, expr: Expr): Obj {
     try {
       const func = builtinOpts[(opt as Procedure).value];
       if ((opt as Procedure).value === "LambdaObj") {
-        result = evalLambdaObj(env, opt, exprList);
+        result = evalExprStartingWithLambdaObj(env, opt, exprList);
         if (result instanceof ErrorObj) {
           return new ErrorObj(result.value);
         } else {
