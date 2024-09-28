@@ -14,6 +14,7 @@ import {
   builtinOpts,
   builtinVars,
   evalExprStartingWithLambdaObj,
+  getMethodByUsingDot,
   isExprLiteralOpt,
 } from "./builtins";
 import { handleError } from "./commons";
@@ -128,7 +129,9 @@ function evalAtom(env: Env, expr: Expr): Obj {
     } else if (isBuiltin(literal)) {
       return getBuiltin(env, literal);
     } else {
-      return getFromEnv(env, literal);
+      if (literal.includes(".") && !isFloat(literal)) {
+        return getMethodByUsingDot(env, literal);
+      } else return getFromEnv(env, literal);
     }
   } catch (error) {
     return handleError(env, `Invalid use of ${expr.value as Atom}`);

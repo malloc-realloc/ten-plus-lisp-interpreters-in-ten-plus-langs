@@ -21,7 +21,7 @@ import {
 } from "./obj";
 import { Env, loopOverLiteralExprs } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
-import { evalExpr, evalExprs } from "./eval";
+import { evalExpr, evalExprs, getFromEnv } from "./eval";
 import { handleError } from "./commons";
 import { Instance_Obj } from "./obj";
 import { error } from "console";
@@ -1595,4 +1595,21 @@ function isValidVariableName(name: string): boolean {
 
 function isNotConst(env: Env, name: string): boolean {
   return !env.constVarNames.includes(name);
+}
+
+export function getMethodByUsingDot(env: Env, name: string): Obj {
+  try {
+    const names = name.split(".");
+
+    const relatedClassMethodsAndProperties: Map<string, Obj> | undefined =
+      env.classes.get((getFromEnv(env, names[0]) as Instance_Obj).className);
+
+    if (!relatedClassMethodsAndProperties) throw error;
+
+    const res = relatedClassMethodsAndProperties.get(names[1]);
+    if (!res) throw error;
+    else return res;
+  } catch (error) {
+    return handleError(env, name + " is not defined");
+  }
 }
