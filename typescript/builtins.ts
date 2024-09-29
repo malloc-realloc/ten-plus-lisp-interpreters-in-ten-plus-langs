@@ -1607,8 +1607,36 @@ export function getMethodByUsingDot(env: Env, name: string): Obj {
     if (!relatedClassMethodsAndProperties) throw error;
 
     const res = relatedClassMethodsAndProperties.get(names[1]);
-    if (!res) throw error;
+    if (!res) return None_Obj;
     else return res;
+  } catch (error) {
+    return handleError(env, name + " is not defined");
+  }
+}
+
+export function getPropertyByUsingDot(env: Env, name: string): Obj {
+  try {
+    const names = name.split(".");
+
+    const instance: Instance_Obj = env.getFromEnv(names[0]) as Instance_Obj;
+    let result = instance.value.get(names[1]);
+
+    return result;
+  } catch (error) {
+    return handleError(env, name + " is not defined");
+  }
+}
+
+export function getMethodOrPropertyUsingDot(env: Env, name: string): Obj {
+  try {
+    let obj: Obj = getMethodByUsingDot(env, name);
+    if (!obj.value) {
+      obj = getPropertyByUsingDot(env, name);
+      if (!obj.value) throw error;
+      else return obj;
+    } else {
+      return obj;
+    }
   } catch (error) {
     return handleError(env, name + " is not defined");
   }

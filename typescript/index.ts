@@ -238,6 +238,9 @@ const exprs: string[] = [
   "(instance A temp)",
   "(setMethod A m (lambda (x) (+ x 1) ))",
   "(temp.m 2)",
+  "(setItem temp a 3)",
+  "temp.a",
+  // "(define sFunc (lambda (x) ()))",
 ];
 
 const globalEnv = new Env();
