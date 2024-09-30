@@ -182,6 +182,21 @@ function unshiftFunc(env: Env, ...args: Obj[]): Obj {
   }
 }
 
+function spliceFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    const lst: List_Obj = args[0] as List_Obj;
+    const index: number = (args[1] as IntNumber).value;
+    const numberOfObjsToBeDeleted: number = (args[2] as IntNumber).value;
+    args.splice(0, 2);
+
+    lst.value.splice(index, numberOfObjsToBeDeleted, args);
+
+    return lst;
+  } catch (error) {
+    return handleError(env, "splice");
+  }
+}
+
 function shiftFunc(env: Env, ...args: Obj[]): Obj {
   try {
     return (args[0] as List_Obj).value.shift();
@@ -1568,6 +1583,7 @@ const objOpts: { [key: string]: Function } = {
   includes: includedFunc,
   shift: shiftFunc,
   unshift: unshiftFunc,
+  splice: spliceFunc,
 };
 
 // special operators works on expressions.

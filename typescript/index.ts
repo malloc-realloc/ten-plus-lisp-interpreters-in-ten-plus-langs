@@ -234,13 +234,16 @@ const exprs: string[] = [
   // "(shift l )",
   // "(unshift l 2)",
   // "'tomorrow implement (noun.method objs)'",
-  "(class A a b)",
-  "(instance A temp)",
-  "(setMethod A m (lambda (x) (+ x 1) ))",
-  "(temp.m 2)",
-  "(setItem temp a 3)",
-  "temp.a",
+  // "(class A a b)",
+  // "(instance A temp)",
+  // "(setMethod A m (lambda (x) (+ x 1) ))",
+  // "(temp.m 2)",
+  // "(setItem temp a 3)",
+  // "temp.a",
   // "(define sFunc (lambda (x) ()))",
+  // "'need to redefine structure of Class Obj'",
+  "(define l (list 1 3 2))",
+  "(splice l 1 1 2 4)",
 ];
 
 const globalEnv = new Env();
