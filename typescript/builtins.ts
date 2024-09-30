@@ -28,7 +28,7 @@ import { error } from "console";
 import { tokenize } from "./token";
 import { parseExprs } from "./parser";
 import { readFileSync } from "fs";
-import { includes } from "lodash";
+import { includes, slice } from "lodash";
 
 type Number = IntNumber | FloatNumber;
 
@@ -182,6 +182,18 @@ function unshiftFunc(env: Env, ...args: Obj[]): Obj {
   }
 }
 
+function sliceFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    const newLst = (args[0] as List_Obj).value.slice(
+      ...args.slice(1).map((e) => e.value as number)
+    );
+    const res = new List_Obj(newLst);
+    return res;
+  } catch (error) {
+    return handleError(env, "slice");
+  }
+}
+
 function spliceFunc(env: Env, ...args: Obj[]): Obj {
   try {
     const lst: List_Obj = args[0] as List_Obj;
@@ -189,7 +201,7 @@ function spliceFunc(env: Env, ...args: Obj[]): Obj {
     const numberOfObjsToBeDeleted: number = (args[2] as IntNumber).value;
     args.splice(0, 2);
 
-    lst.value.splice(index, numberOfObjsToBeDeleted, args);
+    lst.value.splice(index, numberOfObjsToBeDeleted, ...args);
 
     return lst;
   } catch (error) {
@@ -1584,6 +1596,7 @@ const objOpts: { [key: string]: Function } = {
   shift: shiftFunc,
   unshift: unshiftFunc,
   splice: spliceFunc,
+  slice: sliceFunc,
 };
 
 // special operators works on expressions.

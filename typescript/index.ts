@@ -242,8 +242,11 @@ const exprs: string[] = [
   // "temp.a",
   // "(define sFunc (lambda (x) ()))",
   // "'need to redefine structure of Class Obj'",
-  "(define l (list 1 3 2))",
-  "(splice l 1 1 2 4)",
+  "(define l (list 0 1 5))",
+  "(splice l 1 1 2 3 4)",
+  "(l)",
+  "(define ls (slice l 1 2))",
+  "(ls)",
 ];
 
 const globalEnv = new Env();
