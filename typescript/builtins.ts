@@ -182,6 +182,23 @@ function unshiftFunc(env: Env, ...args: Obj[]): Obj {
   }
 }
 
+function getChildFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    return args[0].subObjs.get(args[1].value as string) as Obj;
+  } catch (error) {
+    return handleError(env, "get-child");
+  }
+}
+
+function childFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    args[0].subObjs.set((args[1] as String_Obj).value, args[2]);
+    return args[2];
+  } catch (error) {
+    return handleError(env, "child");
+  }
+}
+
 function sliceFunc(env: Env, ...args: Obj[]): Obj {
   try {
     const newLst = (args[0] as List_Obj).value.slice(
@@ -1597,6 +1614,8 @@ const objOpts: { [key: string]: Function } = {
   unshift: unshiftFunc,
   splice: spliceFunc,
   slice: sliceFunc,
+  child: childFunc,
+  "get-child": getChildFunc,
 };
 
 // special operators works on expressions.

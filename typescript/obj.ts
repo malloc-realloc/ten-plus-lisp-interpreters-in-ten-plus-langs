@@ -10,6 +10,7 @@ export class Obj {
   value: any;
   name: string = "Obj"; // Name property representing the class name
   needsPrinted: Boolean = false;
+  subObjs: Map<string, Obj> = new Map<string, Obj>();
 
   constructor(value: any) {
     this.value = value;
