@@ -250,6 +250,9 @@ const exprs: string[] = [
   "(define v 1)",
   '(child v "c" 2)',
   '(get-child v "c")',
+  "(object-create b v 3)",
+  "(b)",
+  '(get-child b "c")',
 ];
 
 const globalEnv = new Env();

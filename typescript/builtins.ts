@@ -28,7 +28,7 @@ import { error } from "console";
 import { tokenize } from "./token";
 import { parseExprs } from "./parser";
 import { readFileSync } from "fs";
-import { includes, slice } from "lodash";
+import { includes, result, slice } from "lodash";
 
 type Number = IntNumber | FloatNumber;
 
@@ -626,6 +626,27 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
     }
   } catch (error) {
     return handleError(env, "cons");
+  }
+}
+
+export function objectCreateFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const theObjWeInheritFrom = evalExpr(env, exprList[2]);
+    let result: Obj;
+    if (exprList.length === 4) {
+      result = new Obj(evalExpr(env, exprList[3]));
+    } else {
+      result = new IntNumber(0);
+    }
+    for (let [key, subObj] of theObjWeInheritFrom.subObjs) {
+      result.subObjs.set(key, subObj);
+    }
+
+    env.set(exprList[1].value as string, result);
+
+    return result;
+  } catch (error) {
+    return handleError(env, "object-create");
   }
 }
 
@@ -1555,6 +1576,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   setMethod: setMethod,
   subclass: defineSubClass,
   literal: literalFunc,
+  "object-create": objectCreateFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
