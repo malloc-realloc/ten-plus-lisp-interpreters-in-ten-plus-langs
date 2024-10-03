@@ -15,6 +15,7 @@ export class Env extends Map<string, Obj> {
   errorMessages: string[] = [];
   constVarNames: string[] = [];
   literalRegExps: [RegExp, Expr[]][] = [];
+  tsLispThis: Env | Obj = this;
 
   cleanup() {
     this.functionDepth = 0;

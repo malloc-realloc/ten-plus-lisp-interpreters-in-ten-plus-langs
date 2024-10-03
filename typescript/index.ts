@@ -250,9 +250,14 @@ const exprs: string[] = [
   "(define v 1)",
   '(child v "c" 2)',
   '(get-child v "c")',
-  "(object-create b v 3)",
-  "(b)",
-  '(get-child b "c")',
+  // "'inherit from father object'",
+  // "(object-create b v 3)",
+  // "(b)",
+  // '(get-child b "c")',
+  '(child-method v "m" (lambda (x) (this "c")))',
+  '((get-child v "m") 1)',
+  "(define a 1)",
+  "(this a)",
 ];
 
 const globalEnv = new Env();

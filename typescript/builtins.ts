@@ -182,6 +182,16 @@ function unshiftFunc(env: Env, ...args: Obj[]): Obj {
   }
 }
 
+function childMethodFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    (args[2] as Lambda_Procedure).env.tsLispThis = args[0];
+    args[0].subObjs.set((args[1] as String_Obj).value as string, args[2]);
+    return args[2];
+  } catch (error) {
+    return handleError(env, "child-method");
+  }
+}
+
 function getChildFunc(env: Env, ...args: Obj[]): Obj {
   try {
     return args[0].subObjs.get(args[1].value as string) as Obj;
@@ -626,6 +636,20 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
     }
   } catch (error) {
     return handleError(env, "cons");
+  }
+}
+
+export function thisFunc(env: Env, exprList: Expr[]): Obj {
+  if (env.tsLispThis instanceof Env) {
+    return env.getFromEnv(exprList[1].value as string) || None_Obj;
+  } else {
+    let obj = env.tsLispThis;
+    if (!obj) return None_Obj;
+    else {
+      let res = obj.subObjs.get(exprList[1].value as string);
+      if (!res) return None_Obj;
+      return res;
+    }
   }
 }
 
@@ -1577,6 +1601,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   subclass: defineSubClass,
   literal: literalFunc,
   "object-create": objectCreateFunc,
+  this: thisFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
@@ -1638,6 +1663,7 @@ const objOpts: { [key: string]: Function } = {
   slice: sliceFunc,
   child: childFunc,
   "get-child": getChildFunc,
+  "child-method": childMethodFunc,
 };
 
 // special operators works on expressions.
