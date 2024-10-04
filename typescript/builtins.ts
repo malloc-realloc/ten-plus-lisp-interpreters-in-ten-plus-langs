@@ -686,6 +686,25 @@ export function literalFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+function foreachFunc(env: Env, args: Expr[]): Obj {
+  try {
+    const relatedFunc: Expr = args[2];
+    const relatedLst: Obj = env.getFromEnv(args[1].value as string) as Obj;
+    const opt = evalExpr(env, relatedFunc);
+
+    for (let i = 0; i < (relatedLst.value as []).length; i++) {
+      evalExprStartingWithLambdaObj(env, opt, [
+        relatedFunc,
+        new Expr(ExprType.ATOM, relatedLst.value[i].value as string),
+      ]);
+    }
+
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "foreach");
+  }
+}
+
 export function defineSubClass(env: Env, exprList: Expr[]): Obj {
   try {
     let classProperties: Map<string, Obj> = env.classes.get(
@@ -1602,6 +1621,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   literal: literalFunc,
   "object-create": objectCreateFunc,
   this: thisFunc,
+  foreach: foreachFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
