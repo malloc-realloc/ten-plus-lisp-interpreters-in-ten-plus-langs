@@ -18,6 +18,7 @@ import {
   ArrayObj,
   AIObj,
   ErrorObj,
+  ThrowError,
 } from "./obj";
 import { Env, loopOverLiteralExprs } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
@@ -179,6 +180,15 @@ function unshiftFunc(env: Env, ...args: Obj[]): Obj {
     return new IntNumber((args[0] as List_Obj).value.length);
   } catch (error) {
     return handleError(env, "shift");
+  }
+}
+
+function throwFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    env.thrownError = new ThrowError(args[0].value as string);
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "throw");
   }
 }
 
@@ -683,6 +693,23 @@ export function literalFunc(env: Env, exprList: Expr[]): Obj {
     return None_Obj;
   } catch (error) {
     return handleError(env, "literal");
+  }
+}
+
+function tryFunc(env: Env, args: Expr[]): Obj {
+  try {
+    let testedObj = evalExpr(env, args[1]);
+    if (env.thrownError) {
+      testedObj = env.thrownError;
+      env.thrownError = undefined;
+
+      env.set("error", new String_Obj((testedObj as ThrowError).value));
+      const ObjGotFromProcessingError = evalExpr(env, args[2]);
+      env.set("error", None_Obj);
+      return ObjGotFromProcessingError;
+    } else return testedObj;
+  } catch (error) {
+    return handleError(env, "try");
   }
 }
 
@@ -1622,6 +1649,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "object-create": objectCreateFunc,
   this: thisFunc,
   foreach: foreachFunc,
+  try: tryFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
@@ -1684,6 +1712,7 @@ const objOpts: { [key: string]: Function } = {
   child: childFunc,
   "get-child": getChildFunc,
   "child-method": childMethodFunc,
+  throw: throwFunc,
 };
 
 // special operators works on expressions.

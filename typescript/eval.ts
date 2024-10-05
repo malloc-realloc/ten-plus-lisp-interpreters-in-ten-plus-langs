@@ -8,6 +8,7 @@ import {
   ErrorObj,
   Undefined_Obj,
   None_Obj,
+  ThrowError,
 } from "./obj";
 import { Env } from "./env";
 import {
@@ -102,6 +103,9 @@ function evalListExpr(env: Env, expr: Expr): Obj {
           return result;
         }
       } else {
+        if (env.thrownError) {
+          return env.thrownError;
+        }
         const parameters = exprList.slice(1).map((expr) => evalExpr(env, expr));
         const result = func(env, ...parameters);
         if (result instanceof ErrorObj) {

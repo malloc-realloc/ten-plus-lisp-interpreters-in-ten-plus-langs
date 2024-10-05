@@ -1,5 +1,5 @@
 import { handleError } from "./commons";
-import { None_Obj, Obj } from "./obj";
+import { Bool, None_Obj, Obj, ThrowError } from "./obj";
 import { Expr } from "./ast";
 import { evalExprs } from "./eval";
 
@@ -16,6 +16,7 @@ export class Env extends Map<string, Obj> {
   constVarNames: string[] = [];
   literalRegExps: [RegExp, Expr[]][] = [];
   tsLispThis: Env | Obj = this;
+  thrownError: ThrowError | undefined = undefined;
 
   cleanup() {
     this.functionDepth = 0;

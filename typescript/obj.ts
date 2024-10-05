@@ -239,3 +239,10 @@ export function createMultiDimArray(
     createMultiDimArray(restDims, initialValue)
   );
 }
+
+export class ThrowError extends Obj {
+  name = "throwError";
+  constructor(s: string) {
+    super(s);
+  }
+}
