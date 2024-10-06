@@ -262,7 +262,9 @@ const exprs: string[] = [
   // "(foreach l (lambda (x) (display (+ x 1)))) ",
   // "l",
   // "(reduce l (lambda (x y) (+ x y)) 0)",
-  '(try {if (== 1 0) 1 (throw "Error")}  {1})',
+  // '(try {if (== 1 0) 1 (throw "Error")}  {1})',
+  "(enum TypeOne TypeTwo TypeThree)",
+  "(TypeOne)",
 ];
 
 const globalEnv = new Env();

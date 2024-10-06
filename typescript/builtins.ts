@@ -696,6 +696,17 @@ export function literalFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function enumFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    for (let i = 1; i < exprList.length; i++) {
+      env.set(exprList[i].value as string, new IntNumber(i - 1));
+    }
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "enum");
+  }
+}
+
 function tryFunc(env: Env, args: Expr[]): Obj {
   try {
     let testedObj = evalExpr(env, args[1]);
@@ -1650,6 +1661,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   this: thisFunc,
   foreach: foreachFunc,
   try: tryFunc,
+  enum: enumFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
