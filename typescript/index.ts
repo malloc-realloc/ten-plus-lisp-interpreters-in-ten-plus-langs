@@ -263,8 +263,12 @@ const exprs: string[] = [
   // "l",
   // "(reduce l (lambda (x y) (+ x y)) 0)",
   // '(try {if (== 1 0) 1 (throw "Error")}  {1})',
-  "(enum TypeOne TypeTwo TypeThree)",
-  "(TypeOne)",
+  // "(enum TypeOne TypeTwo TypeThree)",
+  // "(TypeOne)",
+  '(?= (1) b (display "undefined"))',
+  '(?= (0) a (display "undefined"))',
+  "a",
+  "b",
 ];
 
 const globalEnv = new Env();

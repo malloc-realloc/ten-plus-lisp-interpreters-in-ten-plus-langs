@@ -29,7 +29,6 @@ import { error } from "console";
 import { tokenize } from "./token";
 import { parseExprs } from "./parser";
 import { readFileSync } from "fs";
-import { includes, result, slice } from "lodash";
 
 type Number = IntNumber | FloatNumber;
 
@@ -704,6 +703,21 @@ export function enumFunc(env: Env, exprList: Expr[]): Obj {
     return None_Obj;
   } catch (error) {
     return handleError(env, "enum");
+  }
+}
+
+function questionMarkEqual(env: Env, args: Expr[]): Obj {
+  try {
+    const cond = evalExpr(env, args[1]);
+    if (!isTsLispFalse(cond)) {
+      env.set(args[2].value as string, cond);
+      return cond;
+    } else {
+      const res = evalExprs(env, args.slice(2));
+      return res;
+    }
+  } catch (error) {
+    return handleError(env, "?=");
   }
 }
 
@@ -1662,6 +1676,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   foreach: foreachFunc,
   try: tryFunc,
   enum: enumFunc,
+  "?=": questionMarkEqual,
 };
 
 const objOpts: { [key: string]: Function } = {
