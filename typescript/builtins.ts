@@ -1445,18 +1445,21 @@ function updateVar(env: Env, exprList: Expr[]): Obj {
 
 function defineVar(env: Env, exprList: Expr[]): Obj {
   try {
-    const varName = atomAsEnvKey(exprList[1]);
-    if (!isNotConst(env, varName.value)) {
-      return None_Obj;
+    let varName: Obj = None_Obj;
+    let varValue: Obj = None_Obj;
+    for (let i = 1; i < exprList.length; i += 2) {
+      varName = atomAsEnvKey(exprList[i]);
+      if (!isNotConst(env, varName.value)) {
+        return None_Obj;
+      }
+
+      varValue = evalExpr(env, exprList[i + 1]);
+
+      isValidVariableName(varName.value);
+
+      env.set(varName.value, varValue);
+      loopOverLiteralExprs(env, varName.value);
     }
-
-    const varValue = evalExpr(env, exprList[2]);
-
-    isValidVariableName(varName.value);
-
-    env.set(varName.value, varValue);
-
-    loopOverLiteralExprs(env, varName.value);
 
     return varValue;
   } catch (error) {

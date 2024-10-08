@@ -265,10 +265,15 @@ const exprs: string[] = [
   // '(try {if (== 1 0) 1 (throw "Error")}  {1})',
   // "(enum TypeOne TypeTwo TypeThree)",
   // "(TypeOne)",
-  '(?= (1) b (display "undefined"))',
-  '(?= (0) a (display "undefined"))',
+  // '(?= (1) b (display "undefined"))',
+  // '(?= (0) a (display "undefined"))',
+  // "a",
+  // "b",
+  "(define a 1 b 2 c 3)",
   "a",
   "b",
+  "c",
+  // "(yaClass C (private a b c) (public (init (lambda (a b c) ()))) )",
 ];
 
 const globalEnv = new Env();
