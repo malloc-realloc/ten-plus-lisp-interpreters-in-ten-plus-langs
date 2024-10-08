@@ -246,3 +246,14 @@ export class ThrowError extends Obj {
     super(s);
   }
 }
+
+export class StructObj extends Obj {
+  name = "struct";
+  privates: Map<string, Obj> = new Map<string, Obj>();
+  publics: Map<string, Obj> = new Map<string, Obj>();
+  init: Lambda_Procedure | undefined;
+
+  constructor() {
+    super("");
+  }
+}

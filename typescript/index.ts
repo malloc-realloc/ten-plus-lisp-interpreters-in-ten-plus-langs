@@ -269,11 +269,13 @@ const exprs: string[] = [
   // '(?= (0) a (display "undefined"))',
   // "a",
   // "b",
-  "(define a 1 b 2 c 3)",
-  "a",
-  "b",
-  "c",
-  // "(yaClass C (private a b c) (public (init (lambda (a b c) ()))) )",
+  // "(define a 1 b 2 c 3)",
+  // "a",
+  // "b",
+  // "c",
+  "(struct C (private b) (public init a)  init (lambda (a1 b2) (define a a1) (define b b2))) )",
+  "(define obj (new C 1 2))",
+  "(obj a)",
 ];
 
 const globalEnv = new Env();

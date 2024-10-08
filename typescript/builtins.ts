@@ -19,6 +19,7 @@ import {
   AIObj,
   ErrorObj,
   ThrowError,
+  StructObj,
 } from "./obj";
 import { Env, loopOverLiteralExprs } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
@@ -703,6 +704,28 @@ export function enumFunc(env: Env, exprList: Expr[]): Obj {
     return None_Obj;
   } catch (error) {
     return handleError(env, "enum");
+  }
+}
+
+function structFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const result = new StructObj();
+    const structName = exprList[1].value as string;
+    exprList.shift();
+    exprList.shift();
+
+    if (exprList.length === 0) return None_Obj;
+
+    if (Array.isArray(exprList[0])) {
+      if (exprList[0][0] === "private") {
+        for (const name of exprList.slice(1)) {
+          result.privates.set(name.value as string, None_Obj);
+        }
+      }
+      exprList.shift();
+    }
+  } catch (error) {
+    return handleError(env, "struct");
   }
 }
 
@@ -1680,6 +1703,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   try: tryFunc,
   enum: enumFunc,
   "?=": questionMarkEqual,
+  struct: structFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
