@@ -256,4 +256,12 @@ export class StructObj extends Obj {
   constructor() {
     super("");
   }
+
+  set(s: string, obj: Obj) {
+    if (this.privates.has(s)) {
+      this.privates.set(s, obj);
+    } else {
+      this.publics.set(s, obj);
+    }
+  }
 }

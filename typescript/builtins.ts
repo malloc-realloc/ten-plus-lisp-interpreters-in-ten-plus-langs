@@ -707,6 +707,13 @@ export function enumFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+function newFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+  } catch (error) {
+    return handleError(env, "new");
+  }
+}
+
 function structFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const result = new StructObj();
@@ -716,14 +723,43 @@ function structFunc(env: Env, exprList: Expr[]): Obj {
 
     if (exprList.length === 0) return None_Obj;
 
-    if (Array.isArray(exprList[0])) {
-      if (exprList[0][0] === "private") {
-        for (const name of exprList.slice(1)) {
-          result.privates.set(name.value as string, None_Obj);
+    if (Array.isArray(exprList[0].value)) {
+      if ((exprList[0].value[0] as Expr).value === "private") {
+        for (const name of exprList[0].value.slice(1)) {
+          result.privates.set((name as Expr).value as string, None_Obj);
         }
       }
-      exprList.shift();
+      if ((exprList[0].value[0] as Expr).value === "public") {
+        for (const name of exprList[0].value.slice(1)) {
+          result.publics.set((name as Expr).value as string, None_Obj);
+        }
+      }
     }
+
+    exprList.shift();
+
+    if (Array.isArray(exprList[0].value)) {
+      if ((exprList[0].value[0] as Expr).value === "private") {
+        for (const name of exprList[0].value.slice(1)) {
+          result.privates.set((name as Expr).value as string, None_Obj);
+        }
+      }
+      if ((exprList[0].value[0] as Expr).value === "public") {
+        for (const name of exprList[0].value.slice(1)) {
+          result.publics.set((name as Expr).value as string, None_Obj);
+        }
+      }
+    }
+
+    exprList.shift();
+
+    for (let i = 0; i < exprList.length; i += 2) {
+      result.set(exprList[i].value as string, evalExpr(env, exprList[i + 1]));
+    }
+
+    env.set(structName, result);
+
+    return result;
   } catch (error) {
     return handleError(env, "struct");
   }
@@ -1704,6 +1740,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   enum: enumFunc,
   "?=": questionMarkEqual,
   struct: structFunc,
+  new: newFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

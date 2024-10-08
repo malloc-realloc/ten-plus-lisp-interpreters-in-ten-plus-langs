@@ -273,9 +273,9 @@ const exprs: string[] = [
   // "a",
   // "b",
   // "c",
-  "(struct C (private b) (public init a)  init (lambda (a1 b2) (define a a1) (define b b2))) )",
-  "(define obj (new C 1 2))",
-  "(obj a)",
+  "(struct C (private b) (public init a)  init (lambda (a1 b2) (define a a1) (define b b2))) ",
+  // "(define obj (new C 1 2))",
+  // "(obj a)",
 ];
 
 const globalEnv = new Env();
