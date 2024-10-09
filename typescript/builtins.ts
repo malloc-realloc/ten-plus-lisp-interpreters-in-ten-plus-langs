@@ -707,6 +707,33 @@ export function enumFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+function dotFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const structObj = evalExpr(env, exprList[1]) as StructObj
+    if (structObj.publics.includes(exprList[2].value as string)) {
+      return structObj.env.get(exprList[2].value as string) as Obj;
+    } else {
+      return None_Obj
+    }
+  } catch (error) {
+    return handleError(env, ".")
+  }
+}
+
+function newFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const name  = exprList[1].value as string
+    const structObj = env.get(name) as StructObj
+    if (structObj.init === undefined) return None_Obj
+    exprList.shift();
+    
+    const res = evalExprStartingWithLambdaObj(structObj.env, structObj.init as Lambda_Procedure, exprList)
+    return structObj;
+  } catch(error) {
+    return handleError(env, "new")
+  }
+}
+
 function structFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const result = new StructObj();
@@ -719,12 +746,14 @@ function structFunc(env: Env, exprList: Expr[]): Obj {
     if (Array.isArray(exprList[0].value)) {
       if ((exprList[0].value[0] as Expr).value === "private") {
         for (const name of exprList[0].value.slice(1)) {
-          result.privates.set((name as Expr).value as string, None_Obj);
+          result.env.set((name as Expr).value as string, None_Obj)
+          result.privates.push((name as Expr).value as string);
         }
       }
       if ((exprList[0].value[0] as Expr).value === "public") {
         for (const name of exprList[0].value.slice(1)) {
-          result.publics.set((name as Expr).value as string, None_Obj);
+          result.env.set((name as Expr).value as string, None_Obj)
+          result.publics.push((name as Expr).value as string);
         }
       }
     }
@@ -734,12 +763,14 @@ function structFunc(env: Env, exprList: Expr[]): Obj {
     if (Array.isArray(exprList[0].value)) {
       if ((exprList[0].value[0] as Expr).value === "private") {
         for (const name of exprList[0].value.slice(1)) {
-          result.privates.set((name as Expr).value as string, None_Obj);
+          result.env.set((name as Expr).value as string, None_Obj)
+          result.privates.push((name as Expr).value as string, );
         }
       }
       if ((exprList[0].value[0] as Expr).value === "public") {
         for (const name of exprList[0].value.slice(1)) {
-          result.publics.set((name as Expr).value as string, None_Obj);
+          result.env.set((name as Expr).value as string, None_Obj)
+          result.publics.push((name as Expr).value as string, );
         }
       }
     }
@@ -747,6 +778,10 @@ function structFunc(env: Env, exprList: Expr[]): Obj {
     exprList.shift();
 
     for (let i = 0; i < exprList.length; i += 2) {
+      if (exprList[i].value as string === "init"){
+        result.init = evalExpr(env, exprList[i + 1]) as Lambda_Procedure
+        continue;
+      }
       result.set(exprList[i].value as string, evalExpr(env, exprList[i + 1]));
     }
 
@@ -1733,7 +1768,8 @@ const exprLiteralOpts: { [key: string]: Function } = {
   enum: enumFunc,
   "?=": questionMarkEqual,
   struct: structFunc,
-  // new: newFunc,
+  new: newFunc,
+  ".": dotFunc
 };
 
 const objOpts: { [key: string]: Function } = {

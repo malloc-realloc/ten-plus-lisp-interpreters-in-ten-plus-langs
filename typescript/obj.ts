@@ -249,8 +249,9 @@ export class ThrowError extends Obj {
 
 export class StructObj extends Obj {
   name = "struct";
-  privates: Map<string, Obj> = new Map<string, Obj>();
-  publics: Map<string, Obj> = new Map<string, Obj>();
+  privates: string[] = [];
+  publics: string[] = [];
+  env: Env = new Env();
   init: Lambda_Procedure | undefined;
 
   constructor() {
@@ -258,10 +259,13 @@ export class StructObj extends Obj {
   }
 
   set(s: string, obj: Obj) {
-    if (this.privates.has(s)) {
-      this.privates.set(s, obj);
+    if (this.privates.includes(s)) {
+      this.privates.push(s, );
+      this.env.set(s, None_Obj)
     } else {
-      this.publics.set(s, obj);
+      this.publics.push(s, );
+      this.env.set(s, None_Obj)
     }
+    this.env.set(s, obj);
   }
 }
