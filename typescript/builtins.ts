@@ -727,7 +727,7 @@ function newFunc(env: Env, exprList: Expr[]): Obj {
     if (structObj.init === undefined) return None_Obj
     exprList.shift();
     
-    const res = evalExprStartingWithLambdaObj(structObj.env, structObj.init as Lambda_Procedure, exprList)
+    const res = evalExprStartingWithLambdaObj(structObj.env, structObj.init as Lambda_Procedure, exprList, false)
     return structObj;
   } catch(error) {
     return handleError(env, "new")
@@ -1642,7 +1642,8 @@ function returnLambdaObj(env: Env, exprList: Expr[]): Obj {
 export function evalExprStartingWithLambdaObj(
   env: Env,
   opt: Procedure,
-  exprList: Expr[]
+  exprList: Expr[],
+  basedOnOptEnv: Boolean = true
 ): Obj {
   try {
     const parameters: Obj[] = [];
@@ -1660,8 +1661,16 @@ export function evalExprStartingWithLambdaObj(
     }
 
     if (opt instanceof Lambda_Procedure) {
+      if (basedOnOptEnv)
       return evalProcedureValue(
         opt.env,
+        opt.argNames,
+        opt.body as Expr[],
+        ...parameters
+      );
+      else
+        return evalProcedureValue(
+        env,
         opt.argNames,
         opt.body as Expr[],
         ...parameters
