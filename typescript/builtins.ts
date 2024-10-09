@@ -707,13 +707,6 @@ export function enumFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
-function newFunc(env: Env, exprList: Expr[]): Obj {
-  try {
-  } catch (error) {
-    return handleError(env, "new");
-  }
-}
-
 function structFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const result = new StructObj();
@@ -1740,7 +1733,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   enum: enumFunc,
   "?=": questionMarkEqual,
   struct: structFunc,
-  new: newFunc,
+  // new: newFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

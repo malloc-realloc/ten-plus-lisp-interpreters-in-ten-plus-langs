@@ -274,6 +274,7 @@ const exprs: string[] = [
   // "b",
   // "c",
   "(struct C (private b) (public init a)  init (lambda (a1 b2) (define a a1) (define b b2))) ",
+  "'tomorrow'",
   // "(define obj (new C 1 2))",
   // "(obj a)",
 ];
