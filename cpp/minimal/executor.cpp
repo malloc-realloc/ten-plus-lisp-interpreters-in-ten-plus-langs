@@ -1,16 +1,16 @@
 #include "builtins.h"
 
-Obj runExpr(Env &env, vector<string> tokens, size_t &start) {
+unique_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start) {
   if (tokens.size() == 0)
-    return ErrorObj;
+    return make_unique<Obj>(ErrorObj);
   if (start >= tokens.size())
-    return ErrorObj;
+    return make_unique<Obj>(ErrorObj);
 
   auto s = tokens[start];
 
   if (s == "(") {
     start++; // skip "("
-    Obj v = runExpr(env, tokens, start);
+    unique_ptr<Obj> v = runExpr(env, tokens, start);
     start++; // skip ")"
     return v;
   } else if (s == "+" || s == "-" || s == "*" || s == "/") {
@@ -19,11 +19,11 @@ Obj runExpr(Env &env, vector<string> tokens, size_t &start) {
     start++;
 
     while (tokens[start] != ")") {
-      Obj next = runExpr(env, tokens, start);
+      unique_ptr<Obj> next = runExpr(env, tokens, start);
       double value = 0.0;
 
-      if (next.type == ObjType::Double) {
-        value = std::any_cast<double>(next.value);
+      if ((*next.get()).type == ObjType::Double) {
+        value = std::any_cast<double>((*next.get()).value);
 
         if (firstValue) {
           v = value;
@@ -43,26 +43,25 @@ Obj runExpr(Env &env, vector<string> tokens, size_t &start) {
         }
       }
     }
-    return Obj(ObjType::Double, v);
+    return make_unique<Obj>(ObjType::Double, v);
   } else if (s == "define") {
     string name = tokens[++start];
     start++;
-    Obj value = runExpr(env, tokens, start);
-    auto tmp = env.newVar(name, std::move(value));
-    return *tmp;
+    unique_ptr<Obj> value = runExpr(env, tokens, start);
+    return env.newVar(name, std::move(*value.get()));
   } else {
     if ('0' <= s[0] && s[0] <= '9') {
       start++;
-      return Obj(ObjType::Double, std::strtod(s.c_str(), nullptr));
+      return make_unique<Obj>(ObjType::Double, std::strtod(s.c_str(), nullptr));
     } else {
       auto obj = env.get(s);
       if (!obj)
         throw runtime_error(s + "is not declared.");
       start++;
       auto res = *obj;
-      return res;
+      return make_unique<Obj>(res);
     }
   }
 
-  return Obj(ObjType::Error, 0);
+  return make_unique<Obj>(ObjType::Error, 0);
 }

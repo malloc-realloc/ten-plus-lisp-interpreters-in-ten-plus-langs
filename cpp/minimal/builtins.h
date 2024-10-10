@@ -21,10 +21,11 @@ private:
 public:
   Env() {}
 
-  Obj *newVar(string name, Obj &&obj) {
+  std::unique_ptr<Obj> newVar(string name, Obj &&obj) {
     auto [it, inserted] = map.insert_or_assign(name, std::move(obj));
-    return &(it->second);
+    return std::make_unique<Obj>(*&(it->second));
   }
+
   optional<Obj> get(const std::string &name) {
     auto it = map.find(name);
     if (it != map.end()) {
@@ -36,7 +37,7 @@ public:
 };
 
 vector<string> scan(string s);
-Obj runExpr(Env &env, vector<string> tokens, size_t &start);
+unique_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start);
 int repl(Env &env);
 
 #endif
