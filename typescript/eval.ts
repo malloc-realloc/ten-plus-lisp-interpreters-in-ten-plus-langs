@@ -9,6 +9,7 @@ import {
   Undefined_Obj,
   None_Obj,
   ThrowError,
+  Lambda_Procedure,
 } from "./obj";
 import { Env } from "./env";
 import {
@@ -89,7 +90,15 @@ function evalListExpr(env: Env, expr: Expr): Obj {
     try {
       const func = builtinOpts[(opt as Procedure).value];
       if ((opt as Procedure).value === "LambdaObj") {
-        result = evalExprStartingWithLambdaObj(env, opt, exprList);
+        if (!(opt as Lambda_Procedure).belongToWhichStruct)
+          result = evalExprStartingWithLambdaObj(env, opt, exprList);
+        else {
+          result = evalExprStartingWithLambdaObj(
+            (opt as Lambda_Procedure).belongToWhichStruct?.env as Env,
+            opt,
+            exprList
+          );
+        }
         if (result instanceof ErrorObj) {
           return new ErrorObj(result.value);
         } else {

@@ -709,28 +709,35 @@ export function enumFunc(env: Env, exprList: Expr[]): Obj {
 
 function dotFunc(env: Env, exprList: Expr[]): Obj {
   try {
-    const structObj = evalExpr(env, exprList[1]) as StructObj
+    const structObj = evalExpr(env, exprList[1]) as StructObj;
+
     if (structObj.publics.includes(exprList[2].value as string)) {
-      return structObj.env.get(exprList[2].value as string) as Obj;
+      const res = structObj.env.get(exprList[2].value as string) as Obj;
+      return res;
     } else {
-      return None_Obj
+      return None_Obj;
     }
   } catch (error) {
-    return handleError(env, ".")
+    return handleError(env, ".");
   }
 }
 
 function newFunc(env: Env, exprList: Expr[]): Obj {
   try {
-    const name  = exprList[1].value as string
-    const structObj = env.get(name) as StructObj
-    if (structObj.init === undefined) return None_Obj
+    const name = exprList[1].value as string;
+    const structObj = env.get(name) as StructObj;
+    if (structObj.init === undefined) return None_Obj;
     exprList.shift();
-    
-    const res = evalExprStartingWithLambdaObj(structObj.env, structObj.init as Lambda_Procedure, exprList, false)
+
+    const res = evalExprStartingWithLambdaObj(
+      structObj.env,
+      structObj.init as Lambda_Procedure,
+      exprList,
+      false
+    );
     return structObj;
-  } catch(error) {
-    return handleError(env, "new")
+  } catch (error) {
+    return handleError(env, "new");
   }
 }
 
@@ -746,13 +753,13 @@ function structFunc(env: Env, exprList: Expr[]): Obj {
     if (Array.isArray(exprList[0].value)) {
       if ((exprList[0].value[0] as Expr).value === "private") {
         for (const name of exprList[0].value.slice(1)) {
-          result.env.set((name as Expr).value as string, None_Obj)
+          result.env.set((name as Expr).value as string, None_Obj);
           result.privates.push((name as Expr).value as string);
         }
       }
       if ((exprList[0].value[0] as Expr).value === "public") {
         for (const name of exprList[0].value.slice(1)) {
-          result.env.set((name as Expr).value as string, None_Obj)
+          result.env.set((name as Expr).value as string, None_Obj);
           result.publics.push((name as Expr).value as string);
         }
       }
@@ -763,14 +770,14 @@ function structFunc(env: Env, exprList: Expr[]): Obj {
     if (Array.isArray(exprList[0].value)) {
       if ((exprList[0].value[0] as Expr).value === "private") {
         for (const name of exprList[0].value.slice(1)) {
-          result.env.set((name as Expr).value as string, None_Obj)
-          result.privates.push((name as Expr).value as string, );
+          result.env.set((name as Expr).value as string, None_Obj);
+          result.privates.push((name as Expr).value as string);
         }
       }
       if ((exprList[0].value[0] as Expr).value === "public") {
         for (const name of exprList[0].value.slice(1)) {
-          result.env.set((name as Expr).value as string, None_Obj)
-          result.publics.push((name as Expr).value as string, );
+          result.env.set((name as Expr).value as string, None_Obj);
+          result.publics.push((name as Expr).value as string);
         }
       }
     }
@@ -778,11 +785,13 @@ function structFunc(env: Env, exprList: Expr[]): Obj {
     exprList.shift();
 
     for (let i = 0; i < exprList.length; i += 2) {
-      if (exprList[i].value as string === "init"){
-        result.init = evalExpr(env, exprList[i + 1]) as Lambda_Procedure
+      if ((exprList[i].value as string) === "init") {
+        result.init = evalExpr(env, exprList[i + 1]) as Lambda_Procedure;
         continue;
       }
-      result.set(exprList[i].value as string, evalExpr(env, exprList[i + 1]));
+      const obj = evalExpr(env, exprList[i + 1]);
+      if (obj instanceof Lambda_Procedure) obj.belongToWhichStruct = result;
+      result.set(exprList[i].value as string, obj);
     }
 
     env.set(structName, result);
@@ -1661,15 +1670,7 @@ export function evalExprStartingWithLambdaObj(
     }
 
     if (opt instanceof Lambda_Procedure) {
-      if (basedOnOptEnv)
       return evalProcedureValue(
-        opt.env,
-        opt.argNames,
-        opt.body as Expr[],
-        ...parameters
-      );
-      else
-        return evalProcedureValue(
         env,
         opt.argNames,
         opt.body as Expr[],
@@ -1778,7 +1779,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "?=": questionMarkEqual,
   struct: structFunc,
   new: newFunc,
-  ".": dotFunc
+  ".": dotFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

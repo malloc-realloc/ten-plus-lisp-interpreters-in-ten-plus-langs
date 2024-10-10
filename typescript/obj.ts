@@ -62,6 +62,7 @@ export class Lambda_Procedure extends Obj {
   info: string;
   env: Env = new Env();
   requirements: [number, string][] = [];
+  belongToWhichStruct: undefined | StructObj = undefined;
 
   constructor(
     value: string = "LambdaObj",
@@ -260,11 +261,11 @@ export class StructObj extends Obj {
 
   set(s: string, obj: Obj) {
     if (this.privates.includes(s)) {
-      this.privates.push(s, );
-      this.env.set(s, None_Obj)
+      this.privates.push(s);
+      this.env.set(s, None_Obj);
     } else {
-      this.publics.push(s, );
-      this.env.set(s, None_Obj)
+      this.publics.push(s);
+      this.env.set(s, None_Obj);
     }
     this.env.set(s, obj);
   }
