@@ -48,9 +48,8 @@ Obj runExpr(Env &env, vector<string> tokens, size_t &start) {
     string name = tokens[++start];
     start++;
     Obj value = runExpr(env, tokens, start);
-    Obj tmp = value;
-    env.newVar(name, std::move(value));
-    return tmp;
+    auto tmp = env.newVar(name, std::move(value));
+    return *tmp;
   } else {
     if ('0' <= s[0] && s[0] <= '9') {
       start++;

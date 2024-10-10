@@ -20,8 +20,10 @@ private:
 
 public:
   Env() {}
-  void newVar(string name, Obj &&obj) {
-    map.insert_or_assign(name, std::move(obj));
+
+  Obj *newVar(string name, Obj &&obj) {
+    auto [it, inserted] = map.insert_or_assign(name, std::move(obj));
+    return &(it->second);
   }
   optional<Obj> get(const std::string &name) {
     auto it = map.find(name);
