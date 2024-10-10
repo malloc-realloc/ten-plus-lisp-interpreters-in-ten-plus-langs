@@ -93,6 +93,7 @@ function evalListExpr(env: Env, expr: Expr): Obj {
         if (!(opt as Lambda_Procedure).belongToWhichStruct)
           result = evalExprStartingWithLambdaObj(env, opt, exprList);
         else {
+          // If we are calling a function belonging to a struct, then it works in the env provided by the struct.
           result = evalExprStartingWithLambdaObj(
             (opt as Lambda_Procedure).belongToWhichStruct?.env as Env,
             opt,

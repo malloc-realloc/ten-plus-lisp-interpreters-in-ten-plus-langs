@@ -732,8 +732,7 @@ function newFunc(env: Env, exprList: Expr[]): Obj {
     const res = evalExprStartingWithLambdaObj(
       structObj.env,
       structObj.init as Lambda_Procedure,
-      exprList,
-      false
+      exprList
     );
     return structObj;
   } catch (error) {
@@ -1651,8 +1650,7 @@ function returnLambdaObj(env: Env, exprList: Expr[]): Obj {
 export function evalExprStartingWithLambdaObj(
   env: Env,
   opt: Procedure,
-  exprList: Expr[],
-  basedOnOptEnv: Boolean = true
+  exprList: Expr[]
 ): Obj {
   try {
     const parameters: Obj[] = [];
@@ -1669,16 +1667,16 @@ export function evalExprStartingWithLambdaObj(
       }
     }
 
-    if (opt instanceof Lambda_Procedure) {
-      return evalProcedureValue(
-        env,
-        opt.argNames,
-        opt.body as Expr[],
-        ...parameters
-      );
-    } else {
-      return handleError(env, "invalid use of procedure");
-    }
+    // if (opt instanceof Lambda_Procedure) {
+    return evalProcedureValue(
+      env,
+      (opt as Lambda_Procedure).argNames,
+      (opt as Lambda_Procedure).body as Expr[],
+      ...parameters
+    );
+    // } else {
+    //   return handleError(env, "invalid use of procedure");
+    // }
   } catch (error) {
     return handleError(env, "evaluate lambda function");
   }
