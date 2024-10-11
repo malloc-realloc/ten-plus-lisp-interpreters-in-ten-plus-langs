@@ -277,7 +277,7 @@ const exprs: string[] = [
   "(define obj (new C 1 2))",
   "(. obj a)",
   "((. obj m) 2)",
-  "(struct CSon extends C)",
+  "(extends C CSon)",
   // "(define a 1)",
   // "(define f (lambda (x) (update a x)))",
   // "(f 2)",

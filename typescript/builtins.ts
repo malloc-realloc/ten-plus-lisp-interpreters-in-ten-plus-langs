@@ -707,6 +707,18 @@ export function enumFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+function extendsFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const father = env.get(exprList[1].value as string);
+    if (!father) return None_Obj;
+    const out = father.copy();
+    env.set(exprList[2].value as string, out);
+    return out;
+  } catch (error) {
+    return handleError(env, "extends");
+  }
+}
+
 function dotFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const structObj = evalExpr(env, exprList[1]) as StructInstanceObj;
@@ -1782,6 +1794,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   struct: structFunc,
   new: newFunc,
   ".": dotFunc,
+  extends: extendsFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

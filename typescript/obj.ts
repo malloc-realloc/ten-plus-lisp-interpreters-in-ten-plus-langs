@@ -254,11 +254,9 @@ export class StructInstanceObj extends Obj {
   publics: string[] = [];
   env: Env = new Env();
   init: Lambda_Procedure | undefined;
-  father: StructInstanceObj | undefined = undefined;
 
   constructor(father: StructInstanceObj | undefined = undefined) {
     super("");
-    this.father = father;
   }
 
   set(s: string, obj: Obj) {
@@ -271,29 +269,13 @@ export class StructInstanceObj extends Obj {
     }
     this.env.set(s, obj);
   }
-}
 
-export class StructObj extends Obj {
-  name = "struct";
-  privates: string[] = [];
-  publics: string[] = [];
-  env: Env = new Env();
-  init: Lambda_Procedure | undefined;
-  father: StructInstanceObj | undefined = undefined;
-
-  constructor(father: StructInstanceObj | undefined = undefined) {
-    super("");
-    this.father = father;
-  }
-
-  set(s: string, obj: Obj) {
-    if (this.privates.includes(s)) {
-      this.privates.push(s);
-      this.env.set(s, None_Obj);
-    } else {
-      this.publics.push(s);
-      this.env.set(s, None_Obj);
-    }
-    this.env.set(s, obj);
+  copy() {
+    const out = new StructInstanceObj();
+    out.privates = [...this.privates];
+    out.publics = [...this.publics];
+    out.env = this.env;
+    out.init = this.init;
+    return out;
   }
 }
