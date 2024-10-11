@@ -62,7 +62,7 @@ export class Lambda_Procedure extends Obj {
   info: string;
   env: Env = new Env();
   requirements: [number, string][] = [];
-  belongToWhichStruct: undefined | StructObj = undefined;
+  belongToWhichStruct: undefined | StructInstanceObj = undefined;
 
   constructor(
     value: string = "LambdaObj",
@@ -248,15 +248,42 @@ export class ThrowError extends Obj {
   }
 }
 
+export class StructInstanceObj extends Obj {
+  name = "struct";
+  privates: string[] = [];
+  publics: string[] = [];
+  env: Env = new Env();
+  init: Lambda_Procedure | undefined;
+  father: StructInstanceObj | undefined = undefined;
+
+  constructor(father: StructInstanceObj | undefined = undefined) {
+    super("");
+    this.father = father;
+  }
+
+  set(s: string, obj: Obj) {
+    if (this.privates.includes(s)) {
+      this.privates.push(s);
+      this.env.set(s, None_Obj);
+    } else {
+      this.publics.push(s);
+      this.env.set(s, None_Obj);
+    }
+    this.env.set(s, obj);
+  }
+}
+
 export class StructObj extends Obj {
   name = "struct";
   privates: string[] = [];
   publics: string[] = [];
   env: Env = new Env();
   init: Lambda_Procedure | undefined;
+  father: StructInstanceObj | undefined = undefined;
 
-  constructor() {
+  constructor(father: StructInstanceObj | undefined = undefined) {
     super("");
+    this.father = father;
   }
 
   set(s: string, obj: Obj) {

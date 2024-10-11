@@ -19,7 +19,7 @@ import {
   AIObj,
   ErrorObj,
   ThrowError,
-  StructObj,
+  StructInstanceObj,
 } from "./obj";
 import { Env, loopOverLiteralExprs } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
@@ -709,7 +709,7 @@ export function enumFunc(env: Env, exprList: Expr[]): Obj {
 
 function dotFunc(env: Env, exprList: Expr[]): Obj {
   try {
-    const structObj = evalExpr(env, exprList[1]) as StructObj;
+    const structObj = evalExpr(env, exprList[1]) as StructInstanceObj;
 
     if (structObj.publics.includes(exprList[2].value as string)) {
       const res = structObj.env.get(exprList[2].value as string) as Obj;
@@ -725,7 +725,7 @@ function dotFunc(env: Env, exprList: Expr[]): Obj {
 function newFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const name = exprList[1].value as string;
-    const structObj = env.get(name) as StructObj;
+    const structObj = env.get(name) as StructInstanceObj;
     if (structObj.init === undefined) return None_Obj;
     exprList.shift();
 
@@ -742,10 +742,14 @@ function newFunc(env: Env, exprList: Expr[]): Obj {
 
 function structFunc(env: Env, exprList: Expr[]): Obj {
   try {
-    const result = new StructObj();
+    const result = new StructInstanceObj();
     const structName = exprList[1].value as string;
     exprList.shift();
     exprList.shift();
+
+    if (exprList[0].value === "extends") {
+      exprList.shift();
+    }
 
     if (exprList.length === 0) return None_Obj;
 
