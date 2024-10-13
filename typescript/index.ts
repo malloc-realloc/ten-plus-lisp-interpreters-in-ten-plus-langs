@@ -282,8 +282,9 @@ const exprs: string[] = [
   // "(define f (lambda (x) (update a x)))",
   // "(f 2)",
   // "(a)"
-  "(define a 1)",
-  "(toString a)",
+  // "(define a 1)",
+  // "(toString a)",
+  "(every (list 1 2 0) (lambda (x) (x)))",
 ];
 
 const globalEnv = new Env();

@@ -308,6 +308,29 @@ function indexFunc(env: Env, ...args: Obj[]): Obj {
   }
 }
 
+export function everyFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    const lst: List_Obj = args[0] as List_Obj;
+    const funcObj: Lambda_Procedure = args[1] as Lambda_Procedure;
+    const result: List_Obj = new List_Obj([]);
+
+    for (const value of lst.value) {
+      const r = evalProcedureValue(
+        funcObj.env,
+        funcObj.argNames,
+        funcObj.body as Expr[],
+        value
+      );
+      if (!isTsLispFalse(r)) continue;
+      else return None_Obj;
+    }
+
+    return new IntNumber(1);
+  } catch (error) {
+    return handleError(env, "every");
+  }
+}
+
 export function filterFunc(env: Env, ...args: Obj[]): Obj {
   try {
     const lst: List_Obj = args[0] as List_Obj;
@@ -1836,7 +1859,6 @@ const objOpts: { [key: string]: Function } = {
   randInt: randInt,
   randChoice: randChoice,
   return: returnFunc,
-
   and: andFunc,
   or: orFunc,
   array: arrayFunc,
@@ -1862,6 +1884,7 @@ const objOpts: { [key: string]: Function } = {
   unshift: unshiftFunc,
   splice: spliceFunc,
   slice: sliceFunc,
+  every: everyFunc,
   child: childFunc,
   "get-child": getChildFunc,
   "child-method": childMethodFunc,
