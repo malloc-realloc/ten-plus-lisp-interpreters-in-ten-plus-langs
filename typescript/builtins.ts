@@ -183,6 +183,14 @@ function unshiftFunc(env: Env, ...args: Obj[]): Obj {
   }
 }
 
+function classNameFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    return new String_Obj(args[0].value.constructor.name);
+  } catch (error) {
+    return handleError(env, "instance");
+  }
+}
+
 function toStringFunc(env: Env, ...args: Obj[]): Obj {
   try {
     return new String_Obj(args[0].value.toString());
@@ -1890,6 +1898,7 @@ const objOpts: { [key: string]: Function } = {
   "child-method": childMethodFunc,
   throw: throwFunc,
   toString: toStringFunc,
+  className: classNameFunc,
 };
 
 // special operators works on expressions.
