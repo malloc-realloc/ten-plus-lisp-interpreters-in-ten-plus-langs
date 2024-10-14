@@ -12,32 +12,32 @@ struct Obj {
   any value;
   Obj(ObjType type, any value) : type(type), value(value) {}
 };
-const Obj ErrorObj{ObjType::Error, ""};
+auto ErrorObj = make_shared<Obj>(ObjType::Error, "");
 
 class Env {
 private:
-  unordered_map<string, Obj> map;
+  unordered_map<string, shared_ptr<Obj>> map;
 
 public:
   Env() {}
 
-  std::unique_ptr<Obj> newVar(string name, Obj &&obj) {
-    auto [it, inserted] = map.insert_or_assign(name, std::move(obj));
-    return std::make_unique<Obj>(*&(it->second));
+  std::shared_ptr<Obj> newVar(string name, shared_ptr<Obj> value) {
+    map.insert_or_assign(name, value);
+    return value;
   }
 
-  optional<Obj> get(const std::string &name) {
-    auto it = map.find(name);
-    if (it != map.end()) {
-      return (it->second);
-    } else {
-      return nullopt;
-    }
+  std::shared_ptr<Obj> get(const std::string &name) {
+      auto it = map.find(name);
+      if (it != map.end()) {
+          return it->second;
+      } else {
+          return nullptr;
+      }
   }
 };
 
 vector<string> scan(string s);
-unique_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start);
+shared_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start);
 int repl(Env &env);
 
 #endif

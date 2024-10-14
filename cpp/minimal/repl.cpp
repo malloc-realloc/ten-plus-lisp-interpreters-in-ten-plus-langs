@@ -16,7 +16,7 @@ int repl(Env &env) {
     try {
       std::vector<std::string> tokens = scan(input);
       size_t start = 0;
-      unique_ptr<Obj> result = runExpr(env, tokens, start);
+      shared_ptr<Obj> result = runExpr(env, tokens, start);
       std::cout << any_cast<double>((*result.get()).value) << std::endl;
     } catch (const std::exception &e) {
       std::cout << "Error: " << e.what() << std::endl;

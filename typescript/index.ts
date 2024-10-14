@@ -284,7 +284,10 @@ const exprs: string[] = [
   // "(a)"
   // "(define a 1)",
   // "(toString a)",
-  "(every (list 1 2 0) (lambda (x) (x)))",
+  // "(every (list 1 2 0) (lambda (x) (x)))",
+  "(define A 1)",
+  "(define f (lambda(x) (x)))",
+  "(instanceof A)",
 ];
 
 const globalEnv = new Env();

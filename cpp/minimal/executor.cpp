@@ -1,16 +1,16 @@
 #include "builtins.h"
 
-unique_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start) {
+shared_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start) {
   if (tokens.size() == 0)
-    return make_unique<Obj>(ErrorObj);
+    return make_shared<Obj>(ErrorObj);
   if (start >= tokens.size())
-    return make_unique<Obj>(ErrorObj);
+    return make_shared<Obj>(ErrorObj);
 
   auto s = tokens[start];
 
   if (s == "(") {
     start++; // skip "("
-    unique_ptr<Obj> v = runExpr(env, tokens, start);
+    auto v = runExpr(env, tokens, start);
     start++; // skip ")"
     return v;
   } else if (s == "+" || s == "-" || s == "*" || s == "/") {
@@ -19,7 +19,7 @@ unique_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start) {
     start++;
 
     while (tokens[start] != ")") {
-      unique_ptr<Obj> next = runExpr(env, tokens, start);
+      auto next = runExpr(env, tokens, start);
       double value = 0.0;
 
       if ((*next.get()).type == ObjType::Double) {
@@ -43,25 +43,24 @@ unique_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start) {
         }
       }
     }
-    return make_unique<Obj>(ObjType::Double, v);
+    return make_shared<Obj>(ObjType::Double, v);
   } else if (s == "define") {
     string name = tokens[++start];
     start++;
-    unique_ptr<Obj> value = runExpr(env, tokens, start);
-    return env.newVar(name, std::move(*value.get()));
+    auto value = runExpr(env, tokens, start);
+    return env.newVar(name, value);
   } else {
     if ('0' <= s[0] && s[0] <= '9') {
       start++;
-      return make_unique<Obj>(ObjType::Double, std::strtod(s.c_str(), nullptr));
+      return make_shared<Obj>(ObjType::Double, std::strtod(s.c_str(), nullptr));
     } else {
       auto obj = env.get(s);
       if (!obj)
         throw runtime_error(s + "is not declared.");
       start++;
-      auto res = *obj;
-      return make_unique<Obj>(res);
+      return obj;
     }
   }
 
-  return make_unique<Obj>(ObjType::Error, 0);
+  return ErrorObj;
 }
