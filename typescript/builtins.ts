@@ -20,6 +20,7 @@ import {
   ErrorObj,
   ThrowError,
   StructInstanceObj,
+  SetObj,
 } from "./obj";
 import { Env, loopOverLiteralExprs } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
@@ -180,6 +181,16 @@ function unshiftFunc(env: Env, ...args: Obj[]): Obj {
     return new IntNumber((args[0] as List_Obj).value.length);
   } catch (error) {
     return handleError(env, "shift");
+  }
+}
+
+function SetFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    const out = new Set<Obj>();
+    args.forEach((e) => out.add(e));
+    return new SetObj(out);
+  } catch (error) {
+    return handleError(env, "Set");
   }
 }
 
@@ -894,11 +905,20 @@ function foreachFunc(env: Env, args: Expr[]): Obj {
     const relatedLst: Obj = env.getFromEnv(args[1].value as string) as Obj;
     const opt = evalExpr(env, relatedFunc);
 
-    for (let i = 0; i < (relatedLst.value as []).length; i++) {
-      evalExprStartingWithLambdaObj(env, opt, [
-        relatedFunc,
-        new Expr(ExprType.ATOM, relatedLst.value[i].value as string),
-      ]);
+    if (relatedLst instanceof List_Obj) {
+      for (let i = 0; i < (relatedLst.value as []).length; i++) {
+        evalExprStartingWithLambdaObj(env, opt, [
+          relatedFunc,
+          new Expr(ExprType.ATOM, relatedLst.value[i].value as string),
+        ]);
+      }
+    } else if (relatedLst instanceof SetObj) {
+      for (let obj of relatedLst.value as Set<Obj>) {
+        evalExprStartingWithLambdaObj(env, opt, [
+          relatedFunc,
+          new Expr(ExprType.ATOM, obj.value as string),
+        ]);
+      }
     }
 
     return None_Obj;
@@ -934,7 +954,7 @@ export function getFromContainer(
   obj0: IntNumber | String_Obj
 ): Obj {
   try {
-    if (obj1.type === ObjType.LIST_OBJ) {
+    if (obj1 instanceof List_Obj) {
       if (obj0.value < 0) {
         throw handleError(env, "index must be positive");
       }
@@ -945,7 +965,7 @@ export function getFromContainer(
         );
       }
       return obj1.value[obj0.value];
-    } else if (obj1.type === ObjType.DICT_OBJ) {
+    } else if (obj1 instanceof Dict_Obj) {
       if (obj1.value.hasOwnProperty(obj0.value)) {
         return obj1.value[obj0.value];
       } else {
@@ -990,9 +1010,14 @@ export function setContainer(
   }
 }
 
-export function pushIntoContainer(env: Env, obj1: List_Obj, value: Obj): Obj {
+export function pushIntoContainer(
+  env: Env,
+  obj1: List_Obj | SetObj,
+  value: Obj
+): Obj {
   try {
-    obj1.value.push(value);
+    if (obj1 instanceof List_Obj) obj1.value.push(value);
+    else obj1.value.add(value);
     return value;
   } catch (error) {
     return handleError(env, "push");
@@ -1899,6 +1924,7 @@ const objOpts: { [key: string]: Function } = {
   throw: throwFunc,
   toString: toStringFunc,
   className: classNameFunc,
+  Set: SetFunc,
 };
 
 // special operators works on expressions.

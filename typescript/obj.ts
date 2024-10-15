@@ -279,3 +279,11 @@ export class StructInstanceObj extends Obj {
     return out;
   }
 }
+
+export class SetObj extends Obj {
+  name = "set";
+  constructor(value: Set<Obj>) {
+    
+    super(value);
+  }
+}
