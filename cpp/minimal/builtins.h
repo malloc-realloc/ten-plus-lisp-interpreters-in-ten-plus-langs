@@ -40,4 +40,8 @@ shared_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start);
 void skipExpr(vector<string> tokens, size_t &start);
 int repl(Env &env);
 
+struct LambdaObj {
+  vector<string> freeVars;
+};
+
 #endif
