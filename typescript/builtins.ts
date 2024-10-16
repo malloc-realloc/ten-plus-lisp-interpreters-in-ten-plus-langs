@@ -762,10 +762,7 @@ function rightArrowFunc(env: Env, exprList: Expr[]): Obj {
     let curValue = evalExpr(env, exprList[1]);
     for (let i = 2; i < exprList.length; i++) {
       const opt = evalExpr(env, exprList[i]);
-      curValue = evalExprStartingWithLambdaObj(env, opt, [
-        exprList[i],
-        new Expr(ExprType.ATOM, curValue.value as string),
-      ]);
+      curValue = applyLambdaObjToObjs(env, opt, [curValue]);
     }
 
     return curValue;
@@ -924,18 +921,12 @@ function foreachFunc(env: Env, args: Expr[]): Obj {
 
     if (relatedLst instanceof List_Obj) {
       for (let i = 0; i < (relatedLst.value as []).length; i++) {
-        evalExprStartingWithLambdaObj(env, opt, [
-          relatedFunc,
-          new Expr(ExprType.ATOM, relatedLst.value[i].value as string),
-        ]);
+        applyLambdaObjToObjs(env, opt, [relatedLst.value[i].value]);
       }
     } else if (relatedLst instanceof SetObj) {
       for (let obj of relatedLst.value as Set<Obj>) {
         // very bad way of evaluating, should use obj system instead of expr
-        evalExprStartingWithLambdaObj(env, opt, [
-          relatedFunc,
-          new Expr(ExprType.ATOM, obj.value as string),
-        ]);
+        applyLambdaObjToObjs(env, opt, [obj.value]);
       }
     }
 
@@ -1742,6 +1733,36 @@ function returnLambdaObj(env: Env, exprList: Expr[]): Obj {
     return func;
   } catch (error) {
     return handleError(env, "LambdaObj");
+  }
+}
+
+export function applyLambdaObjToObjs(
+  env: Env,
+  opt: Procedure,
+  parameters: Obj[]
+): Obj {
+  try {
+    for (const item of (opt as Lambda_Procedure).requirements) {
+      if (parameters[item[0]].name !== item[1]) {
+        return handleError(
+          env,
+          "type of function argument does not match requirement."
+        );
+      }
+    }
+
+    // if (opt instanceof Lambda_Procedure) {
+    return evalProcedureValue(
+      env,
+      (opt as Lambda_Procedure).argNames,
+      (opt as Lambda_Procedure).body as Expr[],
+      ...parameters
+    );
+    // } else {
+    //   return handleError(env, "invalid use of procedure");
+    // }
+  } catch (error) {
+    return handleError(env, "evaluate lambda function");
   }
 }
 
