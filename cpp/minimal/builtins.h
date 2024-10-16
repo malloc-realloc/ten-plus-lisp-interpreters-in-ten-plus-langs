@@ -37,6 +37,7 @@ public:
 
 vector<string> scan(string s);
 shared_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start);
+void skipExpr(vector<string> tokens, size_t &start);
 int repl(Env &env);
 
 #endif

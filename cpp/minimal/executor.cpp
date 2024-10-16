@@ -1,6 +1,25 @@
 #include "builtins.h"
 
-auto ErrorObj = make_shared<Obj>(ObjType::Error, "");
+auto const ErrorObj = make_shared<Obj>(ObjType::Error, "");
+
+void skipExpr(vector<string> tokens, size_t &start) {
+  if (tokens[start] != "(") {
+    start++;
+    return;
+  } else {
+    start++;
+    size_t lBraceRBraceNumberGap = 1;
+    while (lBraceRBraceNumberGap != 0 && start < tokens.size()) {
+      if (tokens[start] == "(")
+        lBraceRBraceNumberGap++;
+      else if (tokens[start] == ")")
+        lBraceRBraceNumberGap--;
+
+      start++;
+    }
+  }
+  return;
+}
 
 shared_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start) {
   if (tokens.size() == 0)
@@ -55,20 +74,21 @@ shared_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start) {
     start++;
     auto condObj = runExpr(env, tokens, start);
     auto v = std::any_cast<double>(condObj.get()->value);
-    if (v != 0) {
+    if (v) {
       auto out = runExpr(env, tokens, start);
       if (tokens[start] == ")")
         return out;
       else {
         // todo: skip without execution
-        runExpr(env, tokens, start);
+        // runExpr(env, tokens, start);
+        skipExpr(tokens, start);
         return out;
       }
     } else {
       // todo: skip without execution
-      runExpr(env, tokens, start);
-      auto out = runExpr(env, tokens, start);
-      return out;
+      // runExpr(env, tokens, start);
+      skipExpr(tokens, start);
+      return runExpr(env, tokens, start);
     }
   } else {
     if ('0' <= s[0] && s[0] <= '9') {
