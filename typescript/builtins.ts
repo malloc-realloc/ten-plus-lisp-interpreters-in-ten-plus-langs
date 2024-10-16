@@ -757,6 +757,23 @@ export function enumFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+function rightArrowFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    let curValue = evalExpr(env, exprList[1]);
+    for (let i = 2; i < exprList.length; i++) {
+      const opt = evalExpr(env, exprList[i]);
+      curValue = evalExprStartingWithLambdaObj(env, opt, [
+        exprList[i],
+        new Expr(ExprType.ATOM, curValue.value as string),
+      ]);
+    }
+
+    return curValue;
+  } catch (error) {
+    return handleError(env, "->>");
+  }
+}
+
 function extendsFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const father = env.get(exprList[1].value as string);
@@ -914,6 +931,7 @@ function foreachFunc(env: Env, args: Expr[]): Obj {
       }
     } else if (relatedLst instanceof SetObj) {
       for (let obj of relatedLst.value as Set<Obj>) {
+        // very bad way of evaluating, should use obj system instead of expr
         evalExprStartingWithLambdaObj(env, opt, [
           relatedFunc,
           new Expr(ExprType.ATOM, obj.value as string),
@@ -1859,6 +1877,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   new: newFunc,
   ".": dotFunc,
   extends: extendsFunc,
+  "->>": rightArrowFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
