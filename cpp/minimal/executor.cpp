@@ -1,10 +1,12 @@
 #include "builtins.h"
 
+auto ErrorObj = make_shared<Obj>(ObjType::Error, "");
+
 shared_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start) {
   if (tokens.size() == 0)
-    return make_shared<Obj>(ErrorObj);
+    return ErrorObj;
   if (start >= tokens.size())
-    return make_shared<Obj>(ErrorObj);
+    return ErrorObj;
 
   auto s = tokens[start];
 
@@ -49,6 +51,25 @@ shared_ptr<Obj> runExpr(Env &env, vector<string> tokens, size_t &start) {
     start++;
     auto value = runExpr(env, tokens, start);
     return env.newVar(name, value);
+  } else if (s == "if") {
+    start++;
+    auto condObj = runExpr(env, tokens, start);
+    auto v = std::any_cast<double>(condObj.get()->value);
+    if (v != 0) {
+      auto out = runExpr(env, tokens, start);
+      if (tokens[start] == ")")
+        return out;
+      else {
+        // todo: skip without execution
+        runExpr(env, tokens, start);
+        return out;
+      }
+    } else {
+      // todo: skip without execution
+      runExpr(env, tokens, start);
+      auto out = runExpr(env, tokens, start);
+      return out;
+    }
   } else {
     if ('0' <= s[0] && s[0] <= '9') {
       start++;

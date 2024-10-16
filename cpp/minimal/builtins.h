@@ -12,7 +12,6 @@ struct Obj {
   any value;
   Obj(ObjType type, any value) : type(type), value(value) {}
 };
-auto ErrorObj = make_shared<Obj>(ObjType::Error, "");
 
 class Env {
 private:
@@ -27,12 +26,12 @@ public:
   }
 
   std::shared_ptr<Obj> get(const std::string &name) {
-      auto it = map.find(name);
-      if (it != map.end()) {
-          return it->second;
-      } else {
-          return nullptr;
-      }
+    auto it = map.find(name);
+    if (it != map.end()) {
+      return it->second;
+    } else {
+      return nullptr;
+    }
   }
 };
 
