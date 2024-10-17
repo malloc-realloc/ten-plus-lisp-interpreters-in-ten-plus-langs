@@ -1,32 +1,51 @@
 from curses.ascii import isalnum, isalpha, isspace
+import operator
 
 
-def getNextWord(i, expr):
-    while isspace(expr[i]) and i < len(expr[i]):
+def getNextWord(i: int, expr: str) -> tuple[int, str]:
+    while i < len(expr) and isspace(expr[i]):
         i += 1
     if expr[i] == ")" or expr[i] == "(":
+        out = expr[i]
         i += 1
-        return i, expr[i]
+        return i, out
     s = ""
-    while not isspace(expr[i]) and i < expr[i]:
+    while (
+        i < len(expr)
+        and not isspace(expr[i])
+        and not (expr[i] == "(" or expr[i] == ")")
+    ):
         s += expr[i]
         i += 1
     return i, s
 
 
-def evalExpr(i, expr):
-    i, tok = getNextWord(expr, i)
+builtins = {
+    "+": operator.add,
+    "-": operator.sub,
+    "*": operator.mul,
+    "/": operator.truediv,
+}
+
+
+def evalExpr(i: int, expr: str) -> tuple[int, float]:
+    i, tok = getNextWord(i, expr)
     if tok == "(":
-        out = evalExpr(expr, i)
-        i, tok = getNextWord(expr, i)  # skip ")"
+        i, out = evalExpr(i, expr)
+        i, tok = getNextWord(i, expr)  # skip ")"
         return i, out
-    if isalnum(tok) and (not isalpha(tok)):
-        return i, out
-    if tok in ["+", "-", "*", "/"]:
-        out = evalExpr(expr, i)
+    if tok.isdigit():
+        return i, float(tok)
+    if tok in builtins:
+        opt = builtins[tok]
+        numbers = []
         while tok != ")":
-            i, tok = evalExpr(expr, i)
-            out += tok
+            i, out = evalExpr(i, expr)
+            numbers.append(out)
+            _, tok = getNextWord(i, expr)
+        out = 0
+        for n in numbers:
+            out = opt(out, n)
         return i, out
 
 
