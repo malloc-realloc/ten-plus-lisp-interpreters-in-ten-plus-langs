@@ -1,7 +1,8 @@
-from curses.ascii import isalnum, isalpha, isspace
+from curses.ascii import isspace
 import operator
 
 
+# get current word, move pointer(i) to the beginning of next word
 def getNextWord(i: int, expr: str) -> tuple[int, str]:
     while i < len(expr) and isspace(expr[i]):
         i += 1
@@ -20,12 +21,34 @@ def getNextWord(i: int, expr: str) -> tuple[int, str]:
     return i, s
 
 
-builtins = {
+def skipExpr(i, expr):
+    return evalExpr(i, expr)
+
+
+addSubMulDiv = {
     "+": operator.add,
     "-": operator.sub,
     "*": operator.mul,
     "/": operator.truediv,
 }
+
+
+def ifFunc(i: int, expr: str) -> tuple[int, float]:
+    i, cond = evalExpr(i, expr)
+    if cond:
+        i, out = evalExpr(i, expr)
+        _, nextTok = getNextWord(i, expr)
+        if nextTok == ")":
+            return i, out
+        i, _ = skipExpr(i, expr)
+        return i, out
+    else:
+        i, _ = skipExpr(i, expr)
+        i, out = evalExpr(i, expr)
+        return i, out
+
+
+builtins = {"if": ifFunc}
 
 
 def evalExpr(i: int, expr: str) -> tuple[int, float]:
@@ -36,8 +59,8 @@ def evalExpr(i: int, expr: str) -> tuple[int, float]:
         return i, out
     if tok.isdigit():
         return i, float(tok)
-    if tok in builtins:
-        opt = builtins[tok]
+    if tok in addSubMulDiv:
+        opt = addSubMulDiv[tok]
         numbers = []
         while tok != ")":
             i, out = evalExpr(i, expr)
@@ -47,6 +70,8 @@ def evalExpr(i: int, expr: str) -> tuple[int, float]:
         for n in numbers:
             out = opt(out, n)
         return i, out
+    if tok in builtins:
+        return builtins[tok](i, expr)
 
 
 while True:
