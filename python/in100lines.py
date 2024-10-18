@@ -1,3 +1,4 @@
+import array
 from curses.ascii import isspace
 import operator
 
@@ -29,8 +30,21 @@ def getNextWord(i: int, expr: str) -> tuple[int, str]:
     return i, s
 
 
-def skipExpr(i, expr):
-    return evalExpr(i, expr)
+def skipExpr(i, expr) -> tuple[int, str]:
+    _, tok = getNextWord(i, expr)
+    if tok != "(":
+        i, out = getNextWord(i, expr)
+        return i, out
+    else:
+        l_minus_r = 1
+        i, out = getNextWord(i, expr)
+        while l_minus_r != 0:
+            i, out = getNextWord(i, expr)
+            if out == "(":
+                l_minus_r += 1
+            elif out == ")":
+                l_minus_r -= 1
+        return i, out
 
 
 addSubMulDiv = {
@@ -63,10 +77,31 @@ def defineFunc(i: int, expr: str) -> tuple[int, Obj]:
     return i, out
 
 
+def returnLambdaObjFunc(i: int, expr: str) -> tuple[int, Obj]:
+    i, tok = getNextWord(i, expr)  # skip "("
+    params = []
+    while tok != ")":
+        i, tok = getNextWord(i, expr)
+        if tok == ",":
+            continue
+        params.append(tok)
+
+    start = i
+    j = i
+    _, tok = getNextWord(j, expr)
+    while tok != ")":
+        j, _ = skipExpr(j, expr)
+        _, tok = getNextWord(j, expr)
+    i = j
+
+    out = Obj("lambda", start)
+    return i, out
+
+
 builtins = {
     "if": ifFunc,
     "define": defineFunc,
-    # "lambda": returnLambdaObjFunc,
+    "lambda": returnLambdaObjFunc,
 }
 
 
@@ -91,6 +126,8 @@ def evalExpr(i: int, expr: str) -> tuple[int, Obj]:
         return i, Obj("float", out)
     if tok in builtins:
         return builtins[tok](i, expr)
+    if tok in Lisp_Env:
+        return i, Lisp_Env[tok]
 
 
 while True:
