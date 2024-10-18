@@ -1,8 +1,6 @@
-import array
-from curses.ascii import isspace
+from copy import deepcopy
 import operator
-
-Lisp_Env = {}
+from curses.ascii import isspace
 
 
 class Obj:
@@ -11,11 +9,10 @@ class Obj:
         self.value = value
 
 
-# get current word, move pointer(i) to the beginning of next word
 def getNextWord(i: int, expr: str) -> tuple[int, str]:
     while i < len(expr) and isspace(expr[i]):
         i += 1
-    if expr[i] == ")" or expr[i] == "(":
+    if i < len(expr) and (expr[i] == ")" or expr[i] == "("):
         out = expr[i]
         i += 1
         return i, out
@@ -55,10 +52,10 @@ addSubMulDiv = {
 }
 
 
-def ifFunc(i: int, expr: str) -> tuple[int, Obj]:
-    i, cond = evalExpr(i, expr)
+def ifFunc(env, i: int, expr: str) -> tuple[int, Obj]:
+    i, cond = evalExpr(env, i, expr)
     if cond.value:
-        i, out = evalExpr(i, expr)
+        i, out = evalExpr(env, i, expr)
         _, nextTok = getNextWord(i, expr)
         if nextTok == ")":
             return i, out
@@ -66,18 +63,18 @@ def ifFunc(i: int, expr: str) -> tuple[int, Obj]:
         return i, out
     else:
         i, _ = skipExpr(i, expr)
-        i, out = evalExpr(i, expr)
+        i, out = evalExpr(env, i, expr)
         return i, out
 
 
-def defineFunc(i: int, expr: str) -> tuple[int, Obj]:
+def defineFunc(env, i: int, expr: str) -> tuple[int, Obj]:
     i, tok = getNextWord(i, expr)
-    i, out = evalExpr(i, expr)
-    Lisp_Env[tok] = out
+    i, out = evalExpr(env, i, expr)
+    env[tok] = out
     return i, out
 
 
-def returnLambdaObjFunc(i: int, expr: str) -> tuple[int, Obj]:
+def returnLambdaObjFunc(env, i: int, expr: str) -> tuple[int, Obj]:
     i, tok = getNextWord(i, expr)  # skip "("
     params = []
     while tok != ")":
@@ -95,7 +92,7 @@ def returnLambdaObjFunc(i: int, expr: str) -> tuple[int, Obj]:
         _, tok = getNextWord(j, expr)
     i = j
 
-    out = Obj("lambda", expr[start:j])
+    out = Obj("lambda", {"expr": expr[start:j], "vars": params})
     return i, out
 
 
@@ -106,10 +103,10 @@ builtins = {
 }
 
 
-def evalExpr(i: int, expr: str) -> tuple[int, Obj]:
+def evalExpr(env, i: int, expr: str) -> tuple[int, Obj]:
     i, tok = getNextWord(i, expr)
     if tok == "(":
-        i, out = evalExpr(i, expr)
+        i, out = evalExpr(env, i, expr)
         i, tok = getNextWord(i, expr)  # skip ")"
         return i, out
     if tok.isdigit():
@@ -118,25 +115,48 @@ def evalExpr(i: int, expr: str) -> tuple[int, Obj]:
         opt = addSubMulDiv[tok]
         numberObjs = []
         while tok != ")":
-            i, out = evalExpr(i, expr)
+            i, out = evalExpr(env, i, expr)
             numberObjs.append(out)
             _, tok = getNextWord(i, expr)
-        out = 0
-        for n in numberObjs:
+        out = numberObjs[0].value
+        for n in numberObjs[1:]:
             out = opt(out, n.value)
         return i, Obj("float", out)
     if tok in builtins:
-        return builtins[tok](i, expr)
-    if tok in Lisp_Env:
-        return i, Lisp_Env[tok]
+        return builtins[tok](env, i, expr)
+    if tok in env:
+        if env[tok].type != "lambda":
+            return i, env[tok]
+        elif env[tok].type == "lambda":
+            lambdaFunc = env[tok].value  #  {"expr": expr[start:j], "vars": params}
+            newEnv = deepcopy(env)
+            params = []
+            while tok != ")":
+                i, out = evalExpr(env, i, expr)
+                params.append(out)
+                _, tok = skipExpr(i, expr)
+            for j, param in enumerate(params):
+                newEnv[lambdaFunc["vars"][j]] = param
+            _, out = evalExpr(newEnv, 0, lambdaFunc["expr"])
+            return i, out
+
+    raise ValueError(f"Undefined symbol: {tok}")
 
 
-while True:
-    envDict = {}
-    expr: str = input("pyLisp> ")
-    if expr == "exit":
-        break
-    i = 0
-    while i < len(expr):
-        i, out = evalExpr(i, expr)
-        print(out.value)
+def main():
+    env = {"father": {}}
+    while True:
+        try:
+            expr: str = input("pyLisp> ").strip()
+            if expr.lower() == "exit":
+                break
+            i = 0
+            while i < len(expr):
+                i, out = evalExpr(env, i, expr)
+                print(out.value)
+        except Exception as e:
+            print(f"Error: {e}")
+
+
+if __name__ == "__main__":
+    main()
