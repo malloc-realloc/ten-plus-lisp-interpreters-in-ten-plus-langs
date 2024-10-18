@@ -82,6 +82,7 @@ def returnLambdaObjFunc(env, i: int, expr: str) -> tuple[int, Obj]:
         if tok == ",":
             continue
         params.append(tok)
+    params.pop()  # remove ")"
 
     start = i
     j = i
@@ -129,15 +130,30 @@ def evalExpr(env, i: int, expr: str) -> tuple[int, Obj]:
             return i, env[tok]
         elif env[tok].type == "lambda":
             lambdaFunc = env[tok].value  #  {"expr": expr[start:j], "vars": params}
-            newEnv = deepcopy(env)
             params = []
             while tok != ")":
                 i, out = evalExpr(env, i, expr)
                 params.append(out)
                 _, tok = skipExpr(i, expr)
-            for j, param in enumerate(params):
-                newEnv[lambdaFunc["vars"][j]] = param
-            _, out = evalExpr(newEnv, 0, lambdaFunc["expr"])
+
+            # Save the original values of the variables we're about to override
+            saved_vars = {}
+            for j, param_name in enumerate(lambdaFunc["vars"]):
+                if param_name in env:
+                    saved_vars[param_name] = env[param_name]
+                env[param_name] = params[j]
+
+            _, out = evalExpr(env, 0, lambdaFunc["expr"])
+
+            # Restore the original variable values
+            for param_name, saved_value in saved_vars.items():
+                env[param_name] = saved_value
+
+            # Remove any newly introduced variables
+            for param_name in lambdaFunc["vars"]:
+                if param_name not in saved_vars:
+                    env.pop(param_name, None)
+
             return i, out
 
     raise ValueError(f"Undefined symbol: {tok}")
