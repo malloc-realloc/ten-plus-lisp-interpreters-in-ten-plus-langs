@@ -1,6 +1,8 @@
 from curses.ascii import isspace
 import operator
 
+Lisp_Env = {}
+
 
 class Obj:
     def __init__(self, type, value) -> None:
@@ -54,8 +56,16 @@ def ifFunc(i: int, expr: str) -> tuple[int, Obj]:
         return i, out
 
 
+def defineFunc(i: int, expr: str) -> tuple[int, Obj]:
+    i, tok = getNextWord(i, expr)
+    i, out = evalExpr(i, expr)
+    Lisp_Env[tok] = out
+    return i, out
+
+
 builtins = {
     "if": ifFunc,
+    "define": defineFunc,
     # "lambda": returnLambdaObjFunc,
 }
 
