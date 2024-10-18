@@ -88,13 +88,14 @@ def returnLambdaObjFunc(i: int, expr: str) -> tuple[int, Obj]:
 
     start = i
     j = i
+    prev = i
     _, tok = getNextWord(j, expr)
     while tok != ")":
         j, _ = skipExpr(j, expr)
         _, tok = getNextWord(j, expr)
     i = j
 
-    out = Obj("lambda", start)
+    out = Obj("lambda", expr[start:j])
     return i, out
 
 
