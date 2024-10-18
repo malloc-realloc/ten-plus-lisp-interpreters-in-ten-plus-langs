@@ -2,6 +2,12 @@ from curses.ascii import isspace
 import operator
 
 
+class Obj:
+    def __init__(self, type, value) -> None:
+        self.type = type
+        self.value = value
+
+
 # get current word, move pointer(i) to the beginning of next word
 def getNextWord(i: int, expr: str) -> tuple[int, str]:
     while i < len(expr) and isspace(expr[i]):
@@ -33,9 +39,9 @@ addSubMulDiv = {
 }
 
 
-def ifFunc(i: int, expr: str) -> tuple[int, float]:
+def ifFunc(i: int, expr: str) -> tuple[int, Obj]:
     i, cond = evalExpr(i, expr)
-    if cond:
+    if cond.value:
         i, out = evalExpr(i, expr)
         _, nextTok = getNextWord(i, expr)
         if nextTok == ")":
@@ -48,28 +54,31 @@ def ifFunc(i: int, expr: str) -> tuple[int, float]:
         return i, out
 
 
-builtins = {"if": ifFunc}
+builtins = {
+    "if": ifFunc,
+    # "lambda": returnLambdaObjFunc,
+}
 
 
-def evalExpr(i: int, expr: str) -> tuple[int, float]:
+def evalExpr(i: int, expr: str) -> tuple[int, Obj]:
     i, tok = getNextWord(i, expr)
     if tok == "(":
         i, out = evalExpr(i, expr)
         i, tok = getNextWord(i, expr)  # skip ")"
         return i, out
     if tok.isdigit():
-        return i, float(tok)
+        return i, Obj("float", float(tok))
     if tok in addSubMulDiv:
         opt = addSubMulDiv[tok]
-        numbers = []
+        numberObjs = []
         while tok != ")":
             i, out = evalExpr(i, expr)
-            numbers.append(out)
+            numberObjs.append(out)
             _, tok = getNextWord(i, expr)
         out = 0
-        for n in numbers:
-            out = opt(out, n)
-        return i, out
+        for n in numberObjs:
+            out = opt(out, n.value)
+        return i, Obj("float", out)
     if tok in builtins:
         return builtins[tok](i, expr)
 
@@ -82,4 +91,4 @@ while True:
     i = 0
     while i < len(expr):
         i, out = evalExpr(i, expr)
-        print(out)
+        print(out.value)
