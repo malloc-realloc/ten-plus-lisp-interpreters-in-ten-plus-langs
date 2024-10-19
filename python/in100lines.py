@@ -167,7 +167,9 @@ def evalExpr(env, i: int, expr: str) -> tuple[int, Obj]:
             for j, param_name in enumerate(lambdaFunc["vars"]):
                 newEnv.set(param_name, params[j])
 
-            _, out = evalExpr(newEnv, 0, lambdaFunc["expr"])
+            j = 0
+            while j < len(lambdaFunc["expr"]):
+                j, out = evalExpr(newEnv, j, lambdaFunc["expr"])
 
             return i, out
 
