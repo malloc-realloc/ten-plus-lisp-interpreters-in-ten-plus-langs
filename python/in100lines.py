@@ -10,12 +10,25 @@ class Obj:
 
 
 class Env:
-    def __init__(self) -> None:
+    def __init__(self, father=None) -> None:
         self.value = {}
-        self.father = {}
+        self.father = father
+
+    def inEnv(self, tok: str):
+        if tok in self.value:
+            return True
+        elif self.father is not None:
+            return self.father.inEnv(tok)
+        else:
+            return False
 
     def get(self, tok: str):
-        return self.value[tok]
+        if tok in self.value:
+            return self.value[tok]
+        elif self.father is not None:
+            return self.father.get(tok)
+        else:
+            raise KeyError(f"Token '{tok}' not found in environment or its ancestors")
 
     def set(self, tok: str, obj: Obj):
         self.value[tok] = obj
@@ -138,7 +151,7 @@ def evalExpr(env, i: int, expr: str) -> tuple[int, Obj]:
         return i, Obj("float", out)
     if tok in builtins:
         return builtins[tok](env, i, expr)
-    if tok in env.value:
+    if env.inEnv(tok):
         if env.get(tok).type != "lambda":
             return i, env.get(tok)
         elif env.get(tok).type == "lambda":
@@ -150,22 +163,11 @@ def evalExpr(env, i: int, expr: str) -> tuple[int, Obj]:
                 _, tok = skipExpr(i, expr)
 
             # Save the original values of the variables we're about to override
-            saved_vars = {}
+            newEnv = Env(env)
             for j, param_name in enumerate(lambdaFunc["vars"]):
-                if param_name in env.value:
-                    saved_vars[param_name] = env.get(param_name)
-                env.set(param_name, params[j])
+                newEnv.set(param_name, params[j])
 
-            _, out = evalExpr(env, 0, lambdaFunc["expr"])
-
-            # # Restore the original variable values
-            # for param_name, saved_value in saved_vars.items():
-            #     env.set(param_name, saved_value)
-
-            # # Remove any newly introduced variables
-            # for param_name in lambdaFunc["vars"]:
-            #     if param_name not in saved_vars:
-            #         env.pop(param_name, None)
+            _, out = evalExpr(newEnv, 0, lambdaFunc["expr"])
 
             return i, out
 
