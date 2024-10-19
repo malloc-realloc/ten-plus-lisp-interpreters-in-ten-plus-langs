@@ -9,6 +9,19 @@ class Obj:
         self.value = value
 
 
+class Env:
+    def __init__(self) -> None:
+        self.value = {}
+        self.father = {}
+
+    def get(self, tok: str):
+        return self.value[tok]
+
+    def set(self, tok: str, obj: Obj):
+        self.value[tok] = obj
+        return obj
+
+
 def getNextWord(i: int, expr: str) -> tuple[int, str]:
     while i < len(expr) and isspace(expr[i]):
         i += 1
@@ -70,7 +83,7 @@ def ifFunc(env, i: int, expr: str) -> tuple[int, Obj]:
 def defineFunc(env, i: int, expr: str) -> tuple[int, Obj]:
     i, tok = getNextWord(i, expr)
     i, out = evalExpr(env, i, expr)
-    env[tok] = out
+    env.set(tok, out)
     return i, out
 
 
@@ -125,11 +138,11 @@ def evalExpr(env, i: int, expr: str) -> tuple[int, Obj]:
         return i, Obj("float", out)
     if tok in builtins:
         return builtins[tok](env, i, expr)
-    if tok in env:
-        if env[tok].type != "lambda":
-            return i, env[tok]
-        elif env[tok].type == "lambda":
-            lambdaFunc = env[tok].value  #  {"expr": expr[start:j], "vars": params}
+    if tok in env.value:
+        if env.get(tok).type != "lambda":
+            return i, env.get(tok)
+        elif env.get(tok).type == "lambda":
+            lambdaFunc = env.get(tok).value  #  {"expr": expr[start:j], "vars": params}
             params = []
             while tok != ")":
                 i, out = evalExpr(env, i, expr)
@@ -139,20 +152,20 @@ def evalExpr(env, i: int, expr: str) -> tuple[int, Obj]:
             # Save the original values of the variables we're about to override
             saved_vars = {}
             for j, param_name in enumerate(lambdaFunc["vars"]):
-                if param_name in env:
-                    saved_vars[param_name] = env[param_name]
-                env[param_name] = params[j]
+                if param_name in env.value:
+                    saved_vars[param_name] = env.get(param_name)
+                env.set(param_name, params[j])
 
             _, out = evalExpr(env, 0, lambdaFunc["expr"])
 
-            # Restore the original variable values
-            for param_name, saved_value in saved_vars.items():
-                env[param_name] = saved_value
+            # # Restore the original variable values
+            # for param_name, saved_value in saved_vars.items():
+            #     env.set(param_name, saved_value)
 
-            # Remove any newly introduced variables
-            for param_name in lambdaFunc["vars"]:
-                if param_name not in saved_vars:
-                    env.pop(param_name, None)
+            # # Remove any newly introduced variables
+            # for param_name in lambdaFunc["vars"]:
+            #     if param_name not in saved_vars:
+            #         env.pop(param_name, None)
 
             return i, out
 
@@ -160,7 +173,7 @@ def evalExpr(env, i: int, expr: str) -> tuple[int, Obj]:
 
 
 def main():
-    env = {"father": {}}
+    env = Env()
     while True:
         try:
             expr: str = input("pyLisp> ").strip()
