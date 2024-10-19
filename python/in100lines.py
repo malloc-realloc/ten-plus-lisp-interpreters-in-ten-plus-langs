@@ -13,6 +13,7 @@ class Env:
     def __init__(self, father=None) -> None:
         self.value = {}
         self.father = father
+        self.end = False
 
     def inEnv(self, tok: str):
         if tok in self.value:
@@ -123,10 +124,17 @@ def returnLambdaObjFunc(env, i: int, expr: str) -> tuple[int, Obj]:
     return i, out
 
 
+def returnFunc(env, i: int, expr: str) -> tuple[int, Obj]:
+    env.end = True
+    i, out = evalExpr(env, i, expr)
+    return i, out
+
+
 builtins = {
     "if": ifFunc,
     "define": defineFunc,
     "lambda": returnLambdaObjFunc,
+    "return": returnFunc,
 }
 
 
@@ -170,6 +178,8 @@ def evalExpr(env, i: int, expr: str) -> tuple[int, Obj]:
             j = 0
             while j < len(lambdaFunc["expr"]):
                 j, out = evalExpr(newEnv, j, lambdaFunc["expr"])
+                if newEnv.end:
+                    break
 
             return i, out
 
@@ -181,12 +191,12 @@ def main():
     while True:
         try:
             expr: str = input("pyLisp> ").strip()
-            if expr.lower() == "exit":
-                break
             i = 0
             while i < len(expr):
                 i, out = evalExpr(env, i, expr)
                 print(out.value)
+            if env.end:
+                break
         except Exception as e:
             print(f"Error: {e}")
 
