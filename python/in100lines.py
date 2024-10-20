@@ -39,7 +39,7 @@ class Env:
 def getNextWord(i: int, expr: str) -> tuple[int, str]:
     while i < len(expr) and isspace(expr[i]):
         i += 1
-    if i < len(expr) and (expr[i] == ")" or expr[i] == "("):
+    if i < len(expr) and (expr[i] in ["(", ")", '"']):
         out = expr[i]
         i += 1
         return i, out
@@ -120,7 +120,7 @@ def returnLambdaObjFunc(env, i: int, expr: str) -> tuple[int, Obj]:
         _, tok = getNextWord(j, expr)
     i = j
 
-    out = Obj("lambda", {"expr": expr[start:j], "vars": params})
+    out = Obj("lambda", {"expr": expr[start:j].strip(), "vars": params})
     return i, out
 
 
@@ -146,6 +146,14 @@ def evalExpr(env, i: int, expr: str) -> tuple[int, Obj]:
         return i, out
     if tok.isdigit():
         return i, Obj("float", float(tok))
+    if tok == '"':
+        start = i
+        for j in range(i, len(expr)):
+            if expr[j] == '"':
+                i = j + 1
+                break
+        return i, Obj("string", expr[start : i - 1])
+
     if tok in addSubMulDiv:
         opt = addSubMulDiv[tok]
         numberObjs = []
@@ -186,8 +194,31 @@ def evalExpr(env, i: int, expr: str) -> tuple[int, Obj]:
     raise ValueError(f"Undefined symbol: {tok}")
 
 
-def main():
+def repl(env):
+    while True:
+        try:
+            expr: str = input("pyLisp> ").strip()
+            i = 0
+            while i < len(expr):
+                i, out = evalExpr(env, i, expr)
+                print(out.value)
+            if env.end:
+                break
+        except Exception as e:
+            print(f"Error: {e}")
+
+
+def test():
     env = Env()
+    expr = "(+ 1 2)"
+
+    # First, evaluate the initial expression
+    i = 0
+    while i < len(expr):
+        i, out = evalExpr(env, i, expr)
+        print(out.value)
+
+    # Then start the REPL
     while True:
         try:
             expr: str = input("pyLisp> ").strip()
@@ -202,4 +233,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # repl(Env())
+    test()
