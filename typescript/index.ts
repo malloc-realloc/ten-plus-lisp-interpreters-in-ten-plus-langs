@@ -258,8 +258,8 @@ const exprs: string[] = [
   // '((get-child v "m") 1)',
   // "(define a 1)",
   // "(this a)",
-  // "(define l (list 1 2 3))",
-  // "(foreach l (lambda (x) (display (+ x 1)))) ",
+  "(define l (list 1 2 3))",
+  "(foreach l , i (lambda (x) (display (+ x i)))) ",
   // "l",
   // "(reduce l (lambda (x y) (+ x y)) 0)",
   // '(try {if (== 1 0) 1 (throw "Error")}  {1})',
@@ -291,7 +291,7 @@ const exprs: string[] = [
   // "(define A (Set 1 2 3))",
   // "(push A 3)",
   // "(foreach A (lambda (x) (display x)))",
-  "(->> 2 (lambda (x) (+ x 1)) (lambda (x) (+ x 2)) )",
+  // "(->> 2 (lambda (x) (+ x 1)) (lambda (x) (+ x 2)) )",
 ];
 
 const globalEnv = new Env();

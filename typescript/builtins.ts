@@ -915,13 +915,22 @@ function tryFunc(env: Env, args: Expr[]): Obj {
 
 function foreachFunc(env: Env, args: Expr[]): Obj {
   try {
-    const relatedFunc: Expr = args[2];
+    let relatedFunc: Expr = args[2];
+    let index: string = "";
     const relatedLst: Obj = env.getFromEnv(args[1].value as string) as Obj;
+    if (relatedLst.name === "List_Obj" && args[2].value === ",") {
+      relatedFunc = args[4];
+      index = args[3].value as string;
+    }
+
     const opt = evalExpr(env, relatedFunc);
 
     if (relatedLst instanceof List_Obj) {
       for (let i = 0; i < (relatedLst.value as []).length; i++) {
-        applyLambdaObjToObjs(env, opt, [relatedLst.value[i].value]);
+        const newEnv = new Env();
+        newEnv.fatherEnv = env;
+        if (index !== "") newEnv.set(index, new IntNumber(i));
+        applyLambdaObjToObjs(newEnv, opt, [relatedLst.value[i]]);
       }
     } else if (relatedLst instanceof SetObj) {
       for (let obj of relatedLst.value as Set<Obj>) {
@@ -1825,7 +1834,7 @@ function evalProcedureValue(
 
     argNames.forEach((argName, index) => {
       if (typeof argName.value === "string") {
-        if (argName.value[0] == "*") {
+        if (argName.value[0] === "*") {
           env.set(
             argName.value.slice(1, argName.value.length),
             args[index].copy()

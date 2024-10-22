@@ -1,3 +1,4 @@
+# This is a scheme interpreter in python. My original code is hugely refactored (in a good way) by Claude 3.5 Sonnet and I really appreciate its "insights" and style.
 import operator
 from functools import reduce
 
