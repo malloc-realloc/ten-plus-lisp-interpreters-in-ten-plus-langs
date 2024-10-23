@@ -757,6 +757,23 @@ export function enumFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+function moveFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const moveTo = exprList[1].value as string;
+    const moveFrom = exprList[2].value as string;
+
+    const obj = env.getFromEnv(moveFrom);
+    if (obj === undefined) return handleError(env, `${moveFrom} not declared`);
+    env.set(moveTo, obj);
+
+    env.delete(moveFrom);
+
+    return obj;
+  } catch (error) {
+    return handleError(env, "move");
+  }
+}
+
 function rightArrowFunc(env: Env, exprList: Expr[]): Obj {
   try {
     let curValue = evalExpr(env, exprList[1]);
@@ -1908,6 +1925,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   ".": dotFunc,
   extends: extendsFunc,
   "->>": rightArrowFunc,
+  move: moveFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
