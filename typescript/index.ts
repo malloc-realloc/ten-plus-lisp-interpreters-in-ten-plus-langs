@@ -292,10 +292,13 @@ const exprs: string[] = [
   // "(push A 3)",
   // "(foreach A (lambda (x) (display x)))",
   // "(->> 2 (lambda (x) (+ x 1)) (lambda (x) (+ x 2)) )",
-  "(define a 1)",
-  "(move b a)",
-  "(b)",
-  "a",
+  // "(define a 1)",
+  // "(move b a)",
+  // "(b)",
+  // "a",
+  "(define ls (list 1 2 3))",
+  "(for_of ls a (display a))",
+  "(for_of ls a , i (display a) (display i))",
 ];
 
 const globalEnv = new Env();

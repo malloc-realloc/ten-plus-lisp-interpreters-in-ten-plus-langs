@@ -757,6 +757,34 @@ export function enumFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+function forOfFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const listToLoopOver = env.get(exprList[1].value as string);
+    const newEnv = new Env();
+    newEnv.fatherEnv = env;
+    const valueLiteral = exprList[2].value as string;
+    let exprToEval: Expr[] = [];
+    let indexLiteral = "";
+    if ((exprList[3].value as string) === ",") {
+      indexLiteral = exprList[4].value as string;
+      exprToEval = exprList.slice(5);
+    } else {
+      exprToEval = exprList.slice(3);
+    }
+    let out: Obj = None_Obj;
+    for (let i = 0; i < listToLoopOver?.value.length; i++) {
+      if (indexLiteral !== "") newEnv.set(indexLiteral, new IntNumber(i));
+      newEnv.set(valueLiteral, listToLoopOver?.value[i]);
+      for (const e of exprToEval) {
+        out = evalExpr(newEnv, e);
+      }
+    }
+    return out;
+  } catch (error) {
+    return handleError(env, "for_of");
+  }
+}
+
 function moveFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const moveTo = exprList[1].value as string;
@@ -1926,6 +1954,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   extends: extendsFunc,
   "->>": rightArrowFunc,
   move: moveFunc,
+  for_of: forOfFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
