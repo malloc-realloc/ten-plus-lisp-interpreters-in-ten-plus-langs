@@ -296,9 +296,15 @@ const exprs: string[] = [
   // "(move b a)",
   // "(b)",
   // "a",
-  "(define ls (list 1 2 3))",
-  "(for_of ls a (display a))",
-  "(for_of ls a , i (display a) (display i))",
+  // "(define ls (list 1 2 3))",
+  // "(for_of ls a (display a))",
+  // "(for_of ls a , i (display a) (display i))",
+  "(define v 1)",
+  '(child v "c" 2)',
+  '(get-child v "c")',
+  "(extract_class b_class v)",
+  "(instance b_class b-instance)",
+  "(b-instance.c)",
 ];
 
 const globalEnv = new Env();

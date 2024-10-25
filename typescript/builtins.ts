@@ -1320,6 +1320,13 @@ export function minusMinusFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function extractClassFunc(env: Env, exprList: Expr[]): Obj {
+  const relatedObj = evalExpr(env, exprList[2]);
+  let classProperties = relatedObj.subObjs;
+  env.classes.set(exprList[1].value as string, classProperties);
+  return relatedObj;
+}
+
 export function defineClass(env: Env, exprList: Expr[]): Obj {
   let classProperties = new Map<string, Obj>();
 
@@ -1955,6 +1962,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "->>": rightArrowFunc,
   move: moveFunc,
   for_of: forOfFunc,
+  extract_class: extractClassFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
