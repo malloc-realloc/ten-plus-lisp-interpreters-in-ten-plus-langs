@@ -17,6 +17,11 @@ export class Env extends Map<string, Obj> {
   literalRegExps: [RegExp, Expr[]][] = [];
   tsLispThis: Env | Obj = this;
   thrownError: ThrowError | undefined = undefined;
+  listen: Map<string, { cond: Expr; execWhat: Expr }> = new Map<
+    string,
+    { cond: Expr; execWhat: Expr }
+  >();
+  whenListening = false;
 
   cleanup() {
     this.functionDepth = 0;

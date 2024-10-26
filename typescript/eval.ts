@@ -18,6 +18,7 @@ import {
   evalExprStartingWithLambdaObj,
   getMethodByUsingDot,
   isExprLiteralOpt,
+  isTsLispFalse,
 } from "./builtins";
 import { handleError } from "./commons";
 import { parseExprs } from "./parser";
@@ -45,7 +46,19 @@ export function evalExpr(env: Env, expr: Expr): Obj {
     result = evalListExpr(env, expr);
     result.needsPrinted = true;
   } else {
+    const name = (expr.value as Expr[])[0].value as string;
     result = evalListExpr(env, expr);
+
+    if (!env.whenListening && name === "update") {
+      env.whenListening = true;
+      for (const [key, v] of env.listen) {
+        if (v?.cond === undefined) return result;
+        if (!isTsLispFalse(evalExpr(env, v?.cond))) {
+          evalExpr(env, v?.execWhat);
+        }
+      }
+      env.whenListening = false;
+    }
   }
 
   if (!env.hasFailed) {

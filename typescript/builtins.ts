@@ -39,7 +39,7 @@ type NumberOrString = Number | String_Obj;
 const TsLispInnerFalse = new IntNumber(0);
 const TsLispInnerTrue = new IntNumber(1);
 
-function isTsLispFalse(obj: Obj): Boolean {
+export function isTsLispFalse(obj: Obj): Boolean {
   return (
     obj === FALSE ||
     obj === None_Obj ||
@@ -1320,6 +1320,12 @@ export function minusMinusFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function listenFunc(env: Env, exprList: Expr[]): Obj {
+  const listenTo = exprList[1].value as string;
+  env.listen.set(listenTo, { cond: exprList[2], execWhat: exprList[3] });
+  return None_Obj;
+}
+
 export function extractClassFunc(env: Env, exprList: Expr[]): Obj {
   const relatedObj = evalExpr(env, exprList[2]);
   let classProperties = relatedObj.subObjs;
@@ -1963,6 +1969,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   move: moveFunc,
   for_of: forOfFunc,
   extract_class: extractClassFunc,
+  listen: listenFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
