@@ -305,9 +305,16 @@ const exprs: string[] = [
   // "(extract_class b_class v)",
   // "(instance b_class b-instance)",
   // "(b-instance.c)",
+  // "(define a 1)",
+  // "(listen a (2) (display a))",
+  // "(update a 0)",
   "(define a 1)",
-  "(listen a (2) (display a))",
-  "(update a 0)",
+  "(alias a1 a)",
+  "(shallow-copy a2 a)",
+  "(a1)",
+  "(define a 2)",
+  "(a1)",
+  "(a2)",
 ];
 
 const globalEnv = new Env();

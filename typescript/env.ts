@@ -22,6 +22,7 @@ export class Env extends Map<string, Obj> {
     { cond: Expr; execWhat: Expr }
   >();
   whenListening = false;
+  aliases: Map<string,string> = new Map<string,string>();
 
   cleanup() {
     this.functionDepth = 0;
@@ -71,6 +72,11 @@ export class Env extends Map<string, Obj> {
       const value = this.get(literal);
       if (value !== undefined) {
         return value;
+      }
+
+      if (this.aliases.has(literal)) {
+        const v = this.get(this.aliases.get(literal) as string)
+        return v;
       }
 
       let env: Env | undefined = this;

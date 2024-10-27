@@ -1320,6 +1320,27 @@ export function minusMinusFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function aliasFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    env.aliases.set(exprList[1].value as string, exprList[2].value as string);
+    return evalExpr(env, exprList[2]);
+  } catch (error) {
+    return handleError(env, "alias");
+  }
+}
+
+export function shallowCopyFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    env.set(
+      exprList[1].value as string,
+      env.get(exprList[2].value as string) as Obj
+    );
+    return evalExpr(env, exprList[2]);
+  } catch (error) {
+    return handleError(env, "shallow-copy");
+  }
+}
+
 export function listenFunc(env: Env, exprList: Expr[]): Obj {
   const listenTo = exprList[1].value as string;
   env.listen.set(listenTo, { cond: exprList[2], execWhat: exprList[3] });
@@ -1970,6 +1991,8 @@ const exprLiteralOpts: { [key: string]: Function } = {
   for_of: forOfFunc,
   extract_class: extractClassFunc,
   listen: listenFunc,
+  alias: aliasFunc,
+  "shallow-copy": shallowCopyFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
