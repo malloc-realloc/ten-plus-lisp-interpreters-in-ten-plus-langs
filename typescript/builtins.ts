@@ -184,6 +184,15 @@ function unshiftFunc(env: Env, ...args: Obj[]): Obj {
   }
 }
 
+function retFunc(env: Env, ...args: Obj[]): Obj {
+  try {
+    env.ret = true;
+    return args[0];
+  } catch (error) {
+    return handleError(env, "shift");
+  }
+}
+
 function SetFunc(env: Env, ...args: Obj[]): Obj {
   try {
     const out = new Set<Obj>();
@@ -2059,6 +2068,7 @@ const objOpts: { [key: string]: Function } = {
   toString: toStringFunc,
   className: classNameFunc,
   Set: SetFunc,
+  ret: retFunc,
 };
 
 // special operators works on expressions.

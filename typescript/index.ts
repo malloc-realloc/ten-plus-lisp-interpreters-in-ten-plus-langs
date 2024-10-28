@@ -308,13 +308,14 @@ const exprs: string[] = [
   // "(define a 1)",
   // "(listen a (2) (display a))",
   // "(update a 0)",
-  "(define a 1)",
-  "(alias a1 a)",
-  "(shallow-copy a2 a)",
-  "(a1)",
-  "(define a 2)",
-  "(a1)",
-  "(a2)",
+  // "(define a 1)",
+  // "(alias a1 a)",
+  // "(shallow-copy a2 a)",
+  // "(a1)",
+  // "(define a 2)",
+  // "(a1)",
+  // "(a2)",
+  "(define a 1)(ret 1)(display 2)",
 ];
 
 const globalEnv = new Env();

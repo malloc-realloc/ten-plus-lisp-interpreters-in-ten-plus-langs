@@ -32,6 +32,11 @@ export function evalExprs(env: Env, exprs: Expr[]): Obj {
   let obj: Obj = None_Obj;
   for (let i = 0; i < exprs.length; i++) {
     obj = evalExpr(env, exprs[i]);
+
+    if (env.ret) {
+      env.ret = false;
+      break;
+    }
   }
   return obj;
 }

@@ -22,7 +22,8 @@ export class Env extends Map<string, Obj> {
     { cond: Expr; execWhat: Expr }
   >();
   whenListening = false;
-  aliases: Map<string,string> = new Map<string,string>();
+  aliases: Map<string, string> = new Map<string, string>();
+  ret = false;
 
   cleanup() {
     this.functionDepth = 0;
@@ -75,7 +76,7 @@ export class Env extends Map<string, Obj> {
       }
 
       if (this.aliases.has(literal)) {
-        const v = this.get(this.aliases.get(literal) as string)
+        const v = this.get(this.aliases.get(literal) as string);
         return v;
       }
 
