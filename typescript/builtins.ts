@@ -1688,6 +1688,10 @@ function forFunc(env: Env, body: Expr[]): Obj {
       if (workingEnv.functionDepth < funcDepth) {
         return result;
       }
+
+      if (workingEnv.ret) {
+        return result;
+      }
     }
 
     return result;
@@ -1779,16 +1783,25 @@ export function ifFunc(env: Env, exprList: Expr[]): Obj {
 
 export function whileFunc(env: Env, exprList: Expr[]): Obj {
   try {
-    let condition: Obj = evalExpr(env, exprList[1]);
+    const newEnv = new Env();
+    newEnv.fatherEnv = env;
+
+    let condition: Obj = evalExpr(newEnv, exprList[1]);
     let result: Obj = None_Obj;
     while (
       !(condition === FALSE || condition === None_Obj || condition.value === 0)
     ) {
-      for (let i = 2; i < exprList.length - 1; i++) {
-        evalExpr(env, exprList[i]);
+      let out: Obj = None_Obj;
+      let broke = false;
+      for (let i = 2; i < exprList.length; i++) {
+        out = evalExpr(newEnv, exprList[i]);
+        if (newEnv.ret) {
+          broke = true;
+          break;
+        }
       }
-      result = evalExpr(env, exprList[exprList.length - 1]);
-      condition = evalExpr(env, exprList[1]);
+      if (!broke) condition = evalExpr(newEnv, exprList[1]);
+      else return out;
     }
     return result;
   } catch (error) {
