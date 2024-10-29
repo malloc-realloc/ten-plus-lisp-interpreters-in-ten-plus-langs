@@ -24,6 +24,7 @@ export class Env extends Map<string, Obj> {
   whenListening = false;
   aliases: Map<string, string> = new Map<string, string>();
   ret = false;
+  continued = false;
 
   cleanup() {
     this.functionDepth = 0;

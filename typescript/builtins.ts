@@ -1338,6 +1338,16 @@ export function aliasFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function continueFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const out = evalExpr(env, exprList[1]);
+    env.continued = true;
+    return out;
+  } catch (error) {
+    return handleError(env, "shallow-copy");
+  }
+}
+
 export function shallowCopyFunc(env: Env, exprList: Expr[]): Obj {
   try {
     env.set(
@@ -1642,59 +1652,32 @@ function atomAsEnvKey(expr: Expr): Obj {
 
 function forFunc(env: Env, body: Expr[]): Obj {
   try {
-    const condExpr: Expr = body[2];
-    const updateExpr: Expr = body[3];
+    const newEnv = new Env();
+    newEnv.fatherEnv = env;
 
-    let workingEnv = new Env();
-    for (let [key, value] of env) {
-      if (value !== undefined) workingEnv.set(key, value);
+    let out = evalExpr(newEnv, body[1]);
+    let cond = evalExpr(newEnv, body[2]);
+
+    while (!isTsLispFalse(cond)) {
+      let broke = false;
+      for (let i = 4; i < body.length; i++) {
+        out = evalExpr(newEnv, body[i]);
+        if (newEnv.ret) {
+          newEnv.ret = false;
+          broke = true;
+          break;
+        } else if (newEnv.continued) {
+          newEnv.continued = false;
+          break;
+        }
+      }
+
+      evalExpr(newEnv, body[3]);
+
+      if (broke) break;
     }
 
-    if (body.length < 5) throw error;
-
-    workingEnv.functionDepth = env.functionDepth + 1;
-
-    let result: Obj = None_Obj;
-    let funcDepth = workingEnv.functionDepth;
-    for (let i = 1; i < body.length; i++) {
-      switch (i) {
-        case 1:
-          result = evalExpr(workingEnv, body[i]);
-          break;
-
-        case 2:
-          result = evalExpr(workingEnv, body[i]);
-          if (isTsLispFalse(result)) {
-            i = body.length - 1;
-          }
-          break;
-
-        case 3:
-          break;
-
-        case body.length - 1:
-          result = evalExpr(workingEnv, body[i]);
-          if (!isTsLispFalse(evalExpr(workingEnv, body[2]))) {
-            evalExpr(workingEnv, body[3]);
-            i = 3;
-          }
-          break;
-
-        default:
-          result = evalExpr(workingEnv, body[i]);
-          break;
-      }
-
-      if (workingEnv.functionDepth < funcDepth) {
-        return result;
-      }
-
-      if (workingEnv.ret) {
-        return result;
-      }
-    }
-
-    return result;
+    return out;
   } catch (error) {
     return handleError(env, "for");
   }
@@ -1797,6 +1780,8 @@ export function whileFunc(env: Env, exprList: Expr[]): Obj {
         out = evalExpr(newEnv, exprList[i]);
         if (newEnv.ret) {
           broke = true;
+          break;
+        } else if (newEnv.continued) {
           break;
         }
       }
@@ -2015,6 +2000,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   listen: listenFunc,
   alias: aliasFunc,
   "shallow-copy": shallowCopyFunc,
+  continue: continueFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
