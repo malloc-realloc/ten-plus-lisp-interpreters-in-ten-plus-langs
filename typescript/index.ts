@@ -315,10 +315,11 @@ const exprs: string[] = [
   // "(define a 2)",
   // "(a1)",
   // "(a2)",
-  "(define d 1)(ret 1)(display 2)",
-  "(while d (define a 2)(if (d) (ret d)) (display 2) (update d (- d 1)))",
-  "(d)",
-  "(for (define a 3)(> a 0)(define a (- a 1)) (if (< a 2) (ret 100)) (display a))",
+  // "(define d 1)(ret 1)(display 2)",
+  // "(while d (define a 2)(if (d) (ret d)) (display 2) (update d (- d 1)))",
+  // "(d)",
+  // "(for (define a 3)(> a 0)(define a (- a 1)) (if (< a 2) (ret 100)) (display a))",
+  "(begin (display  2) (display 3))",
 ];
 
 const globalEnv = new Env();

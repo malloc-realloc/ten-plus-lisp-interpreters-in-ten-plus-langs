@@ -1338,6 +1338,21 @@ export function aliasFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function beginFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const newEnv = new Env();
+    newEnv.fatherEnv = env;
+
+    for (const expr of exprList.slice(1)) {
+      evalExpr(newEnv, expr);
+    }
+
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "shallow-copy");
+  }
+}
+
 export function continueFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const out = evalExpr(env, exprList[1]);
@@ -2001,6 +2016,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   alias: aliasFunc,
   "shallow-copy": shallowCopyFunc,
   continue: continueFunc,
+  begin: beginFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
@@ -2018,7 +2034,7 @@ const objOpts: { [key: string]: Function } = {
   "=": eqObjs,
   abs: absObj,
   display: display,
-  begin: begin,
+  // begin: begin,
   eval: evalExprObj,
   cdr: cdr,
   car: car,
