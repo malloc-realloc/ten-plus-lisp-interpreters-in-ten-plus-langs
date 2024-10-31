@@ -319,7 +319,9 @@ const exprs: string[] = [
   // "(while d (define a 2)(if (d) (ret d)) (display 2) (update d (- d 1)))",
   // "(d)",
   // "(for (define a 3)(> a 0)(define a (- a 1)) (if (< a 2) (ret 100)) (display a))",
-  "(begin (display  2) (display 3))",
+  // "(begin (display  2) (display 3))",
+  "(namespace space (c 2) (a 3))",
+  "(space::c)",
 ];
 
 const globalEnv = new Env();

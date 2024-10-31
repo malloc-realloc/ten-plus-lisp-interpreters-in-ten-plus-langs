@@ -1338,6 +1338,21 @@ export function aliasFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function namespaceFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const namespaceName = exprList[1].value as string;
+    for (let i = 2; i < exprList.length; i++) {
+      const declVarName = exprList[i].value[0] as string;
+      const value = evalExpr(env, exprList[i].value[1] as Expr);
+      env.set(`${namespaceName}::${declVarName}`, value);
+    }
+
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "namespace");
+  }
+}
+
 export function beginFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const newEnv = new Env();
@@ -2017,6 +2032,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "shallow-copy": shallowCopyFunc,
   continue: continueFunc,
   begin: beginFunc,
+  namespace: namespaceFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
