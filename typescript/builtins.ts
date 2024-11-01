@@ -1354,6 +1354,7 @@ export function mallocFunc(env: Env, exprList: Expr[]): Obj {
 export function freeFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const name = exprList[1].value as string;
+    (L_Heap.get(name) as Obj).value = null;
     L_Heap.delete(name);
 
     return None_Obj;
