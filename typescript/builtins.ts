@@ -22,7 +22,7 @@ import {
   StructInstanceObj,
   SetObj,
 } from "./obj";
-import { Env, loopOverLiteralExprs } from "./env";
+import { Env, L_Heap, loopOverLiteralExprs } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
 import { evalExpr, evalExprs, getFromEnv } from "./eval";
 import { handleError } from "./commons";
@@ -1338,6 +1338,30 @@ export function aliasFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function mallocFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const name = exprList[1].value as string;
+    const obj = evalExpr(env, exprList[2]);
+    L_Heap.set(name, obj);
+    env.set(name, obj);
+
+    return obj;
+  } catch (error) {
+    return handleError(env, "malloc");
+  }
+}
+
+export function freeFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const name = exprList[1].value as string;
+    L_Heap.delete(name);
+
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "free");
+  }
+}
+
 export function namespaceFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const namespaceName = exprList[1].value as string;
@@ -2033,6 +2057,8 @@ const exprLiteralOpts: { [key: string]: Function } = {
   continue: continueFunc,
   begin: beginFunc,
   namespace: namespaceFunc,
+  malloc: mallocFunc,
+  free: freeFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

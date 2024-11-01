@@ -3,6 +3,8 @@ import { Bool, None_Obj, Obj, ThrowError } from "./obj";
 import { Expr } from "./ast";
 import { evalExprs } from "./eval";
 
+export const L_Heap = new Map<string, Obj>();
+
 export class Env extends Map<string, Obj> {
   functionDepth: number = 0;
   hasFailed: boolean = false;
