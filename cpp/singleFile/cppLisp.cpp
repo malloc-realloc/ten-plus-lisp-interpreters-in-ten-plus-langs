@@ -2,150 +2,202 @@
 #include <cctype>
 #include <iostream>
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
 using namespace std;
-vector<char> keywords{'\"', ')', '('};
-unordered_map<string, function<double(double, double)>> addSubMulDiv = {
+
+class Obj;
+using ObjPtr = unique_ptr<Obj>;
+
+static const unordered_map<string, function<double(double, double)>> operators = {
     {"+", plus<double>()},
     {"-", minus<double>()},
     {"*", multiplies<double>()},
-    {"/", divides<double>()}};
+    {"/", divides<double>()}
+};
 
-class ObjBase {
+static const vector<char> keywords{'\"', ')', '('};
+
+class Obj {
 public:
-  virtual ~ObjBase() {} // Virtual destructor
+    virtual ~Obj() = default;
+    virtual string toString() const = 0;
+    virtual unique_ptr<Obj> clone() const = 0;
 };
 
-class DoubleObj: public ObjBase {
-  public:
-  double value;
-  DoubleObj(double v): value(v) {}
-};
-
-struct Env {
-  unordered_map<string, ObjBase> value;
-  Env *father;
-  bool end;
-  Env(Env *father) : father(father), end(false), value({}) {}
-
-  bool inEnv(const string &tok) {
-    if (value.find(tok) != value.end()) {
-      return true;
+class NumberObj : public Obj {
+public:
+    double value;
+    explicit NumberObj(double v) : value(v) {}
+    
+    string toString() const override {
+        return to_string(value);
     }
-    return (father != nullptr) && father->inEnv(tok);
-  }
-
-  ObjBase *get(const string &tok) {
-    auto it = value.find(tok);
-    if (it != value.end())
-      return &(it->second);
-    return father ? father->get(tok) : nullptr;
-  }
-
-  void set(const string &tok, ObjBase obj) { value[tok] = obj; }
+    
+    unique_ptr<Obj> clone() const override {
+        return make_unique<NumberObj>(value);
+    }
 };
 
-string getNextWord(size_t &i, const string expr) {
-  while (i < expr.size() && isspace(expr[i]))
-    i++;
-  if (i < expr.size() &&
-      find(keywords.begin(), keywords.end(), expr[i]) != keywords.end()) {
-    string result(1, expr[i++]);
-    return result;
-  }
-  string s = "";
-  while (i < expr.size() && !isspace(expr[i]) &&
-         !(expr[i] == '(' || expr[i] == ')')) {
-    s += (expr[i++]);
-  }
-  return s;
-}
-
-string getNextWordWithOutChangingIndex(size_t i, const string expr) {
-  while (i < expr.size() && isspace(expr[i]))
-    i++;
-  if (i < expr.size() &&
-      find(keywords.begin(), keywords.end(), expr[i]) != keywords.end()) {
-    string result(1, expr[i++]);
-    return result;
-  }
-  string s = "";
-  while (i < expr.size() && !isspace(expr[i]) &&
-         !(expr[i] == '(' || expr[i] == ')')) {
-    s += (expr[i++]);
-  }
-  return s;
-}
-
-string skipExpr(size_t &i, const string expr) {
-  string tok = getNextWord(i, expr);
-  if (tok != "(") {
-    return tok;
-  } else {
-    size_t l_minus_r = 1;
-    while (l_minus_r != 0) {
-      tok = getNextWord(i, expr);
-      if (tok == "(")
-        l_minus_r += 1;
-      else if (tok == ")")
-        l_minus_r -= 1;
+class StringObj : public Obj {
+public:
+    string value;
+    explicit StringObj(string v) : value(std::move(v)) {}
+    
+    string toString() const override {
+        return value;
     }
-    return tok;
-  }
+    
+    unique_ptr<Obj> clone() const override {
+        return make_unique<StringObj>(value);
+    }
+};
+
+class Env {
+private:
+    unordered_map<string, unique_ptr<Obj>> values;
+    Env* parent;
+
+public:
+    explicit Env(Env* p = nullptr) : parent(p) {}
+    
+    Env(const Env&) = delete;
+    Env& operator=(const Env&) = delete;
+    
+    Env(Env&&) = default;
+    Env& operator=(Env&&) = default;
+    
+    bool contains(const string& name) const {
+        return values.count(name) > 0 || (parent && parent->contains(name));
+    }
+
+    const Obj* get(const string& name) const {
+        auto it = values.find(name);
+        if (it != values.end()) {
+            return it->second.get();
+        }
+        return parent ? parent->get(name) : nullptr;
+    }
+
+    void set(const string& name, unique_ptr<Obj> value) {
+        values[name] = std::move(value);
+    }
+
+    unique_ptr<Obj> getClone(const string& name) const {
+        const Obj* obj = get(name);
+        return obj ? obj->clone() : nullptr;
+    }
+};
+
+
+string getNextToken(size_t& pos, const string& expr) {
+    while (pos < expr.size() && isspace(expr[pos])) {
+        pos++;
+    }
+
+    if (pos >= expr.size()) {
+        return "";
+    }
+
+    if (find(keywords.begin(), keywords.end(), expr[pos]) != keywords.end()) {
+        return string(1, expr[pos++]);
+    }
+
+    string token;
+    while (pos < expr.size() && !isspace(expr[pos]) && 
+           expr[pos] != '(' && expr[pos] != ')') {
+        token += expr[pos++];
+    }
+    return token;
 }
 
-DoubleObj evalExpr(Env *env, size_t &i, const string expr) {
-  string tok = getNextWord(i, expr);
-  // cout << tok << endl;
-  if (tok == "(") {
-    DoubleObj out = evalExpr(env, i, expr);
-    getNextWord(i, expr);
-    return out;
-  } else if (!tok.empty() && all_of(tok.begin(), tok.end(), ::isdigit)) {
-    return (stod(tok));
-  } else if (addSubMulDiv.find(tok) != addSubMulDiv.end()) {
-    auto opt = addSubMulDiv[tok];
-    vector<double> numberObjs{};
+unique_ptr<Obj> evalExpr(const Env& env, size_t& pos, const string& expr) {
+    string token = getNextToken(pos, expr);
+    
+    if (token.empty()) {
+        return nullptr;
+    }
+
+    if (token == "(") {
+        auto result = evalExpr(env, pos, expr);
+        return result;
+    }
+
+    if (!token.empty() && all_of(token.begin(), token.end(), 
+        [](char c) { return isdigit(c) || c == '.'; })) {
+        return make_unique<NumberObj>(stod(token));
+    }
+
+    if (operators.count(token) > 0) {
+        auto op = operators.at(token);
+        vector<double> numbers;
+        
+        while (true) {
+            auto nextObj = evalExpr(env, pos, expr);
+            if (!nextObj) break;
+            
+            if (auto* numObj = dynamic_cast<NumberObj*>(nextObj.get())) {
+                numbers.push_back(numObj->value);
+            }
+            
+            string next = getNextToken(pos, expr);
+            if (next == ")") break;
+            pos -= next.length();
+        }
+
+        if (numbers.empty()) {
+            return make_unique<NumberObj>(0);
+        }
+
+        double result = numbers[0];
+        for (size_t i = 1; i < numbers.size(); i++) {
+            result = op(result, numbers[i]);
+        }
+        return make_unique<NumberObj>(result);
+    }
+
+    if (token == "\"") {
+        string str;
+        while (pos < expr.size() && expr[pos] != '\"') {
+            str += expr[pos++];
+        }
+        return make_unique<StringObj>(str);
+    }
+
+    if (env.contains(token)) {
+        return env.getClone(token);
+    }
+
+    return make_unique<NumberObj>(0);
+}
+
+void repl() {
+    Env globalEnv;
+    
     while (true) {
-      auto out = evalExpr(env, i, expr);
-      numberObjs.push_back(out.value);
-      tok = getNextWordWithOutChangingIndex(i, expr);
-      // cout << tok << endl;
-      if (tok == ")")
-        break; // Break the loop if we reach closing parenthesis
+        cout << ">> ";
+        string expr;
+        getline(cin, expr);
+        
+        if (expr == "exit") break;
+        
+        try {
+            Env localEnv(&globalEnv);
+            
+            size_t pos = 0;
+            auto result = evalExpr(localEnv, pos, expr);
+            if (result) {
+                cout << result->toString() << endl;
+            }
+        } catch (const exception& e) {
+            cout << "Error: " << e.what() << endl;
+        }
     }
-    double outNumber = numberObjs[0];
-    // cout << numberObjs[0]->value;
-    for (size_t j = 1; j < numberObjs.size(); j++) {
-      outNumber = opt(outNumber, numberObjs[j]);
-    }
-    return (outNumber);
-  }
-
-  return 0;
-}
-
-void repl(Env *env) {
-  while (1) {
-    string expr = "( + 3 5 )";
-    vector<double> vec = {};
-    cout << ">> ";
-    // std::getline(std::cin, expr); // Read the entire line
-    size_t i = 0;
-    while (i < expr.size()) {
-      auto out = (evalExpr(env, i, expr));
-      vec.push_back(out.value);
-    }
-    for (auto elem : vec) {
-      cout << elem << endl;
-    }
-    break;
-  }
 }
 
 int main() {
-  Env env{nullptr};
-  repl(&env);
+    repl();
+    return 0;
 }
