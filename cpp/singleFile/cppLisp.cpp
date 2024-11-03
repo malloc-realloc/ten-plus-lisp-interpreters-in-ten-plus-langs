@@ -18,10 +18,10 @@ public:
   virtual ~ObjBase() {} // Virtual destructor
 };
 
-template <typename T> class Obj : public ObjBase {
-public:
-  T value;
-  Obj(T v) : value(v) {}
+class DoubleObj: public ObjBase {
+  public:
+  double value;
+  DoubleObj(double v): value(v) {}
 };
 
 struct Env {
@@ -96,11 +96,11 @@ string skipExpr(size_t &i, const string expr) {
   }
 }
 
-double evalExpr(Env *env, size_t &i, const string expr) {
+DoubleObj evalExpr(Env *env, size_t &i, const string expr) {
   string tok = getNextWord(i, expr);
   // cout << tok << endl;
   if (tok == "(") {
-    double out = evalExpr(env, i, expr);
+    DoubleObj out = evalExpr(env, i, expr);
     getNextWord(i, expr);
     return out;
   } else if (!tok.empty() && all_of(tok.begin(), tok.end(), ::isdigit)) {
@@ -110,7 +110,7 @@ double evalExpr(Env *env, size_t &i, const string expr) {
     vector<double> numberObjs{};
     while (true) {
       auto out = evalExpr(env, i, expr);
-      numberObjs.push_back((out));
+      numberObjs.push_back(out.value);
       tok = getNextWordWithOutChangingIndex(i, expr);
       // cout << tok << endl;
       if (tok == ")")
@@ -135,7 +135,8 @@ void repl(Env *env) {
     // std::getline(std::cin, expr); // Read the entire line
     size_t i = 0;
     while (i < expr.size()) {
-      vec.push_back(evalExpr(env, i, expr));
+      auto out = (evalExpr(env, i, expr));
+      vec.push_back(out.value);
     }
     for (auto elem : vec) {
       cout << elem << endl;
