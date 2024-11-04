@@ -47,7 +47,7 @@ public:
     explicit StringObj(string v) : value(std::move(v)) {}
     
     string toString() const override {
-        return value;
+        return "\"" + value + "\"";  // 修复字符串输出格式
     }
     
     unique_ptr<Obj> clone() const override {
@@ -91,7 +91,6 @@ public:
     }
 };
 
-
 string getNextToken(size_t& pos, const string& expr) {
     while (pos < expr.size() && isspace(expr[pos])) {
         pos++;
@@ -113,7 +112,7 @@ string getNextToken(size_t& pos, const string& expr) {
     return token;
 }
 
-unique_ptr<Obj> evalExpr(const Env& env, size_t& pos, const string& expr) {
+unique_ptr<Obj> evalExpr(Env& env, size_t& pos, const string& expr) {  // 修改为非const Env
     string token = getNextToken(pos, expr);
     
     if (token.empty()) {
@@ -122,12 +121,16 @@ unique_ptr<Obj> evalExpr(const Env& env, size_t& pos, const string& expr) {
 
     if (token == "(") {
         auto result = evalExpr(env, pos, expr);
+        getNextToken(pos, expr);  // 消耗右括号
         return result;
     }
 
-    if (!token.empty() && all_of(token.begin(), token.end(), 
-        [](char c) { return isdigit(c) || c == '.'; })) {
-        return make_unique<NumberObj>(stod(token));
+    if (!token.empty() && (isdigit(token[0]) || (token[0] == '-' && token.length() > 1))) {
+        try {
+            return make_unique<NumberObj>(stod(token));
+        } catch (...) {
+            return nullptr;
+        }
     }
 
     if (operators.count(token) > 0) {
@@ -163,14 +166,25 @@ unique_ptr<Obj> evalExpr(const Env& env, size_t& pos, const string& expr) {
         while (pos < expr.size() && expr[pos] != '\"') {
             str += expr[pos++];
         }
+        pos++;  
         return make_unique<StringObj>(str);
+    }
+
+    if (token == "define") {
+        string name = getNextToken(pos, expr);
+        auto value = evalExpr(env, pos, expr);
+        if (value) {
+            env.set(name, std::move(value));
+            return make_unique<StringObj>("Defined " + name);
+        }
+        return nullptr;
     }
 
     if (env.contains(token)) {
         return env.getClone(token);
     }
 
-    return make_unique<NumberObj>(0);
+    return nullptr;
 }
 
 void repl() {
@@ -184,10 +198,8 @@ void repl() {
         if (expr == "exit") break;
         
         try {
-            Env localEnv(&globalEnv);
-            
             size_t pos = 0;
-            auto result = evalExpr(localEnv, pos, expr);
+            auto result = evalExpr(globalEnv, pos, expr);  // 直接使用 globalEnv
             if (result) {
                 cout << result->toString() << endl;
             }
