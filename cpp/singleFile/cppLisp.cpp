@@ -47,7 +47,7 @@ public:
     explicit StringObj(string v) : value(std::move(v)) {}
     
     string toString() const override {
-        return "\"" + value + "\"";  // 修复字符串输出格式
+        return "\"" + value + "\"";  
     }
     
     unique_ptr<Obj> clone() const override {
@@ -112,19 +112,49 @@ string getNextToken(size_t& pos, const string& expr) {
     return token;
 }
 
-unique_ptr<Obj> evalExpr(Env& env, size_t& pos, const string& expr) {  // 修改为非const Env
+void skipExpr(size_t &pos, const string& expr) {
+    while (pos < expr.size() && isspace(expr[pos])) {
+        pos++;
+    }
+    
+    if (pos >= expr.size()) {
+        return;
+    }
+    
+    if (expr[pos] == '(') {
+        pos++; 
+        int bracketCount = 1;
+        
+        while (pos < expr.size() && bracketCount > 0) {
+            if (expr[pos] == '(') {
+                bracketCount++;
+            } else if (expr[pos] == ')') {
+                bracketCount--;
+            }
+            pos++;
+        }
+        
+        if (bracketCount > 0) {
+            throw runtime_error("Unmatched parentheses");
+        }
+    } else {
+        getNextToken(pos, expr);
+    }
+}
+
+ObjPtr evalExpr(Env& env, size_t& pos, const string& expr) {
     string token = getNextToken(pos, expr);
     
     if (token.empty()) {
         return nullptr;
     }
-
+    
     if (token == "(") {
         auto result = evalExpr(env, pos, expr);
         getNextToken(pos, expr);  // 消耗右括号
         return result;
     }
-
+    
     if (!token.empty() && (isdigit(token[0]) || (token[0] == '-' && token.length() > 1))) {
         try {
             return make_unique<NumberObj>(stod(token));
@@ -132,7 +162,7 @@ unique_ptr<Obj> evalExpr(Env& env, size_t& pos, const string& expr) {  // 修改
             return nullptr;
         }
     }
-
+    
     if (operators.count(token) > 0) {
         auto op = operators.at(token);
         vector<double> numbers;
@@ -149,18 +179,18 @@ unique_ptr<Obj> evalExpr(Env& env, size_t& pos, const string& expr) {  // 修改
             if (next == ")") break;
             pos -= next.length();
         }
-
+        
         if (numbers.empty()) {
             return make_unique<NumberObj>(0);
         }
-
+        
         double result = numbers[0];
         for (size_t i = 1; i < numbers.size(); i++) {
             result = op(result, numbers[i]);
         }
         return make_unique<NumberObj>(result);
     }
-
+    
     if (token == "\"") {
         string str;
         while (pos < expr.size() && expr[pos] != '\"') {
@@ -169,21 +199,41 @@ unique_ptr<Obj> evalExpr(Env& env, size_t& pos, const string& expr) {  // 修改
         pos++;  
         return make_unique<StringObj>(str);
     }
-
+    
     if (token == "define") {
         string name = getNextToken(pos, expr);
         auto value = evalExpr(env, pos, expr);
         if (value) {
-            env.set(name, std::move(value));
-            return make_unique<StringObj>("Defined " + name);
+            env.set(name, value->clone()); 
+            return value;
         }
         return nullptr;
     }
-
+    
+    if (token == "if") {
+        auto condition = evalExpr(env, pos, expr);
+        if (!condition) {
+            return nullptr;
+        }
+        
+        bool isTrue = false;
+        if (auto* numObj = dynamic_cast<NumberObj*>(condition.get())) {
+            isTrue = numObj->value != 0;
+        }
+        
+        if (!isTrue) {
+            skipExpr(pos, expr);
+            return make_unique<NumberObj>(0);
+        } else {
+            return evalExpr(env, pos, expr);
+            skipExpr(pos,expr);
+        }
+    }
+    
     if (env.contains(token)) {
         return env.getClone(token);
     }
-
+    
     return nullptr;
 }
 
