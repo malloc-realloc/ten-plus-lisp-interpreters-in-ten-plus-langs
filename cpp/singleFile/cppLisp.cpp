@@ -55,6 +55,31 @@ public:
     }
 };
 
+class LambdaObj : public Obj {
+public:
+    vector<string> params; 
+    string body;           
+    
+    LambdaObj(const vector<string>& params, const string& body) 
+        : params(params), body(body) {}
+
+    string toString() const override {
+        string result = "(lambda (";
+        for (size_t i = 0; i < params.size(); i++) {
+            if (i > 0) result += " ";
+            result += params[i];
+        }
+        result += ") ";
+        result += body;
+        result += ")";
+        return result;
+    }
+    
+    unique_ptr<Obj> clone() const override {
+        return make_unique<LambdaObj>(params, body);
+    }
+};
+
 class Env {
 private:
     unordered_map<string, unique_ptr<Obj>> values;
@@ -112,6 +137,15 @@ string getNextToken(size_t& pos, const string& expr) {
     return token;
 }
 
+string getNextToken(size_t& pos, const string& expr, const string& expected) {
+    string token = getNextToken(pos, expr);
+    if (token != expected) {
+        throw runtime_error("Syntax error: expected '" + expected + "', got '" + token + "'");
+    }
+    return token;
+}
+
+
 void skipExpr(size_t &pos, const string& expr) {
     while (pos < expr.size() && isspace(expr[pos])) {
         pos++;
@@ -151,7 +185,7 @@ ObjPtr evalExpr(Env& env, size_t& pos, const string& expr) {
     
     if (token == "(") {
         auto result = evalExpr(env, pos, expr);
-        getNextToken(pos, expr);  // 消耗右括号
+        getNextToken(pos, expr);  
         return result;
     }
     
@@ -229,9 +263,67 @@ ObjPtr evalExpr(Env& env, size_t& pos, const string& expr) {
             skipExpr(pos,expr);
         }
     }
-    
+
+    if (token == "lambda") {
+        token = getNextToken(pos, expr);  
+        if (token != "(") {
+            return nullptr;
+        }
+        
+        vector<string> params;
+        while (true) {
+            token = getNextToken(pos, expr);
+            if (token == ")") break;
+            if (token.empty()) return nullptr;
+            params.push_back(token);
+        }
+        
+        string body;
+        int parenCount = 0;
+        bool started = false;
+        
+        while (pos < expr.size()) {
+            char c = expr[pos];
+            if (c == '(') {
+                started = true;
+                parenCount++;
+                body += c;
+            } else if (c == ')') {
+                parenCount--;
+                body += c;
+                if (started && parenCount == 0) {
+                    pos++;
+                    break;
+                }
+            } else {
+                body += c;
+            }
+            pos++;
+        }
+        
+        return make_unique<LambdaObj>(params, body);
+    }
+
+  
     if (env.contains(token)) {
-        return env.getClone(token);
+        auto obj = env.getClone(token);
+        if (auto* lambda = dynamic_cast<LambdaObj*>(obj.get())) {
+            vector<unique_ptr<Obj>> args;
+            for (size_t i = 0; i < lambda->params.size(); i++) {
+                auto arg = evalExpr(env, pos, expr);
+                if (!arg) return nullptr;
+                args.push_back(std::move(arg));
+            }
+            
+            Env newEnv(&env);  
+            for (size_t i = 0; i < lambda->params.size(); i++) {
+                newEnv.set(lambda->params[i], args[i]->clone());
+            }
+            
+            size_t bodyPos = 0;
+            return evalExpr(newEnv, bodyPos, lambda->body);
+        }
+        return obj; 
     }
     
     return nullptr;
