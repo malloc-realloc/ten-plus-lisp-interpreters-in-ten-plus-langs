@@ -259,8 +259,9 @@ ObjPtr evalExpr(Env& env, size_t& pos, const string& expr) {
             skipExpr(pos, expr);
             return make_unique<NumberObj>(0);
         } else {
-            return evalExpr(env, pos, expr);
+            auto out =  evalExpr(env, pos, expr);
             skipExpr(pos,expr);
+            return out;
         }
     }
 
@@ -326,6 +327,7 @@ ObjPtr evalExpr(Env& env, size_t& pos, const string& expr) {
         return obj; 
     }
     
+    cout << "Invalid Input: " << token << endl;
     return nullptr;
 }
 
@@ -341,9 +343,11 @@ void repl() {
         
         try {
             size_t pos = 0;
-            auto result = evalExpr(globalEnv, pos, expr);  // 直接使用 globalEnv
-            if (result) {
-                cout << result->toString() << endl;
+            while (pos != expr.size()) {
+                auto result = evalExpr(globalEnv, pos, expr); 
+                if (result) {
+                    cout << result->toString() << endl;
+                }
             }
         } catch (const exception& e) {
             cout << "Error: " << e.what() << endl;
