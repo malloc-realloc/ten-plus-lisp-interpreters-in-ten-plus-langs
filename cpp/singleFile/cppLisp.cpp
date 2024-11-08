@@ -265,6 +265,62 @@ ObjPtr evalExpr(Env& env, size_t& pos, const string& expr) {
         }
     }
 
+    if (token == "while") {
+        auto conditionPosition = pos;
+        auto condition = evalExpr(env, pos, expr);
+        if (!condition) {
+            return nullptr;
+        }
+
+        bool isTrue = false;
+        if (auto* numObj = dynamic_cast<NumberObj*>(condition.get())) {
+            isTrue = numObj->value != 0;
+        }
+
+        auto bodyPosition = pos;
+        unique_ptr<Obj> lastResult;
+
+        while (isTrue) {
+            unique_ptr<Obj> bodyResult;
+            while (pos < expr.size()) {
+                auto result = evalExpr(env, pos, expr);
+                if (!result) {
+                    return nullptr;
+                }
+                bodyResult = std::move(result);
+
+                string next = getNextToken(pos, expr);
+                if (next == ")") {
+                    break;
+                }
+                pos -= next.length(); 
+            }
+            lastResult = std::move(bodyResult);
+
+            pos = conditionPosition;
+            condition = evalExpr(env, pos, expr);
+            if (!condition) {
+                return nullptr;
+            }
+
+            if (auto* numObj = dynamic_cast<NumberObj*>(condition.get())) {
+                isTrue = numObj->value != 0;
+            } else {
+                return nullptr;
+            }
+
+            if (isTrue) {
+                pos = bodyPosition;
+            }
+        }
+
+        if (!isTrue) {
+            skipExpr(pos, expr);
+        }
+
+        return lastResult ? std::move(lastResult) : make_unique<NumberObj>(0);
+    }
+
     if (token == "lambda") {
         token = getNextToken(pos, expr);  
         if (token != "(") {
