@@ -80,6 +80,19 @@ public:
     }
 };
 
+class VoidObj : public Obj {
+public:
+    VoidObj() = default;
+    
+    string toString() const override {
+        return "";  // Void objects don't print anything
+    }
+    
+    unique_ptr<Obj> clone() const override {
+        return make_unique<VoidObj>();
+    }
+};
+
 class Env {
 private:
     unordered_map<string, unique_ptr<Obj>> values;
@@ -98,6 +111,10 @@ public:
         return values.count(name) > 0 || (parent && parent->contains(name));
     }
 
+    bool containsLocal(const string& name) const {
+        return values.count(name) > 0;
+    }
+
     const Obj* get(const string& name) const {
         auto it = values.find(name);
         if (it != values.end()) {
@@ -113,6 +130,22 @@ public:
     unique_ptr<Obj> getClone(const string& name) const {
         const Obj* obj = get(name);
         return obj ? obj->clone() : nullptr;
+    }
+
+    // add setExisting so that set! works
+    bool setExisting(const string& name, unique_ptr<Obj> value) {
+        if (values.count(name) > 0) {
+            values[name] = std::move(value);
+            return true;
+        }
+        return parent ? parent->setExisting(name, std::move(value)) : false;
+    }
+
+    Env* findDefiningScope(const string& name) {
+        if (values.count(name) > 0) {
+            return this;
+        }
+        return parent ? parent->findDefiningScope(name) : nullptr;
     }
 };
 
@@ -136,15 +169,6 @@ string getNextToken(size_t& pos, const string& expr) {
     }
     return token;
 }
-
-string getNextToken(size_t& pos, const string& expr, const string& expected) {
-    string token = getNextToken(pos, expr);
-    if (token != expected) {
-        throw runtime_error("Syntax error: expected '" + expected + "', got '" + token + "'");
-    }
-    return token;
-}
-
 
 void skipExpr(size_t &pos, const string& expr) {
     while (pos < expr.size() && isspace(expr[pos])) {
@@ -243,6 +267,32 @@ ObjPtr evalExpr(Env& env, size_t& pos, const string& expr) {
         }
         return nullptr;
     }
+
+    if (token == "begin") {
+        unique_ptr<Obj> lastResult;
+        while (true) {
+            auto result = evalExpr(env, pos, expr);
+            if (!result) break;
+            lastResult = std::move(result);
+            
+            string next = getNextToken(pos, expr);
+            if (next == ")") break;
+            pos -= next.length();
+        }
+        return lastResult ? std::move(lastResult) : make_unique<VoidObj>();
+    }
+
+    if (token == "display") {
+        auto value = evalExpr(env, pos, expr);
+        if (value) {
+            if (auto* strObj = dynamic_cast<StringObj*>(value.get())) {
+                cout << strObj->value << endl;  // Print string without quotes
+            } else {
+                cout << value->toString() << endl;
+            }
+        }
+        return make_unique<VoidObj>();
+    }
     
     if (token == "if") {
         auto condition = evalExpr(env, pos, expr);
@@ -259,7 +309,7 @@ ObjPtr evalExpr(Env& env, size_t& pos, const string& expr) {
             skipExpr(pos, expr);
             return make_unique<NumberObj>(0);
         } else {
-            auto out =  evalExpr(env, pos, expr);
+            auto out = evalExpr(env, pos, expr);
             skipExpr(pos,expr);
             return out;
         }
@@ -361,7 +411,6 @@ ObjPtr evalExpr(Env& env, size_t& pos, const string& expr) {
         return make_unique<LambdaObj>(params, body);
     }
 
-  
     if (env.contains(token)) {
         auto obj = env.getClone(token);
         if (auto* lambda = dynamic_cast<LambdaObj*>(obj.get())) {
@@ -382,6 +431,67 @@ ObjPtr evalExpr(Env& env, size_t& pos, const string& expr) {
         }
         return obj; 
     }
+
+    if (token == "let") {
+        // Create new environment for let
+        Env newEnv(&env);
+        
+        // Read opening parenthesis for bindings
+        token = getNextToken(pos, expr);
+        if (token != "(") {
+            throw runtime_error("let: expected binding list");
+        }
+        
+        // Process bindings
+        while (true) {
+            token = getNextToken(pos, expr);
+            if (token == ")") break;
+            
+            if (token != "(") {
+                throw runtime_error("let: malformed binding");
+            }
+            
+            string varName = getNextToken(pos, expr);
+            auto value = evalExpr(env, pos, expr);  // Note: evaluate in outer env
+            if (!value) {
+                throw runtime_error("let: invalid binding value");
+            }
+            
+            newEnv.set(varName, std::move(value));
+            
+            // Skip closing parenthesis of this binding
+            getNextToken(pos, expr);
+        }
+        
+        // Evaluate body in new environment
+        unique_ptr<Obj> result;
+        while (true) {
+            auto expr_result = evalExpr(newEnv, pos, expr);
+            if (!expr_result) break;
+            result = std::move(expr_result);
+            
+            string next = getNextToken(pos, expr);
+            if (next == ")") break;
+            pos -= next.length();
+        }
+        
+        return result ? std::move(result) : make_unique<VoidObj>();
+    }
+
+    if (token == "set!") {
+        string name = getNextToken(pos, expr);
+        if (!env.contains(name)) {
+            throw runtime_error("set!: variable not defined: " + name);
+        }
+        auto value = evalExpr(env, pos, expr);
+        if (!value) {
+            throw runtime_error("set!: invalid value");
+        }
+        if (!env.setExisting(name, value->clone())) {
+            throw runtime_error("set!: variable not found: " + name);
+        }
+        return value;
+    }
     
     cout << "Invalid Input: " << token << endl;
     return nullptr;
@@ -401,7 +511,7 @@ void repl() {
             size_t pos = 0;
             while (pos != expr.size()) {
                 auto result = evalExpr(globalEnv, pos, expr); 
-                if (result) {
+                if (result && !dynamic_cast<VoidObj*>(result.get())) {
                     cout << result->toString() << endl;
                 }
             }
