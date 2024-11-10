@@ -9,7 +9,9 @@
 using namespace std;
 
 class Obj;
+class Env;
 using ObjPtr = unique_ptr<Obj>;
+ObjPtr evalExprs(Env &, size_t&, const string&, size_t end);
 
 static const unordered_map<string, function<double(double, double)>> operators = {
     {"+", plus<double>()},
@@ -493,8 +495,40 @@ ObjPtr evalExpr(Env& env, size_t& pos, const string& expr) {
         return value;
     }
     
+    if (token == "eval") {
+        // Evaluate the expression to get the string to be evaluated
+        auto stringObj = evalExpr(env, pos, expr);
+        if (!stringObj) {
+            throw runtime_error("eval: expression evaluated to null");
+        }
+        
+        // Check if the result is a StringObj
+        auto* strObj = dynamic_cast<StringObj*>(stringObj.get());
+        if (!strObj) {
+            throw runtime_error("eval: expression must evaluate to a string");
+        }
+        
+        // Get the new expression to evaluate
+        string newExpr = strObj->value;
+        size_t newPos = 0;
+        
+        // Evaluate the new expression
+        return evalExprs(env, newPos, newExpr, newExpr.size());
+    }
+    
     cout << "Invalid Input: " << token << endl;
     return nullptr;
+}
+
+ObjPtr evalExprs(Env &env, size_t& pos, const string& expr, size_t end) {
+    ObjPtr result = nullptr;
+    while (pos < end) {
+        result = evalExpr(env, pos, expr); 
+        if (result && !dynamic_cast<VoidObj*>(result.get())) {
+            cout << result->toString() << endl;
+        }
+    }
+    return result;
 }
 
 void repl() {
@@ -509,12 +543,13 @@ void repl() {
         
         try {
             size_t pos = 0;
-            while (pos != expr.size()) {
-                auto result = evalExpr(globalEnv, pos, expr); 
-                if (result && !dynamic_cast<VoidObj*>(result.get())) {
-                    cout << result->toString() << endl;
-                }
-            }
+            evalExprs(globalEnv, pos, expr, expr.size());
+            // while (pos != expr.size()) {
+            //     auto result = evalExpr(globalEnv, pos, expr); 
+            //     if (result && !dynamic_cast<VoidObj*>(result.get())) {
+            //         cout << result->toString() << endl;
+            //     }
+            // }
         } catch (const exception& e) {
             cout << "Error: " << e.what() << endl;
         }
