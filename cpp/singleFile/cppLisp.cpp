@@ -95,6 +95,34 @@ public:
     }
 };
 
+class ListObj : public Obj {
+public:
+    vector<unique_ptr<Obj>> elements;
+    
+    ListObj() = default;
+    
+    explicit ListObj(vector<unique_ptr<Obj>> elems) 
+        : elements(std::move(elems)) {}
+    
+    string toString() const override {
+        string result = "(";
+        for (size_t i = 0; i < elements.size(); i++) {
+            if (i > 0) result += " ";
+            result += elements[i]->toString();
+        }
+        result += ")";
+        return result;
+    }
+    
+    unique_ptr<Obj> clone() const override {
+        vector<unique_ptr<Obj>> newElements;
+        for (const auto& elem : elements) {
+            newElements.push_back(elem->clone());
+        }
+        return make_unique<ListObj>(std::move(newElements));
+    }
+};
+
 class Env {
 private:
     unordered_map<string, unique_ptr<Obj>> values;
@@ -515,6 +543,93 @@ ObjPtr evalExpr(Env& env, size_t& pos, const string& expr) {
         // Evaluate the new expression
         return evalExprs(env, newPos, newExpr, newExpr.size());
     }
+
+    if (token == "list") {
+        vector<unique_ptr<Obj>> elements;
+        while (true) {
+            auto elem = evalExpr(env, pos, expr);
+            if (!elem) break;
+            elements.push_back(std::move(elem));
+            
+            string next = getNextToken(pos, expr);
+            if (next == ")") break;
+            pos -= next.length();
+        }
+        return make_unique<ListObj>(std::move(elements));
+    }
+
+    if (token == "car") {
+        auto listObj = evalExpr(env, pos, expr);
+        if (!listObj) {
+            throw runtime_error("car: null argument");
+        }
+        
+        auto* list = dynamic_cast<ListObj*>(listObj.get());
+        if (!list || list->elements.empty()) {
+            throw runtime_error("car: not a list or empty list");
+        }
+        
+        return list->elements[0]->clone();
+    }
+
+    if (token == "cdr") {
+        auto listObj = evalExpr(env, pos, expr);
+        if (!listObj) {
+            throw runtime_error("cdr: null argument");
+        }
+        
+        auto* list = dynamic_cast<ListObj*>(listObj.get());
+        if (!list || list->elements.empty()) {
+            throw runtime_error("cdr: not a list or empty list");
+        }
+        
+        vector<unique_ptr<Obj>> remaining;
+        for (size_t i = 1; i < list->elements.size(); i++) {
+            remaining.push_back(list->elements[i]->clone());
+        }
+        return make_unique<ListObj>(std::move(remaining));
+    }
+
+    if (token == "cons") {
+        auto first = evalExpr(env, pos, expr);
+        if (!first) {
+            throw runtime_error("cons: first argument is null");
+        }
+        
+        auto second = evalExpr(env, pos, expr);
+        if (!second) {
+            throw runtime_error("cons: second argument is null");
+        }
+        
+        vector<unique_ptr<Obj>> elements;
+        elements.push_back(first->clone());
+        
+        if (auto* list = dynamic_cast<ListObj*>(second.get())) {
+            // If second argument is a list, append its elements
+            for (const auto& elem : list->elements) {
+                elements.push_back(elem->clone());
+            }
+        } else {
+            // If second argument is not a list, create a pair
+            elements.push_back(second->clone());
+        }
+        
+        return make_unique<ListObj>(std::move(elements));
+    }
+
+    if (token == "len") {
+        auto listObj = evalExpr(env, pos, expr);
+        if (!listObj) {
+            throw runtime_error("len: null argument");
+        }
+        
+        auto* list = dynamic_cast<ListObj*>(listObj.get());
+        if (!list) {
+            throw runtime_error("len: not a list");
+        }
+        
+        return make_unique<NumberObj>(static_cast<double>(list->elements.size()));
+    }
     
     cout << "Invalid Input: " << token << endl;
     return nullptr;
@@ -544,12 +659,6 @@ void repl() {
         try {
             size_t pos = 0;
             evalExprs(globalEnv, pos, expr, expr.size());
-            // while (pos != expr.size()) {
-            //     auto result = evalExpr(globalEnv, pos, expr); 
-            //     if (result && !dynamic_cast<VoidObj*>(result.get())) {
-            //         cout << result->toString() << endl;
-            //     }
-            // }
         } catch (const exception& e) {
             cout << "Error: " << e.what() << endl;
         }
