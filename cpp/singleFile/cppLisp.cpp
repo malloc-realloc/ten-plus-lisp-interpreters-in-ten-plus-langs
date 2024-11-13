@@ -18,7 +18,10 @@ static const unordered_map<string_view, function<double(double, double)>>
     operators = {{"+", plus<double>()},
                  {"-", minus<double>()},
                  {"*", multiplies<double>()},
-                 {"/", divides<double>()}};
+                 {"/", divides<double>()},
+                 {"==", [](double x, double y) { return x == y ? 1.0 : 0.0; }},
+                 {"!=", [](double x, double y) { return x != y ? 1.0 : 0.0; }}};
+
 
 static const vector<char> keywords{'\"', ')', '('};
 
