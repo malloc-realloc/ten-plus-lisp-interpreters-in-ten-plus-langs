@@ -464,8 +464,57 @@ ObjPtr evalExpr(Env &env, size_t &pos, const string_view expr) {
     return obj;
   }
 
-  // 其他函数实现...（let, set!, eval, list, car, cdr, cons, len）
-  // 使用相同的模式修改，主要是将string改为string_view
+  if (token == "+=") {
+      string_view objName = getNextToken(pos, expr);
+      string_view numberToken = getNextToken(pos, expr);
+
+      // Retrieve current value
+      auto oldObj = env.getClone(objName);
+      NumberObj* old = dynamic_cast<NumberObj*>(oldObj.get());
+      if (!old) {
+          throw runtime_error("+= requires a valid number variable");
+      }
+
+      // Parse the new number and add it to the old value
+      try {
+          double number = stod(string(numberToken));
+          double newValue = old->value + number;
+
+          // Set the updated value in the environment
+          env.set(objName, make_unique<NumberObj>(newValue));
+          return make_unique<NumberObj>(newValue);
+      } catch (const invalid_argument&) {
+          throw runtime_error("+= requires a valid numeric argument");
+      }
+  }
+
+    if (token == "*=") {
+      string_view objName = getNextToken(pos, expr);
+      string_view numberToken = getNextToken(pos, expr);
+
+      // Retrieve current value
+      auto oldObj = env.getClone(objName);
+      NumberObj* old = dynamic_cast<NumberObj*>(oldObj.get());
+      if (!old) {
+          throw runtime_error("*= requires a valid number variable");
+      }
+
+      // Parse the new number and add it to the old value
+      try {
+          double number = stod(string(numberToken));
+          double newValue = old->value * number;
+
+          // Set the updated value in the environment
+          env.set(objName, make_unique<NumberObj>(newValue));
+          return make_unique<NumberObj>(newValue);
+      } catch (const invalid_argument&) {
+          throw runtime_error("*= requires a valid numeric argument");
+      }
+  }
+
+
+
+
   if (token == "let") {
     Env newEnv(&env);
 
