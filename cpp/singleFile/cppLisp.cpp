@@ -233,6 +233,46 @@ ObjPtr evalExpr(Env &env, size_t &pos, const string_view expr) {
     return nullptr;
   }
 
+  if (token == "+=" || token == "-=" || token == "/=" || token == "*=") {
+      string_view objName = getNextToken(pos, expr);
+      string_view numberToken = getNextToken(pos, expr);
+
+      // Retrieve current value
+      auto oldObj = env.getClone(objName);
+      NumberObj* old = dynamic_cast<NumberObj*>(oldObj.get());
+      if (!old) {
+          throw runtime_error(string(token) + " requires a valid number variable");
+      }
+
+      // Parse the new number and perform the operation
+      try {
+          double number = stod(string(numberToken));
+          double newValue;
+
+          if (token == "+=") {
+              newValue = old->value + number;
+          } else if (token == "-=") {
+              newValue = old->value - number;
+          } else if (token == "/=") {
+              if (number == 0) {
+                  throw runtime_error("/= cannot divide by zero");
+              }
+              newValue = old->value / number;
+          } else if (token == "*=") {
+              newValue = old->value * number;
+          } else {
+              throw runtime_error("Unsupported operation: " + string(token));
+          }
+
+          // Set the updated value in the environment
+          env.set(objName, make_unique<NumberObj>(newValue));
+          return make_unique<NumberObj>(newValue);
+      } catch (const invalid_argument&) {
+          throw runtime_error(string(token) + " requires a valid numeric argument");
+      }
+  }
+
+
   if (token == "(") {
     auto result = evalExpr(env, pos, expr);
     getNextToken(pos, expr);
@@ -463,57 +503,6 @@ ObjPtr evalExpr(Env &env, size_t &pos, const string_view expr) {
     }
     return obj;
   }
-
-  if (token == "+=") {
-      string_view objName = getNextToken(pos, expr);
-      string_view numberToken = getNextToken(pos, expr);
-
-      // Retrieve current value
-      auto oldObj = env.getClone(objName);
-      NumberObj* old = dynamic_cast<NumberObj*>(oldObj.get());
-      if (!old) {
-          throw runtime_error("+= requires a valid number variable");
-      }
-
-      // Parse the new number and add it to the old value
-      try {
-          double number = stod(string(numberToken));
-          double newValue = old->value + number;
-
-          // Set the updated value in the environment
-          env.set(objName, make_unique<NumberObj>(newValue));
-          return make_unique<NumberObj>(newValue);
-      } catch (const invalid_argument&) {
-          throw runtime_error("+= requires a valid numeric argument");
-      }
-  }
-
-    if (token == "*=") {
-      string_view objName = getNextToken(pos, expr);
-      string_view numberToken = getNextToken(pos, expr);
-
-      // Retrieve current value
-      auto oldObj = env.getClone(objName);
-      NumberObj* old = dynamic_cast<NumberObj*>(oldObj.get());
-      if (!old) {
-          throw runtime_error("*= requires a valid number variable");
-      }
-
-      // Parse the new number and add it to the old value
-      try {
-          double number = stod(string(numberToken));
-          double newValue = old->value * number;
-
-          // Set the updated value in the environment
-          env.set(objName, make_unique<NumberObj>(newValue));
-          return make_unique<NumberObj>(newValue);
-      } catch (const invalid_argument&) {
-          throw runtime_error("*= requires a valid numeric argument");
-      }
-  }
-
-
-
 
   if (token == "let") {
     Env newEnv(&env);
