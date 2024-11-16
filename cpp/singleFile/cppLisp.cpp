@@ -613,6 +613,12 @@ ObjPtr evalExpr(Env &env, size_t &pos, const string_view expr) {
     throw runtime_error("len expects a list argument");
   }
 
+  if (token == "toString") {
+    auto value = evalExpr(env, pos, expr);
+    string_view sv(value->toString());
+    return make_unique<StringObj>(sv);
+  }
+
   cout << "Invalid Input: " << token << endl;
   return nullptr;
 }
