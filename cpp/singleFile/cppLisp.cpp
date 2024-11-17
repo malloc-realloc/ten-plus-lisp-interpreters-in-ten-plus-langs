@@ -563,7 +563,31 @@ ObjPtr evalExpr(Env &env, size_t &pos, const string_view expr) {
         break;
       pos -= next.length();
     }
+
     return make_unique<ListObj>(std::move(elements));
+  }
+
+  if (token == "get") {
+    auto listObj = evalExpr(env, pos, expr);
+    auto numberObj = evalExpr(env, pos, expr);
+    if (auto *list = dynamic_cast<ListObj *>(listObj.get())) {
+      if (!list->elements.empty()) {
+        auto *number = dynamic_cast<NumberObj *>(numberObj.get());
+        return list->elements[number->value]->clone();
+      }
+    }
+  }
+
+  if (token == "set_item") {
+    auto listObj = evalExpr(env, pos, expr);
+    auto numberObj = evalExpr(env, pos, expr);
+    if (auto *list = dynamic_cast<ListObj *>(listObj.get())) {
+      if (!list->elements.empty()) {
+        auto *number = dynamic_cast<NumberObj *>(numberObj.get());
+        list->elements[number->value] = evalExpr(env, pos, expr);
+        return nullptr;
+      }
+    }
   }
 
   if (token == "car") {
