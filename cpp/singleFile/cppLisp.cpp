@@ -176,24 +176,54 @@ public:
 };
 
 string_view getNextToken(size_t &pos, const string_view expr) {
-  while (pos < expr.size() && isspace(expr[pos])) {
-    pos++;
-  }
-
-  if (pos >= expr.size()) {
-    return "";
-  }
-
-  if (find(keywords.begin(), keywords.end(), expr[pos]) != keywords.end()) {
-    return expr.substr(pos++, 1);
-  }
-
-  size_t start = pos;
-  while (pos < expr.size() && !isspace(expr[pos]) && expr[pos] != '(' &&
-         expr[pos] != ')') {
-    pos++;
-  }
-  return expr.substr(start, pos - start);
+    // Skip whitespace
+    while (pos < expr.size() && isspace(expr[pos])) {
+        pos++;
+    }
+    
+    // End of string
+    if (pos >= expr.size()) {
+        return {};
+    }
+    
+    // Check for comment enclosed in backticks
+    if (expr[pos] == '`') {
+        // Find the closing backtick
+        size_t end = expr.find('`', pos + 1);
+        if (end != string_view::npos) {
+            // Skip entire comment and subsequent non-` characters
+            pos = end + 1;
+            while (pos < expr.size() && expr[pos] != '`') {
+                pos++;
+            }
+            
+            // Continue finding next token
+            while (pos < expr.size() && isspace(expr[pos])) {
+                pos++;
+            }
+            
+            if (pos >= expr.size()) {
+                return {};
+            }
+        }
+    }
+    
+    // Check for single-character tokens/keywords
+    if (find(keywords.begin(), keywords.end(), expr[pos]) != keywords.end()) {
+        return expr.substr(pos++, 1);
+    }
+    
+    // Extract multi-character token
+    size_t start = pos;
+    while (pos < expr.size() && 
+           !isspace(expr[pos]) && 
+           expr[pos] != '(' && 
+           expr[pos] != ')' && 
+           expr[pos] != '`') {
+        pos++;
+    }
+    
+    return expr.substr(start, pos - start);
 }
 
 void skipExpr(size_t &pos, const string_view expr) {
@@ -574,18 +604,6 @@ ObjPtr evalExpr(Env &env, size_t &pos, const string_view expr) {
       if (!list->elements.empty()) {
         auto *number = dynamic_cast<NumberObj *>(numberObj.get());
         return list->elements[number->value]->clone();
-      }
-    }
-  }
-
-  if (token == "set_item") {
-    auto listObj = evalExpr(env, pos, expr);
-    auto numberObj = evalExpr(env, pos, expr);
-    if (auto *list = dynamic_cast<ListObj *>(listObj.get())) {
-      if (!list->elements.empty()) {
-        auto *number = dynamic_cast<NumberObj *>(numberObj.get());
-        list->elements[number->value] = evalExpr(env, pos, expr);
-        return nullptr;
       }
     }
   }
