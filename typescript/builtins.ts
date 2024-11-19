@@ -1351,6 +1351,15 @@ export function mallocFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function varFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    env.varsMap.set(exprList[1].value as string, new Map<string, Obj>());
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "var");
+  }
+}
+
 export function freeFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const name = exprList[1].value as string;
@@ -2060,6 +2069,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   namespace: namespaceFunc,
   malloc: mallocFunc,
   free: freeFunc,
+  var: varFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

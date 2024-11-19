@@ -322,9 +322,10 @@ const exprs: string[] = [
   // "(begin (display  2) (display 3))",
   // "(namespace space (c 2) (a 3))",
   // "(space::c)",
-  "(malloc a 3)",
-  "(free a )",
-  "a",
+  // "(malloc a 3)",
+  // "(free a )",
+  // "a",
+  "(var a)",
 ];
 
 const globalEnv = new Env();
