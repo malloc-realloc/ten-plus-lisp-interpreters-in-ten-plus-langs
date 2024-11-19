@@ -326,6 +326,8 @@ const exprs: string[] = [
   // "(free a )",
   // "a",
   "(var a)",
+  "(var-bind a b 2)",
+  "(var-get a b)",
 ];
 
 const globalEnv = new Env();

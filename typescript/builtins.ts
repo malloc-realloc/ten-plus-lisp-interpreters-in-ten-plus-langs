@@ -1351,6 +1351,30 @@ export function mallocFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function varBindFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const field = env.varsMap.get(exprList[1].value as string);
+    const value = evalExpr(env, exprList[3]);
+
+    field?.set(exprList[2].value as string, value);
+    return value;
+  } catch (error) {
+    return handleError(env, "var-bind");
+  }
+}
+
+export function varGetFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const field = env.varsMap.get(exprList[1].value as string);
+
+    const out = field?.get(exprList[2].value as string);
+    if (out === undefined) return None_Obj;
+    else return out;
+  } catch (error) {
+    return handleError(env, "var-get");
+  }
+}
+
 export function varFunc(env: Env, exprList: Expr[]): Obj {
   try {
     env.varsMap.set(exprList[1].value as string, new Map<string, Obj>());
@@ -2070,6 +2094,8 @@ const exprLiteralOpts: { [key: string]: Function } = {
   malloc: mallocFunc,
   free: freeFunc,
   var: varFunc,
+  "var-bind": varBindFunc,
+  "var-get": varGetFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

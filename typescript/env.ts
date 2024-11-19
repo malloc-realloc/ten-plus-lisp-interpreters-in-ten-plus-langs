@@ -27,7 +27,7 @@ export class Env extends Map<string, Obj> {
   aliases: Map<string, string> = new Map<string, string>();
   ret = false;
   continued = false;
-  vars = new Map<string, Map<string, Obj>>();
+  varsMap = new Map<string, Map<string, Obj>>();
 
   cleanup() {
     this.functionDepth = 0;
