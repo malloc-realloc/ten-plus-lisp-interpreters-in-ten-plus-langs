@@ -28,6 +28,7 @@ export class Env extends Map<string, Obj> {
   ret = false;
   continued = false;
   varsMap = new Map<string, Map<string, Obj>>();
+  macroBinds = Array<[string, string, Obj]>();
 
   cleanup() {
     this.functionDepth = 0;

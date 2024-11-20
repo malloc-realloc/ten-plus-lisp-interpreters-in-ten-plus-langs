@@ -1363,6 +1363,19 @@ export function varBindFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function macroBindFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    env.macroBinds.push([
+      exprList[1].value as string,
+      exprList[2].value as string,
+      evalExpr(env, exprList[3]),
+    ]);
+    return None_Obj;
+  } catch {
+    return handleError(env, "macro-bind");
+  }
+}
+
 export function varGetFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const field = env.varsMap.get(exprList[1].value as string);
@@ -1378,6 +1391,15 @@ export function varGetFunc(env: Env, exprList: Expr[]): Obj {
 export function varFunc(env: Env, exprList: Expr[]): Obj {
   try {
     env.varsMap.set(exprList[1].value as string, new Map<string, Obj>());
+
+    for (const regexVarObjLst of env.macroBinds) {
+      const regex = new RegExp(regexVarObjLst[0]);
+      if (regex.test(exprList[1].value as string)) {
+        const map = env.varsMap.get(exprList[1].value as string);
+        map?.set(regexVarObjLst[1], regexVarObjLst[2]);
+      }
+    }
+
     return None_Obj;
   } catch (error) {
     return handleError(env, "var");
@@ -2096,6 +2118,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   var: varFunc,
   "var-bind": varBindFunc,
   "var-get": varGetFunc,
+  "macro-bind": macroBindFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
