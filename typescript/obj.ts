@@ -286,3 +286,9 @@ export class SetObj extends Obj {
     super(value);
   }
 }
+
+export class IncludeObj extends Obj {
+  constructor(public vars: string[], public macroString: string) {
+    super(null);
+  }
+}

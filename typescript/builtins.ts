@@ -1363,6 +1363,18 @@ export function varBindFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function includeFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const includeName = exprList[1].value[0] as string;
+    const vars: string[] = [...exprList[1].value] as string[];
+    vars.shift();
+
+    return None_Obj;
+  } catch {
+    return handleError(env, "#include");
+  }
+}
+
 export function macroBindFunc(env: Env, exprList: Expr[]): Obj {
   try {
     env.macroBinds.push([
@@ -2119,6 +2131,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "var-bind": varBindFunc,
   "var-get": varGetFunc,
   "macro-bind": macroBindFunc,
+  "#include": includeFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
