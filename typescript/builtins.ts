@@ -31,6 +31,7 @@ import { error } from "console";
 import { tokenize } from "./token";
 import { parseExprs } from "./parser";
 import { readFileSync } from "fs";
+import { NONAME } from "dns";
 
 type Number = IntNumber | FloatNumber;
 
@@ -1363,6 +1364,17 @@ export function varBindFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function removeFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const out = env.get(exprList[1].value as string);
+    if (out === undefined) throw Error();
+    env.delete(exprList[1].value as string);
+    return out;
+  } catch {
+    return handleError(env, "remove");
+  }
+}
+
 export function includeFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const includeName = exprList[1].value[0] as string;
@@ -2132,6 +2144,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "var-get": varGetFunc,
   "macro-bind": macroBindFunc,
   "#include": includeFunc,
+  remove: removeFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

@@ -325,12 +325,16 @@ const exprs: string[] = [
   // "(malloc a 3)",
   // "(free a )",
   // "a",
-  "(macro-bind ^a$ x 3)",
-  "(var a)",
-  "(var-bind a b 2)",
-  "(var-get a b)",
-  "(var-get a x)",
-  '(#include (f x y) "(if x y)")',
+  // "(macro-bind ^a$ x 3)",
+  // "(var a)",
+  // "(var-bind a b 2)",
+  // "(var-get a b)",
+  // "(var-get a x)",
+  // '(#include (f x y) "(if x y)")',
+  "(define a 2)",
+  "a",
+  "(remove a )",
+  "(a)",
 ];
 
 const globalEnv = new Env();
