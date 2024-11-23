@@ -21,6 +21,7 @@ import {
   ThrowError,
   StructInstanceObj,
   SetObj,
+  IncludeObj,
 } from "./obj";
 import { Env, L_Heap, loopOverLiteralExprs } from "./env";
 import { Atom, Expr, ExprType } from "./ast";
@@ -1364,6 +1365,34 @@ export function varBindFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function hashFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const includeName = exprList[1].value as string;
+    const argsAsExpr: Expr[] = exprList.slice(2);
+    const argsAsObj: Obj[] = argsAsExpr.map((e) => evalExpr(env, e));
+
+    const overrideVars: [string, Obj][] = [];
+    const includeObj = env.includes.get(includeName);
+    if (includeObj === undefined) return None_Obj;
+    for (const v of includeObj.vars) {
+      const previousValue = env.get(v);
+      if (previousValue !== undefined) {
+        overrideVars.push([v, previousValue]);
+      }
+    }
+
+    includeObj.vars.forEach((e, i) => env.set(e, argsAsObj[i]));
+
+    const result = evalExprs(env, includeObj.exprs);
+
+    overrideVars.forEach((e) => env.set(e[0], e[1]));
+
+    return result;
+  } catch {
+    return handleError(env, "hash");
+  }
+}
+
 export function removeFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const out = env.get(exprList[1].value as string);
@@ -1377,11 +1406,20 @@ export function removeFunc(env: Env, exprList: Expr[]): Obj {
 
 export function includeFunc(env: Env, exprList: Expr[]): Obj {
   try {
-    const includeName = exprList[1].value[0] as string;
-    const vars: string[] = [...exprList[1].value] as string[];
-    vars.shift();
+    const includeName = (exprList[1].value[0] as Expr).value as string;
+    (exprList[1].value as Expr[]).shift();
+    const vars: string[] = [];
+    while (exprList[1].value.length > 0) {
+      vars.push((exprList[1].value[0] as Expr).value as string);
+      (exprList[1].value as Expr[]).shift();
+    }
 
-    return None_Obj;
+    const stringAsObj = evalExpr(env, exprList[2]) as String_Obj;
+
+    const include = new IncludeObj(env, vars, stringAsObj.value);
+    env.includes.set(includeName, include);
+
+    return include;
   } catch {
     return handleError(env, "#include");
   }
@@ -2145,6 +2183,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "macro-bind": macroBindFunc,
   "#include": includeFunc,
   remove: removeFunc,
+  "#": hashFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

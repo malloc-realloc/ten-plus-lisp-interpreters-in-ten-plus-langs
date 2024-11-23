@@ -1,5 +1,5 @@
 import { handleError } from "./commons";
-import { Bool, None_Obj, Obj, ThrowError } from "./obj";
+import { Bool, IncludeObj, None_Obj, Obj, ThrowError } from "./obj";
 import { Expr } from "./ast";
 import { evalExprs } from "./eval";
 
@@ -29,7 +29,7 @@ export class Env extends Map<string, Obj> {
   continued = false;
   varsMap = new Map<string, Map<string, Obj>>();
   macroBinds = Array<[string, string, Obj]>();
-  includes = new Map<string, string>();
+  includes = new Map<string, IncludeObj>();
 
   cleanup() {
     this.functionDepth = 0;

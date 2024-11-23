@@ -330,11 +330,10 @@ const exprs: string[] = [
   // "(var-bind a b 2)",
   // "(var-get a b)",
   // "(var-get a x)",
-  // '(#include (f x y) "(if x y)")',
-  "(define a 2)",
-  "a",
-  "(remove a )",
-  "(a)",
+  '(#include (f x y) "x")',
+  "(define x 0)",
+  "(# f 1 2)",
+  "x",
 ];
 
 const globalEnv = new Env();

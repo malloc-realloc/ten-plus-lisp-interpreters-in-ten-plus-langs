@@ -1,5 +1,7 @@
 import { Expr, Atom } from "./ast";
 import { Env } from "./env";
+import { parseExpr, parseExprs } from "./parser";
+import { tokenize } from "./token";
 
 export enum ObjType {
   LIST_OBJ,
@@ -288,7 +290,11 @@ export class SetObj extends Obj {
 }
 
 export class IncludeObj extends Obj {
-  constructor(public vars: string[], public macroString: string) {
+  public exprs: Expr[];
+
+  constructor(env: Env, public vars: string[], public macroString: string) {
     super(null);
+    const tokens = tokenize(env, macroString);
+    this.exprs = parseExprs(tokens);
   }
 }
