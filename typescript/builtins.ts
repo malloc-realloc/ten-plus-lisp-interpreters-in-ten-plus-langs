@@ -33,6 +33,7 @@ import { tokenize } from "./token";
 import { parseExprs } from "./parser";
 import { readFileSync } from "fs";
 import { NONAME } from "dns";
+import { ExpressionCalculator } from "./normalCalculator";
 
 type Number = IntNumber | FloatNumber;
 
@@ -1365,6 +1366,19 @@ export function varBindFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function calculatorFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const exprStr = evalExpr(env, exprList[1]).value as string;
+    const calculator = new ExpressionCalculator(exprStr);
+    const expr = calculator.convert();
+    const result = calculator.evaluate(expr);
+
+    return new IntNumber(result);
+  } catch {
+    return handleError(env, "&");
+  }
+}
+
 export function hashFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const includeName = exprList[1].value as string;
@@ -2184,6 +2198,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "#include": includeFunc,
   remove: removeFunc,
   "#": hashFunc,
+  "&": calculatorFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
