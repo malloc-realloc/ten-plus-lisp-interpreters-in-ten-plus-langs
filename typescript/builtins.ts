@@ -1366,6 +1366,25 @@ export function varBindFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function viewFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    const lstObj: List_Obj = evalExpr(env, exprList[1]) as List_Obj;
+    const start = exprList[2].value as string;
+
+    let v: [] = [];
+    if (exprList.length === 4) {
+      const end = exprList[3].value as string;
+      v = lstObj.value.slice(Number(start), Number(end));
+    } else {
+      v = lstObj.value.slice(Number(start));
+    }
+
+    return new List_Obj(v);
+  } catch {
+    return handleError(env, "&");
+  }
+}
+
 export function calculatorFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const exprStr = evalExpr(env, exprList[1]).value as string;
@@ -2199,6 +2218,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   remove: removeFunc,
   "#": hashFunc,
   "&": calculatorFunc,
+  view: viewFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

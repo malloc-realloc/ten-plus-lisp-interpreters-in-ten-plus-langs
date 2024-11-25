@@ -334,7 +334,13 @@ const exprs: string[] = [
   // "(define x 0)",
   // "(# f 1 2)",
   // "x",
-  '(& "2+3*4")',
+  // '(& "2+3*4")',
+  "(define a (list 1 2 3 4))",
+  "(define b (view a 1 3) )",
+  "b",
+  "(set a 1 10)",
+  "b",
+  "a",
 ];
 
 const globalEnv = new Env();
