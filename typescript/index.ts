@@ -336,11 +336,14 @@ const exprs: string[] = [
   // "x",
   // '(& "2+3*4")',
   "(define a (list 1 2 3 4))",
-  "(define b (view a 1 3) )",
+  "(define b (view a 0 3) )",
   "b",
-  "(set a 1 10)",
+  "(set a 0 10)",
   "b",
   "a",
+  "(some a (lambda (x) (== x 1)))",
+  "(some b (lambda (y) (== y 1)))",
+  "(== 1 2)",
 ];
 
 const globalEnv = new Env();

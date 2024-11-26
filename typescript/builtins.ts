@@ -1366,6 +1366,40 @@ export function varBindFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+function someFunc(env: Env, args: Expr[]): Obj {
+  try {
+    let relatedFunc: Expr = args[2];
+    let index: string = "";
+    const relatedLst: Obj = env.getFromEnv(args[1].value as string) as Obj;
+    if (relatedLst.name === "List_Obj" && args[2].value === ",") {
+      relatedFunc = args[4];
+      index = args[3].value as string;
+    }
+
+    const opt = evalExpr(env, relatedFunc);
+
+    if (relatedLst instanceof List_Obj) {
+      for (let i = 0; i < (relatedLst.value as []).length; i++) {
+        const newEnv = new Env();
+        newEnv.fatherEnv = env;
+        if (index !== "") newEnv.set(index, new IntNumber(i));
+        const out = applyLambdaObjToObjs(newEnv, opt, [relatedLst.value[i]]);
+        if (!isTsLispFalse(out)) return new IntNumber(1);
+      }
+    } else if (relatedLst instanceof SetObj) {
+      for (let obj of relatedLst.value as Set<Obj>) {
+        // very bad way of evaluating, should use obj system instead of expr
+        const out = applyLambdaObjToObjs(env, opt, [obj.value]);
+        if (!isTsLispFalse(out)) return new IntNumber(1);
+      }
+    }
+
+    return None_Obj;
+  } catch (error) {
+    return handleError(env, "foreach");
+  }
+}
+
 export function viewFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const lstObj: List_Obj = evalExpr(env, exprList[1]) as List_Obj;
@@ -2219,6 +2253,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   "#": hashFunc,
   "&": calculatorFunc,
   view: viewFunc,
+  some: someFunc,
 };
 
 const objOpts: { [key: string]: Function } = {
