@@ -1,3 +1,4 @@
+import * as readline from "readline";
 import {
   AIObj,
   ArrayObj,
@@ -1378,6 +1379,22 @@ export function keysFunc(env: Env, exprList: Expr[]): Obj {
   }
 }
 
+export function expectFunc(env: Env, exprList: Expr[]): Obj {
+  try {
+    let out: Obj = None_Obj;
+    for (let i = 1; i < exprList.length; i++) {
+      out = evalExpr(env, exprList[i]);
+    }
+    if (isTsLispFalse(out)) {
+      return new IntNumber(0);
+    } else {
+      return new IntNumber(1);
+    }
+  } catch (error) {
+    return handleError(env, "expect");
+  }
+}
+
 export function valuesFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const dict = evalExpr(env, exprList[1]) as Dict_Obj;
@@ -2280,6 +2297,7 @@ const exprLiteralOpts: { [key: string]: Function } = {
   some: someFunc,
   keys: keysFunc,
   values: valuesFunc,
+  expect: expectFunc,
 };
 
 const objOpts: { [key: string]: Function } = {

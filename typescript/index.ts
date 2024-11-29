@@ -344,8 +344,11 @@ const exprs: string[] = [
   // "(some a (lambda (x) (== x 1)))",
   // "(some b (lambda (y) (== y 1)))",
   // "(== 1 2)",
-  '(keys (dict "a" 1))',
-  '(values (dict "a" 1))',
+  // '(keys (dict "a" 1))',
+  // '(values (dict "a" 1))',
+  "(define a 1)",
+  "(expect a)",
+  "(a)",
 ];
 
 const globalEnv = new Env();
