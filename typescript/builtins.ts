@@ -75,7 +75,7 @@ export function addObjs(env: Env, ...args: Obj[]): Obj {
         } else {
           return handleError(
             env,
-            "+ cannot be applied to objects with type except number, string",
+            "+ cannot be applied to objects with type except number, string"
           );
         }
       }
@@ -147,13 +147,30 @@ export function mulObjs(env: Env, ...args: NumberOrString[]): Obj {
       throw handleError(env, "At least one argument is required");
     }
 
+    // Special case: exactly two arguments, one number and one string
+    if (
+      args.length === 2 &&
+      ((typeof args[0].value === "number" &&
+        typeof args[1].value === "string") ||
+        (typeof args[0].value === "string" &&
+          typeof args[1].value === "number"))
+    ) {
+      const stringArg = args.find((arg) => typeof arg.value === "string")!;
+      const numberArg = args.find((arg) => typeof arg.value === "number")!;
+
+      let out = "";
+      for (let i = 0; i < numberArg.value; i++) {
+        out += stringArg.value;
+      }
+      return new String_Obj(out);
+    }
+
+    // Standard multiplication for other cases
     let result = 1;
     for (const arg of args) {
-      if (typeof arg.value === "string") {
-        return handleError(env, "* cannot be applied to strings");
-      }
       result *= arg.value;
     }
+
     return Number.isInteger(result)
       ? new IntNumber(result)
       : new FloatNumber(result);
@@ -262,7 +279,7 @@ function childFunc(env: Env, ...args: Obj[]): Obj {
 function sliceFunc(env: Env, ...args: Obj[]): Obj {
   try {
     const newLst = (args[0] as List_Obj).value.slice(
-      ...args.slice(1).map((e) => e.value as number),
+      ...args.slice(1).map((e) => e.value as number)
     );
     const res = new List_Obj(newLst);
     return res;
@@ -351,7 +368,7 @@ export function everyFunc(env: Env, ...args: Obj[]): Obj {
         funcObj.env,
         funcObj.argNames,
         funcObj.body as Expr[],
-        value,
+        value
       );
       if (!isTsLispFalse(r)) continue;
       else return None_Obj;
@@ -374,7 +391,7 @@ export function filterFunc(env: Env, ...args: Obj[]): Obj {
         funcObj.env,
         funcObj.argNames,
         funcObj.body as Expr[],
-        value,
+        value
       );
       if (!isTsLispFalse(r)) result.value.push(r);
     }
@@ -397,7 +414,7 @@ export function reduceFunc(env: Env, ...args: Obj[]): Obj {
         funcObj.argNames,
         funcObj.body as Expr[],
         start,
-        value,
+        value
       );
     }
 
@@ -522,8 +539,8 @@ export function mapFunc(env: Env, ...args: Obj[]): Obj {
           opt.env,
           opt.argNames,
           opt.body as Expr[],
-          lst.value[i],
-        ),
+          lst.value[i]
+        )
       );
     }
     return result;
@@ -657,7 +674,7 @@ export function begin(env: Env, ...args: Obj[]): Obj {
 export function cdr(env: Env, exprObj: ExprObj): Obj {
   try {
     return new ExprObj(
-      new Expr(ExprType.LST_EXPR, exprObj.value.value.slice(1)),
+      new Expr(ExprType.LST_EXPR, exprObj.value.value.slice(1))
     );
   } catch (error) {
     return handleError(env, "cdr");
@@ -671,11 +688,11 @@ export function car(env: Env, exprObj: ExprObj): Obj {
     } else {
       if (exprObj.value.value[0].type === ExprType.ATOM) {
         return new ExprObj(
-          new Expr(ExprType.ATOM, exprObj.value.value[0].value),
+          new Expr(ExprType.ATOM, exprObj.value.value[0].value)
         );
       } else {
         return new ExprObj(
-          new Expr(ExprType.LST_EXPR, exprObj.value.value[0].value),
+          new Expr(ExprType.LST_EXPR, exprObj.value.value[0].value)
         );
       }
     }
@@ -704,7 +721,7 @@ export function cons(env: Env, obj0: ExprObj, obj1: ExprObj): Obj {
         new Expr(ExprType.LST_EXPR, [
           new Expr(obj0.value.type, obj0.value.value),
           obj1.value.value,
-        ]),
+        ])
       );
     }
   } catch (error) {
@@ -866,7 +883,7 @@ function newFunc(env: Env, exprList: Expr[]): Obj {
     const res = evalExprStartingWithLambdaObj(
       structObj.env,
       structObj.init as Lambda_Procedure,
-      exprList,
+      exprList
     );
     return structObj;
   } catch (error) {
@@ -1006,7 +1023,7 @@ function foreachFunc(env: Env, args: Expr[]): Obj {
 export function defineSubClass(env: Env, exprList: Expr[]): Obj {
   try {
     let classProperties: Map<string, Obj> = env.classes.get(
-      exprList[1].value as string,
+      exprList[1].value as string
     ) as Map<string, Obj>;
     const subclassName: string = exprList[2].value as string;
 
@@ -1027,7 +1044,7 @@ export function defineSubClass(env: Env, exprList: Expr[]): Obj {
 export function getFromContainer(
   env: Env,
   obj1: List_Obj | Dict_Obj,
-  obj0: IntNumber | String_Obj,
+  obj0: IntNumber | String_Obj
 ): Obj {
   try {
     if (obj1 instanceof List_Obj) {
@@ -1037,7 +1054,7 @@ export function getFromContainer(
       if (obj1.value.length <= obj0.value) {
         throw handleError(
           env,
-          `index ${obj0.value} must be smaller than length of list ${obj1.value.length}`,
+          `index ${obj0.value} must be smaller than length of list ${obj1.value.length}`
         );
       }
       return obj1.value[obj0.value];
@@ -1058,7 +1075,7 @@ export function setContainer(
   env: Env,
   obj1: List_Obj | Dict_Obj,
   obj0: IntNumber | String_Obj,
-  value: Obj,
+  value: Obj
 ): Obj {
   try {
     if (obj1.type === ObjType.LIST_OBJ) {
@@ -1068,7 +1085,7 @@ export function setContainer(
       if (obj1.value.length <= obj0.value) {
         throw handleError(
           env,
-          `index ${obj0.value} must be smaller than length of list ${obj1.value.length}`,
+          `index ${obj0.value} must be smaller than length of list ${obj1.value.length}`
         );
       }
       obj1.value[obj0.value] = value;
@@ -1089,7 +1106,7 @@ export function setContainer(
 export function pushIntoContainer(
   env: Env,
   obj1: List_Obj | SetObj,
-  value: Obj,
+  value: Obj
 ): Obj {
   try {
     if (obj1 instanceof List_Obj) obj1.value.push(value);
@@ -1226,7 +1243,7 @@ export function randInt(env: Env, arg1: Obj, arg2: Obj): Obj {
     const min = Math.floor(Math.min(n1, n2));
     const max = Math.ceil(Math.max(n1, n2));
     const result = new IntNumber(
-      Math.floor(Math.random() * (max - min + 1) + min),
+      Math.floor(Math.random() * (max - min + 1) + min)
     );
     return result;
   } catch (error) {
@@ -1632,7 +1649,7 @@ export function shallowCopyFunc(env: Env, exprList: Expr[]): Obj {
   try {
     env.set(
       exprList[1].value as string,
-      env.get(exprList[2].value as string) as Obj,
+      env.get(exprList[2].value as string) as Obj
     );
     return evalExpr(env, exprList[2]);
   } catch (error) {
@@ -1716,7 +1733,7 @@ export function colonColonFunc(env: Env, exprList: Expr[]): Obj {
   try {
     const fatherFunc: Lambda_Procedure = evalExpr(
       env,
-      exprList[1],
+      exprList[1]
     ) as Lambda_Procedure;
     return evalExpr(fatherFunc.env, exprList[2]);
   } catch (error) {
@@ -1819,7 +1836,7 @@ export function call_method(env: Env, exprList: Expr[]): Obj {
     const obj: Obj = evalExprStartingWithLambdaObj(
       env,
       procedure,
-      exprList.slice(2),
+      exprList.slice(2)
     );
 
     env.popThis();
@@ -1855,13 +1872,13 @@ function orFunc(env: Env, ...objs: Obj[]): Obj {
 export function defineClassInstance(env: Env, exprList: Expr[]): Obj {
   try {
     const classObj: Map<string, Obj> = env.classes.get(
-      exprList[1].value as string,
+      exprList[1].value as string
     ) as Map<string, Obj>;
 
     const instance = new Instance_Obj(
       classObj as Map<string, Obj>,
       exprList[2].value as string,
-      exprList[1].value as string,
+      exprList[1].value as string
     );
     env.set(exprList[2].value as string, instance);
 
@@ -1874,7 +1891,7 @@ export function defineClassInstance(env: Env, exprList: Expr[]): Obj {
 export function setItem(env: Env, exprList: Expr[]): Obj {
   try {
     const instanceObj: Instance_Obj = env.getFromEnv(
-      exprList[1].value as string,
+      exprList[1].value as string
     ) as Instance_Obj;
     const result = evalExpr(env, exprList[3]);
     instanceObj.value.set(exprList[2].value, result);
@@ -1913,7 +1930,7 @@ function bind(env: Env, exprList: Expr[]): Obj {
       "LambdaObj",
       lambdaString,
       [] as Expr[],
-      body,
+      body
     );
     env.set(func_name, expressions);
     return expressions;
@@ -1980,7 +1997,7 @@ function updateVar(env: Env, exprList: Expr[]): Obj {
     }
 
     const procedure = env.get(
-      `_update_${exprList[1].value}`,
+      `_update_${exprList[1].value}`
     ) as Lambda_Procedure;
     if (procedure !== undefined) {
       evalProcedureValue(env, [], procedure.body as Expr[]);
@@ -2099,10 +2116,10 @@ function returnLambdaObj(env: Env, exprList: Expr[]): Obj {
     const func = new Lambda_Procedure(
       "LambdaObj",
       lambdaString,
-      argNames = argNames,
-      body = body,
-      env = env,
-      requirements,
+      (argNames = argNames),
+      (body = body),
+      (env = env),
+      requirements
     );
 
     return func;
@@ -2114,14 +2131,14 @@ function returnLambdaObj(env: Env, exprList: Expr[]): Obj {
 export function applyLambdaObjToObjs(
   env: Env,
   opt: Procedure,
-  parameters: Obj[],
+  parameters: Obj[]
 ): Obj {
   try {
     for (const item of (opt as Lambda_Procedure).requirements) {
       if (parameters[item[0]].name !== item[1]) {
         return handleError(
           env,
-          "type of function argument does not match requirement.",
+          "type of function argument does not match requirement."
         );
       }
     }
@@ -2131,7 +2148,7 @@ export function applyLambdaObjToObjs(
       env,
       (opt as Lambda_Procedure).argNames,
       (opt as Lambda_Procedure).body as Expr[],
-      ...parameters,
+      ...parameters
     );
     // } else {
     //   return handleError(env, "invalid use of procedure");
@@ -2144,7 +2161,7 @@ export function applyLambdaObjToObjs(
 export function evalExprStartingWithLambdaObj(
   env: Env,
   opt: Procedure,
-  exprList: Expr[],
+  exprList: Expr[]
 ): Obj {
   try {
     const parameters: Obj[] = [];
@@ -2156,7 +2173,7 @@ export function evalExprStartingWithLambdaObj(
       if (parameters[item[0]].name !== item[1]) {
         return handleError(
           env,
-          "type of function argument does not match requirement.",
+          "type of function argument does not match requirement."
         );
       }
     }
@@ -2166,7 +2183,7 @@ export function evalExprStartingWithLambdaObj(
       env,
       (opt as Lambda_Procedure).argNames,
       (opt as Lambda_Procedure).body as Expr[],
-      ...parameters,
+      ...parameters
     );
     // } else {
     //   return handleError(env, "invalid use of procedure");
@@ -2203,14 +2220,14 @@ function evalProcedureValue(
         if (argName.value[0] === "*") {
           env.set(
             argName.value.slice(1, argName.value.length),
-            args[index].copy(),
+            args[index].copy()
           );
         } else {
           env.set(argName.value, args[index]);
         }
       } else {
         console.error(
-          `Error: Invalid argument name type: ${typeof argName.value}`,
+          `Error: Invalid argument name type: ${typeof argName.value}`
         );
       }
     });
@@ -2398,8 +2415,8 @@ export function getMethodByUsingDot(env: Env, name: string): Obj {
   try {
     const names = name.split(".");
 
-    const relatedClassMethodsAndProperties: Map<string, Obj> | undefined = env
-      .classes.get((getFromEnv(env, names[0]) as Instance_Obj).className);
+    const relatedClassMethodsAndProperties: Map<string, Obj> | undefined =
+      env.classes.get((getFromEnv(env, names[0]) as Instance_Obj).className);
 
     if (!relatedClassMethodsAndProperties) throw error;
 

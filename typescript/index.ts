@@ -346,9 +346,11 @@ const exprs: string[] = [
   // "(== 1 2)",
   // '(keys (dict "a" 1))',
   // '(values (dict "a" 1))',
-  "(define a 1)",
-  "(expect a)",
-  "(a)",
+  // "(define a 1)",
+  // "(expect a)",
+  // "(a)",
+  '(* "abc" 3)',
+  '(* 3 "bac")',
 ];
 
 const globalEnv = new Env();
