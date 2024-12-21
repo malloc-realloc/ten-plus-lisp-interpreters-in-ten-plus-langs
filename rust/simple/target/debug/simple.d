@@ -1,0 +1,1 @@
+/Users/shenjiachen/Desktop/GeekGems/ten-plus-lisp-interpreters-in-ten-plus-langs/rust/simple/target/debug/simple: /Users/shenjiachen/Desktop/GeekGems/ten-plus-lisp-interpreters-in-ten-plus-langs/rust/simple/src/main.rs
